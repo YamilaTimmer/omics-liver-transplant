@@ -17,6 +17,10 @@ This is a logbook for the Omics liver transplant project. The goal of this proje
 ### Load libraries
 
 ```{r}
+library(tidyverse) # For data manipulation and visualization
+library(ggplot2) # For data visualization
+library(ggfortify) # For PCA visualization
+library(factoextra) # For PCA visualization
 ```
 
 ## Reading the Paper
@@ -35,7 +39,7 @@ PCA, Principal component analysis was used in this paper and will be used in our
 
 **Here is an example of a scree plot**
 
-```{r, fig.cap= Fig.1 - SCREE plot}
+```{r}
 # Drop the non-numerical column
 df <- iris[, -5]
 
@@ -45,6 +49,11 @@ pca <- prcomp(df, scale = TRUE)
 # Extract the eigenvalues from the PCA object
 eigenvalues <- pca$sdev^2
 
+summary(pca)
+```
+
+
+```{r, fig.cap= Fig.1 - SCREE plot}
 # Percentage of variance explained
 plot(eigenvalues/sum(eigenvalues), type = "b",
      xlab = "Principal Component",
@@ -63,8 +72,24 @@ what is an eigen value? It is a measure of the strength or importance of its cor
 If we use PC1 and PC2 from the PCA of the iris dataset we will have about 90% of the info of the original dataset this will be more then enough. After deciding how many PC's need to be used it is important to plot them using a scatterplot for example
 
 ```{r}
-
+iris.pca.plot <- autoplot(pca, 
+                          data = iris,
+                          frame = TRUE,
+                          colour = 'Species') 
+  
+iris.pca.plot
 ```
+Here a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the color indicates the species of the flower. The groups are show by taking all the most outside points and drawing a line around the rest of the dots.
+
+
+```{r, fig.cap= Fig.2 - Loading plot}}
+# Graph of the variables
+fviz_pca_var(pca, col.var = "black")
+```
+This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. Longer arrow means stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their close proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
+
+
+
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
