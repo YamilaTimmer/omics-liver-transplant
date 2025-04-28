@@ -29,9 +29,44 @@ To analyse the livers a multitude of samples were taken. Before the NMP 46 bile 
 
 The Bile, a very important part of this paper. But what is this bile? According too @boyer2013 bile consist out of a number of things \~95% of bile is water, Electrolyes, Organic Anions like Bile salts (Steroid/primary acids like cholic acid, chemodeoxcholic acid or secondary acids like deoxycholic acid and lithocholic acid) Lipids like cholesterol, Steroid hormons and estrogen. Proteins, peptides. heavy metals and others also are found in bile. For a more indepth look into what bile contains i would suggest reading table 1 in the @boyer2013 paper this gives the known composition of bile in most species.
 
-The BDI, BDI meaning Bile Duct Injury is a metric that shows how much damage the liver has baised on 4 criteria. These being the presence of vascular lesions (abnormal growth or malformations in the bloodvessel), stromal necrosis (Organ tissue/cell death), Injury to the periluminal peribiliary gland and injury to the deep peribiliary glands. Using these 4 criteria a score was made called "a total histological bile duct injury score" this score ranged from 2 being the lowest to 14 being the highest with the median being 7. Using this previously mentioned median the livers were diveded into 2 groups. High BDI and Low BDI using this group system a number of analysis were made like seeing if BDI had influence of biliary viability.
+The BDI, BDI meaning Bile Duct Injury is a metric that shows how much damage the liver has baised on 4 criteria. These being the presence of vascular lesions (abnormal growth or malformations in the bloodvessel), stromal necrosis (Organ tissue/cell death), Injury to the periluminal peribiliary gland and injury to the deep peribiliary glands. Using these 4 criteria a score was made called "a total histological bile duct injury score" this score ranged from 2 being the lowest to 14 being the highest with the median being 7. Using this previously mentioned median the livers were diveded into 2 groups. High BDI and Low BDI using this group system a number of analysis were made like seeing if BDI had influence of biliary viability and other analysises.
 
-[![Fig.1 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
+PCA, Principal component analysis was used in this paper and will be used in our research aswel. For this reason i made an explenation on how PCA works that is understandable for me and i will share here. PCA is an excelent tool to process datasets with a large ammount of factors. This is because when comparing factors you can only plot so many otherwise the dimensions would be too large and too difficult to zinterpret. Using PCA u can turn for examlpe 200 factors into 5 principal components (Principal components are ranked from most important to least important, meaning PRC1 will be more important then PCR3) To see how much info of the data set is explained within each principal component a SCREE plot could be used. This plot gives percentages on how much variance/info each PC contain
+
+**Here is an example of a scree plot**
+
+```{r, fig.cap= Fig.1 - SCREE plot}
+# Drop the non-numerical column
+df <- iris[, -5]
+
+# Perform PCA on the iris dataset
+pca <- prcomp(df, scale = TRUE)
+
+# Extract the eigenvalues from the PCA object
+eigenvalues <- pca$sdev^2
+
+# Percentage of variance explained
+plot(eigenvalues/sum(eigenvalues), type = "b",
+     xlab = "Principal Component",
+     ylab = "Percentage of Variance Explained")
+
+```
+
+In Fig 1 A scree plot was made of the PCA of the iris dataset
+
+The scree plot shows that the first two principal components explain the most variance in the data. The third and fourth principal components explain much less variance.
+
+Based on the scree plot, we can conclude that the first two principal components are sufficient for capturing the most important information in the data.
+
+what is an eigen value? It is a measure of the strength or importance of its corresponding Pricipal Component. A larger eigenvalue means the Principal Component captures more of the total variance in the data. The sum of all eigenvalues is equal to the total variance in the original dataset. The codes eigenvalues \<- psa\@sdev\^2 calculates the squared standard deviations, it's calculating these variances along the principal component directions, which are the eigenvalues of the data's coveriance/correlation matrix. These eigenvalues are needed for understanding how much information each PC retains for this in turn helps decide how many PC will be necersary to use.
+
+If we use PC1 and PC2 from the PCA of the iris dataset we will have about 90% of the info of the original dataset this will be more then enough. After deciding how many PC's need to be used it is important to plot them using a scatterplot for example
+
+```{r}
+
+```
+
+[![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
 ## Proteomics data
 
