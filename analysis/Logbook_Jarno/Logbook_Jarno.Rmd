@@ -88,7 +88,20 @@ fviz_pca_var(pca, col.var = "black")
 ```
 This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. Longer arrow means stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their close proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
 
+**applying PCA to the data**
+After reading the PCA that was done in the paper and exploring and explenation of different sides of a good PCA, i wrote down a small list of suggestions that we should keep in mind when we are doing our PCA. This being to first do a propper analysis of the data, this means looking at the data and seeing if there are any outliers or missing values. If there are outliers or missing values, we should remove them from the dataset. After this we should scale the data, this is important because PCA is sensitive to the scale of the data. If the data is not scaled, the PCA will be biased towards the variables with larger scales. After scaling we can do a PCA on the data and plot it using a scatterplot. This will give us a good overview of how the data looks like and if there are any patterns in it. After this we can do a loading plot to see how much each variable contributes to each principal component. This will help us understand which variables are important for the PCA and which ones are not.
 
+After this PCA, we should analyse the cluster groups by subsetting the data and looking at the different groups. This will help us understand how the different groups are related to each other and if there are any patterns in the data. After this we can do a correlation analysis to see how the different variables are related to each other. Also a heatmap can be made to see correlation. E
+
+ANOVA? 
+
+KEGG, 
+
+Diablo
+
+MOFA+
+
+Transcriptomics
 
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
