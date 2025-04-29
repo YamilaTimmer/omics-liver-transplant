@@ -32,6 +32,18 @@ Eerste paper - @boyer2013 - Informatie over "bile" en het belang er voor in de l
 
 Tweede paper - @singh2019 - Multi-omics omvat een groot aantal tools, Na analyse van verschillende tools zoals MoFA+, Multi-Anova en andere statistische tools leek Diablo mij erg interessant. Dit is om meerdere redenen, Diablo kan kijken naar verschillende omics waaronder Transcript- & proteomics wat in onze research paper de data is, en Diablo zoekt identificeert essentiele moleculaire stuurders.
 
-# Introductie - @boyer2013
+# Introductie - @boyer2013 - 
+
+Bile ook wel Gal, een bitter gele vloeistof die gemaakt word in de lever. Dit gal is essentieel voor de functie van het lichaam maar ook essentieel voor lever transplantatie. Een gal monster kan worden uitgelezen voor eiwit patronen wat de onderzoekers veel kan vertellen. Omdat gal ook een belangrijk onderdeel is van het gekozen hoofd onderzoek is het belangrijk om wat achtergrond info hierover te verkrijgen. Deze samenvatting zal gaan over wat de algemene functies zijn van gal, waaruit gal is opgemaakt en welke dingen in deze structuur belangrijk zijn voor het gekozen hoofd onderzoek, en nog wat extra dingen die het artikel @boyer2013 als belangrijk benoemd.
+
+**Wat is gal precies en waar word het gemaakt?**
+
+**Wat is de functie van gal?**
+
+**De terug koppeling tussen dit onderzoek en het gekozen hoofd onderzoek.**
+
+**Extra belangerijke info**
 
 # Introductie - @singh2019
+
+Multi-omics is een relatief nieuw veld de eerste publicaties kwamen uit 2006 waarna de publicaties per jaar in 2018-2020 fors steeg. Multi-omics is de vergelijking van meerdere data uit de verschillende omics velden met elkaar en hierin een link leggen. Neem bijvoorbeeld het linken van Genen (DNA-genomics) en de proteinen (proteomics) die zorgen voor problemen bij de patiënten. Dit kan nu gedaan worden met verschillende tools zoals MoFA+, Multi-Anova, of Diablo. In deze samenvatting ga ik het hebben over de Diablo tool. De diablo tool kijkt in het kort naar de verschillende datasets die het heeft gekregen en zoekt plus identificeert essentiele moleculaire stuurders. Deze kunnen dan in een na-analyse worden bekeken voor functie en of invloed op de patiënt.
