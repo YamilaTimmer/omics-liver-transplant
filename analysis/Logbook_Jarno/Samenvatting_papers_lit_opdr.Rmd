@@ -12,7 +12,17 @@ Voor het schrijven van een paper zul je je moeten verdiepen in de wetenschappeli
 
 Schrijf 2 samenvattingen over papers die gerelateerd zijn aan je onderzoeksopdracht.
 
-De samenvatting (geschreven in het Nederlands, zónder gebruik van AI) moet het volgende bevatten: -Eigen woorden (dus geen vertalingen van zinnen) -Introductie, waar je ook externe bronnen mag gebruiken om onbekende termen of technieken uit kan leggen. Hier beschrijf je de onderzoeksvraag en de leg je de (belangrijkste) methoden uit, eventueel met figuren -Beschrijf waarom de methode die auteurs hebben gekozen geschikt is voor dit onderzoek -Beschijf de belangrijkste resultaten en beschrijf ook minstens 1 figuur uit de resultaten -Een korte samenvatting van de eindconclusie (in eigen woorden)
+De samenvatting (geschreven in het Nederlands, zónder gebruik van AI) moet het volgende bevatten:
+
+-Eigen woorden (dus geen vertalingen van zinnen)
+
+-Introductie, waar je ook externe bronnen mag gebruiken om onbekende termen of technieken uit kan leggen. Hier beschrijf je de onderzoeksvraag en de leg je de (belangrijkste) methoden uit, eventueel met figuren
+
+-Beschrijf waarom de methode die auteurs hebben gekozen geschikt is voor dit onderzoek
+
+-Beschijf de belangrijkste resultaten en beschrijf ook minstens 1 figuur uit de resultaten
+
+-Een korte samenvatting van de eindconclusie (in eigen woorden)
 
 De samenvatting is géén abstract
 
@@ -22,6 +32,6 @@ Eerste paper - @boyer2013 - Informatie over "bile" en het belang er voor in de l
 
 Tweede paper - @singh2019 - Multi-omics omvat een groot aantal tools, Na analyse van verschillende tools zoals MoFA+, Multi-Anova en andere statistische tools leek Diablo mij erg interessant. Dit is om meerdere redenen, Diablo kan kijken naar verschillende omics waaronder Transcript- & proteomics wat in onze research paper de data is, en Diablo zoekt identificeert essentiele moleculaire stuurders.
 
-# Introductie
+# Introductie - @boyer2013
 
-Ik heb gekozen voor 2 specifieke onderwerpen die mij erg belangerijk leken nadat ik het onderzoeks artikel van ons project had gelezen. De twee onderwerpen zijn Bile ook wel Gal in het Nederlands en Multi-omics tools in dit geval Diablo
+# Introductie - @singh2019
