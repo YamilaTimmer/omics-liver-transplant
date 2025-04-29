@@ -2,11 +2,11 @@
 title: "Logbook Omics liver transplant"
 author: "Jarno Jacob Duiker"
 date: "2025-04-28"
-output: html_document
-    toc: true                    # Table of Contents
-    toc_float: true              # Floating TOC
-    code_folding: show           # Toggle code chunks
-    df_print: paged
+output: 
+    html_document:
+        toc: true                    # Table of Contents
+        toc_float: true              # Floating TOC
+        code_folding: show           # Toggle code chunks
 bibliography: bibliography.bib    # Path to your .bib file
 ---
 
@@ -16,7 +16,7 @@ This is a logbook for the Omics liver transplant project. The goal of this proje
 
 ### Load libraries
 
-```{r}
+```{r, include=FALSE}}
 library(tidyverse) # For data manipulation and visualization
 library(ggplot2) # For data visualization
 library(ggfortify) # For PCA visualization
@@ -53,7 +53,7 @@ summary(pca)
 ```
 
 
-```{r, fig.cap= Fig.1 - SCREE plot}
+```{r, fig.cap= "Fig.1 - SCREE plot"}
 # Percentage of variance explained
 plot(eigenvalues/sum(eigenvalues), type = "b",
      xlab = "Principal Component",
@@ -82,10 +82,11 @@ iris.pca.plot
 Here a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the color indicates the species of the flower. The groups are show by taking all the most outside points and drawing a line around the rest of the dots.
 
 
-```{r, fig.cap= Fig.2 - Loading plot}}
+```{r, fig.cap= "Fig.2 - Loading plot"}
 # Graph of the variables
 fviz_pca_var(pca, col.var = "black")
 ```
+
 This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. Longer arrow means stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their close proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
 
 **applying PCA to the data**
@@ -103,25 +104,28 @@ MOFA+
 
 Transcriptomics
 
+### Proposal for research question
+**Question** Can longer usage of NMP lead to benefits in preservation and functional assessment of Sub-optimal ECD livers?
+
+**Why?** The paper it self calls for this as an interesting question for research, the data this paper has provided can be used with the Diablo tool to see what proteins are 
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
 ## Proteomics data
 
-```{r}
+```{r, echo=FALSE, include = FALSE}
 data_proteomics <- read.delim("data/NMP_Bile_Proteomics_Report.txt", sep = "\t")
 data.frame(data_proteomics)
 head(data_proteomics)
 
 ```
 
-```{r}
+```{r, echo=FALSE, include = FALSE}
 colnames_proteomics <- names(data_proteomics)
 colnames_proteomics
 ```
 
-```{r}
+```{r, echo=FALSE, include = FALSE}
 summary(data_proteomics)
 ```
 
-x
