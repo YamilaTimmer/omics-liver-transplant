@@ -1,0 +1,14 @@
+% my_equations.tex
+\newcommand{\sGCCA}{
+    \begin{equation} \label{eq:odeleaflitter} \tag{1a}
+        \max_{\alpha_h^{(1)}, \dots, \alpha_h^{(Q)}}  
+        \sum_{\substack{i, j = 1 \\ i \ne j}}^{Q} c_{i,j} \cdot \operatorname{cov}\left( X_h^{(i)} \alpha_h^{(i)}, X_h^{(j)} \alpha_h^{(j)} \right)
+    \end{equation}
+}
+
+\newcommand{\sGCCAvoorwaarden}{
+\[
+\text{onder de voorwaarden:} \quad
+\|\alpha_h^{(q)}\|_2 = 1 \quad \text{en} \quad \|\alpha_h^{(q)}\|_1 \leq k^{(q)} \quad \text{voor alle } q = 1, \dots, Q
+\]
+}

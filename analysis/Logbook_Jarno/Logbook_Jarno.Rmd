@@ -1,22 +1,23 @@
 ---
-title: "Logbook Omics liver transplant"
-author: "Jarno Jacob Duiker"
-date: "2025-04-28"
 output: 
-    html_document:
-        toc: true                    # Table of Contents
-        toc_float: true              # Floating TOC
-        code_folding: show           # Toggle code chunks
+    bookdown::pdf_document2:
+        toc: true            
+        toc_depth: 3         
+        toc_float: true      
+        includes: 
+            in_header: logbook_subfiles/import.tex
+            before_body: logbook_subfiles/before_body.tex
 bibliography: bibliography.bib    # Path to your .bib file
 ---
 
-### Introduction
+
+# Introduction
 
 This is a logbook for the Omics liver transplant project. The goal of this project is to perform a PCA on both the proteomics data and RNA transcriptomics data, and find a link.
 
-### Load libraries
+## Load libraries
 
-```{r, include=FALSE}}
+```{r, include=FALSE}
 library(tidyverse) # For data manipulation and visualization
 library(ggplot2) # For data visualization
 library(ggfortify) # For PCA visualization
@@ -100,6 +101,10 @@ KEGG,
 
 Diablo
 
+
+\sGCCA
+
+
 MOFA+
 
 Transcriptomics
@@ -111,7 +116,7 @@ Transcriptomics
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
-## Proteomics data
+# Proteomics data
 
 ```{r, echo=FALSE, include = FALSE}
 data_proteomics <- read.delim("data/NMP_Bile_Proteomics_Report.txt", sep = "\t")
