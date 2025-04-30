@@ -38,12 +38,23 @@ Bile ook wel Gal, een bitter gele vloeistof die gemaakt word in de lever. Dit ga
 
 **Wat is gal precies en waar word het gemaakt?**
 
-Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, Gal zouten bestaan uit Steroïden zuren, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur.
 **Wat is de functie van gal?**
+Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur. Ook bevat gal Lipiden zoals cholesterol en steroïde hormonen. Nucleotiden zoals ATP, ADP en AMP zijn ook terug te vinden waardoor er te zien is hoeveel energie bepaalde functies nodig hebben. Ook te vinden in gal zijn, Eiwitten, Plasma eiwitten, Albumine, Haptoglobine, Immunoglobine A, Apo-transferrin, Feromonen, Prolactine, Insuline. Het is de paper niet precies aangegeven hoeveel hiervan aanwezig is maar er word bij de **Bile/plasma ratio** Wel een \<1 of \>1 aangegeven. Andere stoffen die in bile kunnen zitten zijn Hepatocyte eiwitten, Alkaline fosfaat, Zuur fosfaat, N-acetyl-β-glucosaminidase, β-glucuronidase, β-galactosidase, 5'-nucleotidase, Peptiden en aminozuren (GSH, GSSG, Cystinyl glycine, Glutamic zuur, Cysteine, FGF19, Asparatic zuur, Glycine) Zware metalen (Koper, Mangaan, Ijzer, Zink), En vitamines zoals 25-OH vitamine D, Cyanocobalamin, Riboflavin en Folate.
 
-**De terug koppeling tussen dit onderzoek en het gekozen hoofd onderzoek.**
+**Welke stoffen zijn belangerijk voor ons?**
 
-**Extra belangerijke info**
+De organische en anorganische opgeloste stoffen genoemd in **Wat is gal precies en waar word het gemaakt?** zijn enorm veel en zijn niet allemaal essentieel voor ons om te weten. Ons onderzoek kijkt naar Transcriptomics data en Proteomics data wat dus betekent dat dingen zoals zware metalen, en andere stoffen die niet door het lichaam gemaakt worden dus niet meegenomen hoeven te worden. Dit is omdat ze niet te linken zijn aan onze data.
+
+**Methode**
+
+Dit artikel is een review-artikel, dit betekent het dus integenstelling tot een traditioneel artikel dat het geen materiaal en methode sectie bevat. Echter bespreekt het wel de methoden van de onderzoeken waarnaar het verwijst. Het vat dus bestaande kennis samen uit diverse andere studies die samen een doel berijken een complete uitleg over Gal formatie en afscheiding.
+
+**Resultaten**
+
+**Eind conclusie**
+
+Gal formatie en secretie is een vitale functie voor de lever en het lichaam, er kunnen veel dingen uit gal gehaald worden die belangerijke processen en ziekten kunnen uitleggen doormiddel van multiomics en gal analyse. Dit review paper laat alle basis dingen tot complexe dingen zien die je moet weten over gal.
+
 
 # Introductie - @singh2019
 
