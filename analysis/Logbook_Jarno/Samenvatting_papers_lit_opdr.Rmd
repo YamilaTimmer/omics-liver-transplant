@@ -1,8 +1,8 @@
 ---
 title: "Samenvatting - papers"
 author: "Jarno Jacob Duiker"
-date: "2025-04-28"
-output: html_document
+date: 
+output: pdf_document
 bibliography: bibliography.bib
 ---
 
@@ -34,22 +34,27 @@ Tweede paper - @singh2019 - Multi-omics omvat een groot aantal tools, Na analyse
 
 # Introductie - @boyer2013 - 
 
-Bile ook wel Gal, een bitter gele vloeistof die gemaakt word in de lever. Dit gal is essentieel voor de functie van het lichaam maar ook essentieel voor lever transplantatie. Een gal monster kan worden uitgelezen voor eiwit patronen wat de onderzoekers veel kan vertellen. Omdat gal ook een belangrijk onderdeel is van het gekozen hoofd onderzoek is het belangrijk om wat achtergrond info hierover te verkrijgen. Deze samenvatting zal gaan over wat de algemene functies zijn van gal, waaruit gal is opgemaakt en welke dingen in deze structuur belangrijk zijn voor het gekozen hoofd onderzoek, en nog wat extra dingen die het artikel @boyer2013 als belangrijk benoemd. Het artikel komt uit een tijdschrift genaamd "Comprehensive Physiology" Dit tijdschrift publiceerd artikelen in het interdisciplenaire vled van inter-orgaan communicatie in gezeondheid en ziekte. Onderwerpen die dit tijdschrijft behandeld zijn inter-orgaan cellulaire communicatie, signaal paden, orgaan overspraak, systeem biologie, inter-orgaan pathologie en pathogenesis, de rol van hormonen en neurotransmitters. Het tijdschrift heeft naast artikelen ook reviews en editorials @comprehe . Dit is belangrijk om te zien of het artikel wel van kwaliteit is. Artikelen die gepubliceerd zijn in Tijdschrijften moeten langs een keuring van wetenschaps journalisten waardoor het artikel betrouwbaarder is.
-
-**Wat is gal precies en waar word het gemaakt?**
-
-**Wat is de functie van gal?**
-Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur. Ook bevat gal Lipiden zoals cholesterol en steroïde hormonen. Nucleotiden zoals ATP, ADP en AMP zijn ook terug te vinden waardoor er te zien is hoeveel energie bepaalde functies nodig hebben. Ook te vinden in gal zijn, Eiwitten, Plasma eiwitten, Albumine, Haptoglobine, Immunoglobine A, Apo-transferrin, Feromonen, Prolactine, Insuline. Het is de paper niet precies aangegeven hoeveel hiervan aanwezig is maar er word bij de **Bile/plasma ratio** Wel een \<1 of \>1 aangegeven. Andere stoffen die in bile kunnen zitten zijn Hepatocyte eiwitten, Alkaline fosfaat, Zuur fosfaat, N-acetyl-β-glucosaminidase, β-glucuronidase, β-galactosidase, 5'-nucleotidase, Peptiden en aminozuren (GSH, GSSG, Cystinyl glycine, Glutamic zuur, Cysteine, FGF19, Asparatic zuur, Glycine) Zware metalen (Koper, Mangaan, Ijzer, Zink), En vitamines zoals 25-OH vitamine D, Cyanocobalamin, Riboflavin en Folate.
-
-**Welke stoffen zijn belangerijk voor ons?**
-
-De organische en anorganische opgeloste stoffen genoemd in **Wat is gal precies en waar word het gemaakt?** zijn enorm veel en zijn niet allemaal essentieel voor ons om te weten. Ons onderzoek kijkt naar Transcriptomics data en Proteomics data wat dus betekent dat dingen zoals zware metalen, en andere stoffen die niet door het lichaam gemaakt worden dus niet meegenomen hoeven te worden. Dit is omdat ze niet te linken zijn aan onze data.
+Bile ook wel Gal, een bitter gele vloeistof die gemaakt word in de lever. Het doel van dit review artikel is de historische mijlpalen in ontwikkeling te bespreken en de meest recente kennis over alle benoemde onderwerpen van het Gastro-enterologieveld samen te vatten. Gal is essentieel voor de functie van het lichaam maar ook essentieel voor lever transplantatie. Een gal monster kan worden uitgelezen voor eiwit patronen wat de onderzoekers veel kan vertellen. Omdat gal ook een belangrijk onderdeel is van het gekozen hoofd onderzoek is het belangrijk om wat achtergrond info hierover te verkrijgen. Deze samenvatting zal gaan over wat de algemene functies zijn van gal, waaruit gal is opgemaakt en welke dingen in deze structuur belangrijk zijn voor het gekozen hoofd onderzoek, en nog wat extra dingen die het artikel @boyer2013 als belangrijk benoemd. Het artikel komt uit een tijdschrift genaamd "Comprehensive Physiology" Dit tijdschrift publiceerd artikelen in het interdisciplenaire vled van inter-orgaan communicatie in gezeondheid en ziekte. Onderwerpen die dit tijdschrijft behandeld zijn inter-orgaan cellulaire communicatie, signaal paden, orgaan overspraak, systeem biologie, inter-orgaan pathologie en pathogenesis, de rol van hormonen en neurotransmitters. Het tijdschrift heeft naast artikelen ook reviews en editorials @comprehe . Dit is belangrijk om te zien of het artikel wel van kwaliteit is. Artikelen die gepubliceerd zijn in Tijdschrijften moeten langs een keuring van wetenschaps journalisten waardoor het artikel betrouwbaarder is.
 
 **Methode**
 
-Dit artikel is een review-artikel, dit betekent het dus integenstelling tot een traditioneel artikel dat het geen materiaal en methode sectie bevat. Echter bespreekt het wel de methoden van de onderzoeken waarnaar het verwijst. Het vat dus bestaande kennis samen uit diverse andere studies die samen een doel berijken een complete uitleg over Gal formatie en afscheiding.
+De reden om deze methode te gebruiken inplaats van een nieuw experiment te starten is omdat het doel was om alle informatie te verzamelen en op 1 plek samen te vatten met correcte referenties. Hierdoor is het voor andere onderzoekers makkelijker om de correcte informatie te vinden inplaats van meerdere papers lezen voor kleine delen informatie.
 
 **Resultaten**
+
+In de resultaten noem ik de belangerijkste punten op per onderwerp van de review.
+
+*Wat is gal?*
+
+Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur. Ook bevat gal Lipiden zoals cholesterol en steroïde hormonen. Nucleotiden zoals ATP, ADP en AMP zijn ook terug te vinden waardoor er te zien is hoeveel energie bepaalde functies nodig hebben. Ook te vinden in gal zijn, Eiwitten, Plasma eiwitten, Albumine, Haptoglobine, Immunoglobine A, Apo-transferrin, Feromonen, Prolactine, Insuline. Het is de paper niet precies aangegeven hoeveel hiervan aanwezig is maar er word bij de **Bile/plasma ratio** Wel een \<1 of \>1 aangegeven. Andere stoffen die in bile kunnen zitten zijn Hepatocyte eiwitten, Alkaline fosfaat, Zuur fosfaat, N-acetyl-β-glucosaminidase, β-glucuronidase, β-galactosidase, 5'-nucleotidase, Peptiden en aminozuren (GSH, GSSG, Cystinyl glycine, Glutamic zuur, Cysteine, FGF19, Asparatic zuur, Glycine) Zware metalen (Koper, Mangaan, Ijzer, Zink), En vitamines zoals 25-OH vitamine D, Cyanocobalamin, Riboflavin en Folate.
+
+*Uitleg figuur 10*
+
+![](images/clipboard-299226549.png)
+
+Dit figuur beschrijft de Hormonale regulatie van cholangiocyte HCO3- afscheiding gebaseerd op studies van rat-achtigen.
+
+Cholangiocyten spelen een belangerijke rol bij de verdunning en alkanisatie van gal geproduceerd door de lever. Dit doen ze door bicarbonaat (HCO3- ) af te geven aan het gal.
 
 **Eind conclusie**
 
