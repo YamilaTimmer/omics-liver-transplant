@@ -48,6 +48,20 @@ In de resultaten noem ik de belangerijkste punten op per onderwerp van de review
 
 Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur. Ook bevat gal Lipiden zoals cholesterol en steroïde hormonen. Nucleotiden zoals ATP, ADP en AMP zijn ook terug te vinden waardoor er te zien is hoeveel energie bepaalde functies nodig hebben. Ook te vinden in gal zijn, Eiwitten, Plasma eiwitten, Albumine, Haptoglobine, Immunoglobine A, Apo-transferrin, Feromonen, Prolactine, Insuline. Het is de paper niet precies aangegeven hoeveel hiervan aanwezig is maar er word bij de **Bile/plasma ratio** Wel een \<1 of \>1 aangegeven. Andere stoffen die in bile kunnen zitten zijn Hepatocyte eiwitten, Alkaline fosfaat, Zuur fosfaat, N-acetyl-β-glucosaminidase, β-glucuronidase, β-galactosidase, 5'-nucleotidase, Peptiden en aminozuren (GSH, GSSG, Cystinyl glycine, Glutamic zuur, Cysteine, FGF19, Asparatic zuur, Glycine) Zware metalen (Koper, Mangaan, Ijzer, Zink), En vitamines zoals 25-OH vitamine D, Cyanocobalamin, Riboflavin en Folate.
 
+*Mechanisme voor de vorming van gal*
+
+Gal wordt ge vormt door filtratie in reactie naar osmotische gradiënten die gemaakt zijn door transport van
+
+Bile is formed by filtration in response to osmotic gradients created by the transport of osmotically active solutes into the bile canalicular lumen. Water and small solutes enter the biliary space passively via solvent drag ([514](https://pmc.ncbi.nlm.nih.gov/articles/PMC4091928/#R514)). This process requires energy in the form of ATP, and is not affected by the hydrostatic pressure that comes from blood perfusing the hepatic sinusoids
+
+*Cellulaire en Moleculaire determinanten van gal formatie*
+
+*Gal duct cellen*
+
+*Signaaltransductieroutes bij de regulatie van galafscheiding*
+
+*Transport en uitscheiding van specifieke stoffen*
+
 *Uitleg figuur 10*
 
 ![](images/clipboard-299226549.png)
