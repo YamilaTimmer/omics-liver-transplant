@@ -54,7 +54,47 @@ Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas.
 
 Dit figuur beschrijft de Hormonale regulatie van cholangiocyte HCO3- afscheiding gebaseerd op studies van rat-achtigen.
 
-Cholangiocyten spelen een belangerijke rol bij de verdunning en alkanisatie van gal geproduceerd door de lever. Dit doen ze door bicarbonaat (HCO3- ) af te geven aan het gal.
+Cholangiocyten spelen een belangerijke rol bij de verdunning en alkanisatie van gal geproduceerd door de lever. Dit doen ze door bicarbonaat (HCO3- ) af te geven aan het gal. De voordelen van het bicarbonaat in het gal is de neutralisatie van het gal, en de bescherming van de galwegen tegen de potentiele schadelijke stoffen die in het gal kunnen zitten. Dit proces word gereguleerd door hormonen.
+
+De hormoon regulatie:
+
+**Secretine (SR)**
+
+Zorgt voor toename in gal productie, Het bindt zich aan de secretinereceptor (SR) op de cholangiocyt. Dit activeerd adenylaatcyclase (AC), wat leidt tot toename van cyclisch AMP (cAMP). cAMP activeerd vervolgens proteïnekinase-A (PKA) wat de CFTR in werking zet doormiddel van ATP die toegevoegd word aan de PKA.
+
+**Acetylecholine (ACH / M3)**
+
+Sensibiliseert de adenylaatcyclase voor secretine wat betekent dat aanwezigheid van acetylcholine, secretine een sterkere repsons geeft. Acetylecholine bindt aan muscarine receptor 3 (M3) wat leidt tot toename van intracellulair calcium (CA++) dit activeer via calmodulin (-CM) het enzym calcineurine (CN). CN beïnvloedt adenylaatcyclase (AC), waardoor het gevoeliger wordt voor stimulatie door secretine.
+
+**Vasoactief intestinaal peptide (VIP) + Bombesin**
+
+Stimuleert de bicarbonaatsecretie door de cholangiocyten. Dit gebeurd door een pad wat on afhankelijk is van CN en AC. VIP en bombesin hebben beide een positief (stimulerend) effect op AE-2 (Zet HCO3- van bloed naar gal)
+
+**Somatostine, Gastrine en Insuline**
+
+Deze remmen zowel basale bicarbonaat secretie als de door hormonen gestimuleerde secretie. Dit gebeurd via een PKC-alpha afhankelijk pad. receptoren voor SSTR2 somatostatine, gastrine, CCK-B en insuline IR. Deze receptoren leiden tot activering proteïne kinase C alpha wat een remmend effect heeft op AC.
+
+**Extra belangerijke spelers**
+
+**Cholangiocyten**
+
+De cellen van de galwegen die bicarbonaat afscheiden HCO3- en de gal alkaniseert.
+
+**Cl- / HCO3- exchange AE2**
+
+een eiwit in het apicile membraan (de kant richting de galwegen) van de cholangiocyten dat buicarbibaat baar de gal transporteert wanneer Cl- aanwezig is dit is een belangerijke route voor bicarbonaat secretie.
+
+**CFTR (Cystic fibrosis transmembrane conductance regulator)**
+
+Een chloridekanaal in het apicale membraan. CFTR is belangrijk omdat het chloride lever wat nodig is voor de Cl-/HCO3- wisselaar om te functioneren (Cl- gaat de cel in via CFTR en wordt gebruikt door AE-2 om bicarbonaat uit te wisselen)
+
+**NHE-3 (Sodium Hydrogen Exchanger isoform 3)**
+
+een eiwit in het basolaterale membraan (de kant richting het bloed) dat Na+ de cel in transporteert in ruil voor waterstofionen H+ dit help bij handhaven van de ph in de cel en kan indirect bijdragen aan de bicarbonaat productie
+
+**AQP1 (Aquaporin 1)**
+
+Een water kanaal in het apicale membraan dat watertransport mogelijk maakt, dit helpt het gal te verdunnen als bicarbonaat wordt uitgescheiden.
 
 **Eind conclusie**
 
