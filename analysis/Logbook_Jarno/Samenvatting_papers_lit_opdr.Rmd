@@ -42,7 +42,7 @@ De reden om deze methode te gebruiken inplaats van een nieuw experiment te start
 
 **Resultaten**
 
-In de resultaten noem ik de belangerijkste punten op per onderwerp van de review. Naar mijn eigen mening
+In de resultaten noem ik de belangerijkste punten op per onderwerp van de review.
 
 *Anatomische determinanten van galafscheiding*
 
@@ -74,11 +74,17 @@ Organic cation transporters OCT1/Oct1; (SLC22A1/Slc22a1) and OCT3/Oct3 (SLC22A3/
 
 Transcellular bile acid and organic solute transport and metabolism - Na de toenamen van hepatocyten, organische opgeloste stoffen die uiteindelijk in het gal belanden moeten in de cel bewegen naar het apical membraan. Dit kan gebeuren op 3 manier, door snelle diffusie in associatie met cytosolische eiwitten of in samenwerking met intracellulaire membranen of door transcytosis in membraan blaasjes geassocieerd met microtubules. De hydrophobie van de stof zal bepalen welk process zal plaats vinden. Hoe erger de hydrophobie, hoe meer de stof geneigd zal zijn om de intra cellulaire membranen te kiezen in plaats van de cytosolische eiwitten.
 
-Intracellular metabolism of bile salts and other organic anions
+Intracellulair metabolism of bile salts and other organic anions
+
+Hydrophobische gal zouten zijn potentieel giftig en secundaire gal zouten zoals lithocholate en deoxycholate en andere oplosbare organische lipide anionen zullen misschien phase 1 of 2 metabolisme ondergaan om water oplosbare glucurnoide en sulfaat conjugates. Deze belangerijke metabolische processen zorgen dat deze stoffen makkelijker getransporteert kunnen worden uit de hepatocyte door phase 3
 
 Canalicular membrane transporters
 
+Een grote speler in gal stroom en compositie word voornamelijk gereguleerd door de transport eiwiten die gelocaliseerd zijn in het canalicular domein van de heptatocyten. De meeste van deze membraan transporters behoren tot de ABC superfamilie en scheiden organische oplossing uit in het gal tegen de grote concertratie gradient van \~1:100 to \~1:1000. Dit process gebruikt ATP. Mutatie in 1 van de transporters zou kunnen resulteren in cholestase een lever ziekte wat dus laat zien dat deze transporters een kritische rol spelen in gal formatie.
+
 MDR1/mdr1a+b P-glycoprotein (ABCB1, Abcb1)
+
+Lijkt een significante canalicular transporter voor grote amphiphatische organische cationen in muizen, dit is gebaseerd op studies die op muizen zijn gedaan waar double knockouts werden gedaan van Mdr1a (-/-) en Mdr1b null muizen. Mdr1a was ook gevonden in cholangiocyten. In recente studies in canalicuar membraan blaasjes wijzen er op dat MDR1 gal zouten transporteert met een 5 voudig lagere affiniteit dan de gal zout export pomp.
 
 The multidrug resistance protein 3 (ABCB4/Abcb4)
 
@@ -175,5 +181,7 @@ Multi-omics is een relatief nieuw veld de eerste publicaties kwamen uit 2006 waa
 **Methoden**
 
 **Resultaten**
+
+**Formule:** sGCCA
 
 **Eind-conclusie**
