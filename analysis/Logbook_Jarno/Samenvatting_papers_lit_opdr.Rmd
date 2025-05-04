@@ -60,17 +60,53 @@ galvorming is een process dat wordt aangedreven door gespecialiseerde **transpo
 
 **Fase 0 : opname stoffen door basolaterale membraantransporters**
 
-Transport systemen by het basolaterol, sinusiodal domein van de hepatocyte faciliteerd een selectieve upname van verschillende albumin-gebonden organische anionen, cationen en neutrale stoffen die uitgescheiden zijn naar het gal.
+Transport systemen by het basolaterol, sinusiodal domein van de hepatocyte faciliteerd een selectieve opname van verschillende albumin-gebonden organische anionen, cationen en neutrale stoffen die uitgescheiden zijn naar het gal.
 
 Sodium-taurocholate cotransporting polypeptide (SLC10A/Slc10a) - is een primair mechanisme in de lever opname van geconjugeerd gal zout van sinusoidal bloed.
 
 Organic anion transporting polypeptides (superfamily SLCO) (formerly SLC21A, the OATP/Oatps) - ongeconjugeerde gal zouten worden opgenomen door de liver bij het hepatocyte basolateral sinsoidel membraan door natrium-zelfstandige mechanismen op dragers van het SLCO superfamillie, origineel bekend als organische anionen trasporterende polypeptiden of organisch anion transporterende polypeptide (OATPs)
 
+**Fase 1 & 2 : Verwerking van de eerder opgenomen stoffen voor uitscheiding**
+
 Organic anion transporters OAT/Oat (SLC22 superfamily) - OATs (SLC22A) transporteren kleine en meestal hydrofiele organische anionen. Zoals OATPS, OATs zijn 12 membraan wijde domein eiwitten die breed uiten. Oat2 worden in de lever het hoogste uitgedrukt gebaseerd op rat-achtige data. OAT2 is exclusief uitgedrukt in de lever op het basolaterale membraan waar het korte keten vet zuren ruilt voor sulfaat conjugaten. Menselijke OAT2 transcriptie leunt op HNF-4α en is down geruguleerd door gal zouten via het FXR, korte heterodimer partner remmende pathway.
 
-**Fase 1 & 2 : Verwerking van de eerder opgenamomen stoffen voor uitscheiding**
+Organic cation transporters OCT1/Oct1; (SLC22A1/Slc22a1) and OCT3/Oct3 (SLC22A3/Slc22a3) - OCTs zijn 12 membraan breed domein elektrogeen cationen transporters de een wijd aantal endogenous en exogenous strucuteel ongerelateerde kleine organische cationen transporteren door bidirectioneel passief gefaciliteerde diffusie via hun elektrochemische gradient.
+
+Transcellular bile acid and organic solute transport and metabolism - Na de toenamen van hepatocyten, organische opgeloste stoffen die uiteindelijk in het gal belanden moeten in de cel bewegen naar het apical membraan. Dit kan gebeuren op 3 manier, door snelle diffusie in associatie met cytosolische eiwitten of in samenwerking met intracellulaire membranen of door transcytosis in membraan blaasjes geassocieerd met microtubules. De hydrophobie van de stof zal bepalen welk process zal plaats vinden. Hoe erger de hydrophobie, hoe meer de stof geneigd zal zijn om de intra cellulaire membranen te kiezen in plaats van de cytosolische eiwitten.
+
+Intracellular metabolism of bile salts and other organic anions
+
+Canalicular membrane transporters
+
+MDR1/mdr1a+b P-glycoprotein (ABCB1, Abcb1)
+
+The multidrug resistance protein 3 (ABCB4/Abcb4)
+
+Familial intrahepatic cholestasis 1 (ATP8B1/Atp8b1)
+
+Multidrug resistant associated protein 2, previously known as the multispecific organic anion transporter
+
+Bile salt export pump (ABCB11/Abcb11)
+
+Breast cancer resistance protein (ABCC2/Abcc2)
+
+Sterolin 1 and Sterolin 2 (ABCG5/G8/Abcg5/g8)
+
+Multidrug and toxin extrusion transporters (SLC47A1/Slc47a1)
+
+Concentrative and equilibrative nucleoside transporters CNT1 and 2 and ENT1 (SLC28A1 and 2 and SLC29A1)
+
+Chloride/bicarbonate exchanger, AE2/Ae2 (SLC4A2/Slca2)
+
+Sodium proton exchanger 3 (SLC9A3 /Slc9a3
 
 **Fase 3 : Actieve uitscheiding stoffen**
+
+Phase III basolateral membrane transporters
+
+**Samenvatting van alle Fase**
+
+![](images/clipboard-873648751.png)
 
 *Gal duct cellen*
 
@@ -128,7 +164,7 @@ Een water kanaal in het apicale membraan dat watertransport mogelijk maakt, dit 
 
 **Eind conclusie**
 
-Gal is een belangerijk voor de functie van de lever, Het begrijpen van de secretie en formatie is essentieel om gal te kunnen begrijpen. Door technologische ontwikkeling in de applicatie van moleculaire en cellulaire analysen en technieken werd het makkelijker om gal te studeren. kennis over gal formatie is in de afgelopen jaren sterk gestegen wat de basis was voor deze review. Belangerijke historische ontwikkelingen die benoemd worden in deze review waren de charactisering van belangerijke transporters en enzymen die te maken hebben met de mechanisme die gal vormen. Dit is op moleculair niveau gedaan in dieren en in de mens. Mutaties en polymorphismen in sommige determinanten die gevonden waren hebben ook nog specifieke functies voor transporters of enzymen.
+Gal is een belangerijk voor de functie van de lever, Het begrijpen van de secretie en formatie is essentieel om gal te kunnen begrijpen. Door technologische ontwikkeling in de applicatie van moleculaire en cellulaire analysen en technieken werd het makkelijker om gal te studeren. kennis over gal formatie is in de afgelopen jaren sterk gestegen wat de basis was voor deze review. Belangerijke historische ontwikkelingen die benoemd worden in deze review waren de charactisering van belangerijke transporters en enzymen die te maken hebben met de mechanisme die gal vormen. Dit is op moleculair niveau gedaan in dieren en in de mens. Mutaties en polymorphismen in sommige determinanten die gevonden waren hebben ook nog specifieke functies voor transporters of enzymen. Uitleg over alle belangerijke mechanismen zijn te vinden in de body van de review, hier zijn zoals eerder gezegt allemaal verschillende belangerijke onderwerpen te vinden. Mechanismen zoals hepatocten tegenover cholangiocyte secretie worden hier ook uitgelegt. Toekomstig onderzoek zou moeten worden gedaan naar de benoemde mechainismen, deze zouden beneficieel moeten zijn voor patienten waar gal formatie verhinderd is door dingen als cholestatisch lever ziekte of andere ziekten. De opgeloste stoffen die zich in gal bevinden is heel groot en het effect en hun rol in de mechanismen zijn nog onduidelijk en moeten dus ook bestudeerd worden. Belangerijkste stoffen die moeten worden bekeken zijn de metalen, vitaminen en eiwitten. Gal beter begrijpen is essentieel voor de verbetering in zorg voor lever problemen en kwaliteit.
 
 
 
