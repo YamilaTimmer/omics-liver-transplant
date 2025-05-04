@@ -42,19 +42,35 @@ De reden om deze methode te gebruiken inplaats van een nieuw experiment te start
 
 **Resultaten**
 
-In de resultaten noem ik de belangerijkste punten op per onderwerp van de review.
+In de resultaten noem ik de belangerijkste punten op per onderwerp van de review. Naar mijn eigen mening
 
-*Wat is gal?*
+*Anatomische determinanten van galafscheiding*
+
+*Wat zijn de componenten van gal?*
 
 Gal is een vloeistof wat gemaakt word in lever maar word bewaard in je galblaas. De gal vloeistof bestaat uit veel dingen voornamelijk water, ongeveer 95% van gal bestaat uit water. Andere dingen die in gal te vinden zijn Elektrolyten dit zijn stofjes die natuurlijke positief of negatief geladen zijn wanneer ze opgelost zijn in water. Elektrolyten helpen je lichaam in regulatie van chemische reacties, zorgen voor de balans tussen vloeistof binnen en buiten de cellen en spiercontractie. Ze zijn ook essentieel om medische problemen en ziekten te identificeren. Organische Anionen (een ion met een negatieve lading, gelijk aan het aantal opgenomen elektronen) zoals Gal zouten, primairy zuren zoals cholic zuur en chenodeoxycholic zuur of secondaire zuren zoals deoxycholic zuur en lithocholic zuur. Ook bevat gal Lipiden zoals cholesterol en steroïde hormonen. Nucleotiden zoals ATP, ADP en AMP zijn ook terug te vinden waardoor er te zien is hoeveel energie bepaalde functies nodig hebben. Ook te vinden in gal zijn, Eiwitten, Plasma eiwitten, Albumine, Haptoglobine, Immunoglobine A, Apo-transferrin, Feromonen, Prolactine, Insuline. Het is de paper niet precies aangegeven hoeveel hiervan aanwezig is maar er word bij de **Bile/plasma ratio** Wel een \<1 of \>1 aangegeven. Andere stoffen die in bile kunnen zitten zijn Hepatocyte eiwitten, Alkaline fosfaat, Zuur fosfaat, N-acetyl-β-glucosaminidase, β-glucuronidase, β-galactosidase, 5'-nucleotidase, Peptiden en aminozuren (GSH, GSSG, Cystinyl glycine, Glutamic zuur, Cysteine, FGF19, Asparatic zuur, Glycine) Zware metalen (Koper, Mangaan, Ijzer, Zink), En vitamines zoals 25-OH vitamine D, Cyanocobalamin, Riboflavin en Folate.
 
 *Mechanisme voor de vorming van gal*
 
-Gal wordt ge vormt door filtratie in reactie naar osmotische gradiënten die gemaakt zijn door transport van
+Gal wordt ge vormt door filtratie in reactie naar osmotische gradiënten die gemaakt zijn door transport van osmotische actieve opgeloste stoffen naar galkanaallumen. Water en kleine opgeloste stoffen komen passief de galruimte binnen via een "oplosmiddelweerstand". Dit proces gebruikt ATP en word niet beïnvloed door de hydrostatische druk die komt van het bloed dat de sinusoïden (Een sinus is een klein bloedvat dat een soort capillaire is vergelijkbaar met een gefenestreerde endotheel**)** in de lever persfuseert.
 
-Bile is formed by filtration in response to osmotic gradients created by the transport of osmotically active solutes into the bile canalicular lumen. Water and small solutes enter the biliary space passively via solvent drag ([514](https://pmc.ncbi.nlm.nih.gov/articles/PMC4091928/#R514)). This process requires energy in the form of ATP, and is not affected by the hydrostatic pressure that comes from blood perfusing the hepatic sinusoids
+*Cellulaire en Moleculaire bepaling van gal formatie*
 
-*Cellulaire en Moleculaire determinanten van gal formatie*
+galvorming is een process dat wordt aangedreven door gespecialiseerde **transporteiwitten** op de membranen van de levercel. Deze vorming is onder te verdelen in 4 fasen **fases**:
+
+**Fase 0 : opname stoffen door basolaterale membraantransporters**
+
+Transport systemen by het basolaterol, sinusiodal domein van de hepatocyte faciliteerd een selectieve upname van verschillende albumin-gebonden organische anionen, cationen en neutrale stoffen die uitgescheiden zijn naar het gal.
+
+Sodium-taurocholate cotransporting polypeptide (SLC10A/Slc10a) - is een primair mechanisme in de lever opname van geconjugeerd gal zout van sinusoidal bloed.
+
+Organic anion transporting polypeptides (superfamily SLCO) (formerly SLC21A, the OATP/Oatps) - ongeconjugeerde gal zouten worden opgenomen door de liver bij het hepatocyte basolateral sinsoidel membraan door natrium-zelfstandige mechanismen op dragers van het SLCO superfamillie, origineel bekend als organische anionen trasporterende polypeptiden of organisch anion transporterende polypeptide (OATPs)
+
+Organic anion transporters OAT/Oat (SLC22 superfamily) - OATs (SLC22A) transporteren kleine en meestal hydrofiele organische anionen. Zoals OATPS, OATs zijn 12 membraan wijde domein eiwitten die breed uiten. Oat2 worden in de lever het hoogste uitgedrukt gebaseerd op rat-achtige data. OAT2 is exclusief uitgedrukt in de lever op het basolaterale membraan waar het korte keten vet zuren ruilt voor sulfaat conjugaten. Menselijke OAT2 transcriptie leunt op HNF-4α en is down geruguleerd door gal zouten via het FXR, korte heterodimer partner remmende pathway.
+
+**Fase 1 & 2 : Verwerking van de eerder opgenamomen stoffen voor uitscheiding**
+
+**Fase 3 : Actieve uitscheiding stoffen**
 
 *Gal duct cellen*
 
@@ -112,9 +128,16 @@ Een water kanaal in het apicale membraan dat watertransport mogelijk maakt, dit 
 
 **Eind conclusie**
 
-Gal formatie en secretie is een vitale functie voor de lever en het lichaam, er kunnen veel dingen uit gal gehaald worden die belangerijke processen en ziekten kunnen uitleggen doormiddel van multiomics en gal analyse. Dit review paper laat alle basis dingen tot complexe dingen zien die je moet weten over gal.
+Gal is een belangerijk voor de functie van de lever, Het begrijpen van de secretie en formatie is essentieel om gal te kunnen begrijpen. Door technologische ontwikkeling in de applicatie van moleculaire en cellulaire analysen en technieken werd het makkelijker om gal te studeren. kennis over gal formatie is in de afgelopen jaren sterk gestegen wat de basis was voor deze review. Belangerijke historische ontwikkelingen die benoemd worden in deze review waren de charactisering van belangerijke transporters en enzymen die te maken hebben met de mechanisme die gal vormen. Dit is op moleculair niveau gedaan in dieren en in de mens. Mutaties en polymorphismen in sommige determinanten die gevonden waren hebben ook nog specifieke functies voor transporters of enzymen.
+
 
 
 # Introductie - @singh2019
 
 Multi-omics is een relatief nieuw veld de eerste publicaties kwamen uit 2006 waarna de publicaties per jaar in 2018-2020 fors steeg. Multi-omics is de vergelijking van meerdere data uit de verschillende omics velden met elkaar en hierin een link leggen. Neem bijvoorbeeld het linken van Genen (DNA-genomics) en de proteinen (proteomics) die zorgen voor problemen bij de patiënten. Dit kan nu gedaan worden met verschillende tools zoals MoFA+, Multi-Anova, of Diablo. In deze samenvatting ga ik het hebben over de Diablo tool. De diablo tool kijkt in het kort naar de verschillende datasets die het heeft gekregen en zoekt plus identificeert essentiele moleculaire stuurders. Deze kunnen dan in een na-analyse worden bekeken voor functie en of invloed op de patiënt.
+
+**Methoden**
+
+**Resultaten**
+
+**Eind-conclusie**
