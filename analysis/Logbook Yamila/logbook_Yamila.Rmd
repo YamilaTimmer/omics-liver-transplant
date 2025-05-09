@@ -1,0 +1,157 @@
+---
+title: "Untitled"
+author: "Yamila Timmer"
+date: "2025-05-08"
+output: html_document
+---
+
+# 7/8/9 may
+
+- Looking into what data we need and how to process this in R
+
+Report contains all the quantified proteins (results from protein identification/quantification), is a tsv file and can be read with read.delim. In this file
+rows is proteins/genes columns is sample id.
+
+```{r}
+data <- read.delim("NMP_Bile_Proteomics_Report.txt", header = TRUE)
+
+```
+
+File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
+```{r}
+meta_data <- read.delim("E-MTAB-13501.sdrf.txt")
+
+```
+
+
+Idea: compare between biliary viability score group (high/low) per time point, so at 30 min, 150 min and end.
+
+Files below are supp data 3a + 4a and seems to contain transcriptomics data (gene expression)
+```{r}
+library("readxl")
+sup_data <- read_excel("supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+```
+
+
+```{r}
+sup_data2 <- read_excel("supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+
+```
+
+
+Make dataframe for identifying all sample no:
+- From the regular data (NMP_Bile_Proteomics_Report.txt) it is unclear which sample number belongs to which liver/measure point
+- Dataframe shows sample ID, liver number (so what liver the sample was derived from) and timepoint from when sample was taken (after 30 min/150 min/end)
+
+```{r}
+library(tidyverse)
+sample_id1 <- select(sup_data, "Sample", "Liver number", "Timepoint")
+
+sample_id2 <- select(sup_data2, "Sample", "Biliary viability score group", "Total BDI score group", "Transplant")
+
+# Only merges when sample ID is in both dataframes, leaves some livers out as there seems to be some missing data?
+merged_sample_id <- inner_join(sample_id1, sample_id2, by = "Sample")
+
+```
+
+Filter all 30 min measure points from the livers with either high/low biliary viability
+```{r}
+low_viab_30 <- merged_sample_id %>%
+    filter(`Biliary viability score group` == "Low" & Timepoint == "30min")
+
+high_viab_30 <- merged_sample_id %>%
+    filter(`Biliary viability score group` == "High" & Timepoint == "30min")
+```
+
+Change colnames to NMP_Bile_Proteomics_X, in order to be able to filter on samples later
+```{r}
+colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", colnames(data)[4:ncol(data)]) # regex that removes everthing, but the "NMP_Bile_Proteomics_X" identifier and replaces colnames of data with this, we need that to match it to the metadata
+```
+
+Make data tidy, so samples can be filtered based on whether they exist in the dataframes with high/low_viab_30
+```{r}
+tidy_data <- data %>% 
+            pivot_longer(
+                cols = 4:ncol(data),
+                names_to = "Sample",
+                values_to = "expression")
+
+```
+
+```{r}
+low_viab_30_expr <- tidy_data %>%
+    filter(Sample %in% low_viab_30$Sample)
+```
+
+```{r}
+high_viab_30_expr <- tidy_data %>%
+    filter(Sample %in% high_viab_30$Sample)
+```
+
+
+
+
+
+
+
+Below is some unfinished stuff i was trying
+-------------------------------------------------------------------------------
+
+
+
+
+looking into R packages for building a proteomics workflow that can answer our research question
+```{r}
+library("BiocManager")
+```
+
+Install rpx directly from latest github version, otherwise it gives an error when loading the data:
+
+```{r}
+BiocManager::install("lgatto/rpx")
+```
+
+
+```{r}
+# Load the proteomics data
+library(rpx)
+px <- PXDataset("PXD046355") #The PDX number is an identifier for the data used for our article
+
+```
+
+```{r}
+pxfiles(px) # See how many files the data contains, seems to be 143 files
+
+```
+
+```{r}
+file_name <- "NMP_Bile_Proteomics_02.raw"
+mzf <- pxget(px, file_name)
+
+```
+
+Convert .raw to .mzml
+https://tidyms.readthedocs.io/en/latest/mzml.html
+
+https://rformassspectrometry.github.io/book/sec-raw.html
+
+
+# Create spectra element
+```{r}
+library(Spectra)
+sp <- Spectra("C:/Users/yamil/AppData/Local/R/cache/R/rpx/NMP_Bile_Proteomics_02.mzML")
+```
+
+```{r}
+paste0("java -jar MSGFPlus/MSGFPlus.jar",
+       " -s ", mzmls,
+       " -o ", mzids,
+       " -d uniprot.fas",
+       " -t 20ppm",
+       " -m 0",
+       " int 1")
+```
+
+
+# 
+
