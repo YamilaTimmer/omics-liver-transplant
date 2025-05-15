@@ -13,13 +13,13 @@ Report contains all the quantified proteins (results from protein identification
 rows is proteins/genes columns is sample id.
 
 ```{r}
-data <- read.delim("NMP_Bile_Proteomics_Report.txt", header = TRUE)
+data <- read.delim("../../../NMP_Bile_Proteomics_Report.txt", header = TRUE)
 
 ```
 
 File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
 ```{r}
-meta_data <- read.delim("E-MTAB-13501.sdrf.txt")
+meta_data <- read.delim("../../../E-MTAB-13501.sdrf.txt")
 
 ```
 
@@ -29,12 +29,12 @@ Idea: compare between biliary viability score group (high/low) per time point, s
 Files below are supp data 3a + 4a and seems to contain transcriptomics data (gene expression)
 ```{r}
 library("readxl")
-sup_data <- read_excel("supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+sup_data <- read_excel("../../../supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
 ```
 
 
 ```{r}
-sup_data2 <- read_excel("supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+sup_data2 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
 
 ```
 
@@ -45,50 +45,179 @@ Make dataframe for identifying all sample no:
 
 ```{r}
 library(tidyverse)
-sample_id1 <- select(sup_data, "Sample", "Liver number", "Timepoint")
+sample_id1 <- sup_data[c("Sample", "Liver number", "Timepoint")]
 
-sample_id2 <- select(sup_data2, "Sample", "Biliary viability score group", "Total BDI score group", "Transplant")
+sample_id2 <- sup_data2[c("Sample", "Biliary viability score group", "Total BDI score group", "Transplant")]
 
 # Only merges when sample ID is in both dataframes, leaves some livers out as there seems to be some missing data?
 merged_sample_id <- inner_join(sample_id1, sample_id2, by = "Sample")
 
 ```
 
-Filter all 30 min measure points from the livers with either high/low biliary viability
-```{r}
-low_viab_30 <- merged_sample_id %>%
-    filter(`Biliary viability score group` == "Low" & Timepoint == "30min")
 
-high_viab_30 <- merged_sample_id %>%
-    filter(`Biliary viability score group` == "High" & Timepoint == "30min")
-```
 
 Change colnames to NMP_Bile_Proteomics_X, in order to be able to filter on samples later
 ```{r}
 colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", colnames(data)[4:ncol(data)]) # regex that removes everthing, but the "NMP_Bile_Proteomics_X" identifier and replaces colnames of data with this, we need that to match it to the metadata
 ```
 
-Make data tidy, so samples can be filtered based on whether they exist in the dataframes with high/low_viab_30
+
 ```{r}
-tidy_data <- data %>% 
-            pivot_longer(
-                cols = 4:ncol(data),
-                names_to = "Sample",
-                values_to = "expression")
+# adds unique identifier columns based on name/id columns, new columns are added to 'data_unique' as 'name' and
+library(DEP)
+data_unique <- make_unique(data, 
+                           names = "PG.Genes", 
+                           ids = "PG.ProteinAccessions", 
+                           delim = ";")
 
 ```
 
 ```{r}
-low_viab_30_expr <- tidy_data %>%
-    filter(Sample %in% low_viab_30$Sample)
+library(SummarizedExperiment)
+
+# Filter only the 30 min samples
+samples_30min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "30min"]
+cols <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_30min)
+
+
+samples_30min_data <- data_unique[, colnames(data_unique) %in% cols]
+samples_30min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_30min, ]
+```
+
+Preparing data for imputation
+```{r}
+# remove rows where all columns are NA, so genes where there is not a single value measured/quantified
+samples_30min_data <- samples_30min_data %>%
+  filter(rowSums(is.na(samples_30min_data[4:47])) != ncol(samples_30min_data[4:47]))
+
+# Replace all NaN with NA
+samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
+
+
+count_data <- samples_30min_data[, 4:47]
+
+# Convert to matrix (also needed for imputation)
+#samples_30min_data_matr <- as.matrix(samples_30min_data)
+library(missForest)
+library(MsCoreUtils)
+
+samples_30min_data_imp <- impute_RF(count_data)
+
+
+annotation_columns <- samples_30min_data[, colnames(samples_30min_data) %in% c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions")]
+
+# merge imputed samples with annotation columns
+joined_data <- cbind(samples_30min_data_imp, annotation_columns)
+```
+
+
+```{r}
+
+experimental_design <- data.frame(
+  label = colnames(samples_30min_data[,4:47]), # has to match sample names in experimental design
+  condition = samples_30min_metadata$`Biliary viability score group`,
+  replicate = colnames(samples_30min_data[,4:47]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+)
 ```
 
 ```{r}
-high_viab_30_expr <- tidy_data %>%
-    filter(Sample %in% high_viab_30$Sample)
+sample_columns <- grep("NMP.", colnames(joined_data))
+
+data_se <- make_se(joined_data, sample_columns, experimental_design)
+
 ```
 
 
+```{r}
+data_norm <- normalize_vsn(data_se)
+
+```
+
+```{r}
+meanSdPlot(data_norm)
+
+```
+```{r}
+data_diff <- test_diff(data_norm, type = "all")
+dep <- add_rejections(data_diff, alpha = 0.05, lfc = log2(1.5))
+plot_pca(dep, x = 1, y = 2, n = 500, point_size = 4)
+```
+```{r}
+plot_volcano(dep, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+plot_cond(dep)
+```
+
+
+
+```{r}
+plot_frequency(data_se)
+plot_numbers(data_se)
+plot_normalization(se)
+```
+
+
+
+
+
+
+
+
+
+https://bioconductor.org/packages/devel/bioc/vignettes/DEP/inst/doc/MissingValues.html
+
+
+```{r}
+# Filter for proteins that are identified in all replicates of at least one condition
+data_filt <- filter_missval(se, thr = 0)
+
+```
+
+
+
+
+```{r}
+library("DEP")
+plot_frequency(se, plot=FALSE)
+
+```
+
+
+```{r}
+library(naniar)
+gg_miss_var(data[1:30], show_pct = TRUE)
+gg_miss_var(data[31:60], show_pct = TRUE)
+gg_miss_var(data[61:90], show_pct = TRUE)
+gg_miss_var(data[91:120], show_pct = TRUE)
+gg_miss_var(data[120:145], show_pct = TRUE)
+```
+- A lot of the samples seem to be missing at least 50% of the datapoints. These are all missing values and need to be imputed or removed. The first three columns (PG.ProteinGroups, PG.ProteinAccessions and PG.Genes) don't seem to be missing any values (see below).
+
+```{r}
+sum(is.na(c(data$PG.ProteinGroups, data$PG.ProteinAccessions, data$PG.Genes)))
+```
+https://bigomics.ch/blog/imputation-of-missing-values-in-proteomics/
+
+
+
+## Dealing with missing data
+There are different ways to deal with missing values in proteomics, these are called 'missing value imputations' (MVI). 
+    True absence of the molecule;
+    The molecule levels are below the instrument’s sensitivity;
+    A molecule could be undetected due to experimental factors, measurement noise, analytical errors, or when a molecule is misclassified.
+    More generally, values can miss at random (MAR), or miss not at random (MNAR). Typically, MAR proteomic values are caused by chance or technical/experimental factors and are thus independent from the molecule dosage. Differently, MNAR proteomics values can arise from low intensity signals. Altogether, MAR & MNAR represent the majority of MVs in proteomics.
+
+There are two types of "missingness":
+- Coverage: protein is not found in any of the samples (even though it should) (hier gwn hele rij weghalen?)
+- Inconsistency: protein is observed in at least one sample
+
+To begin, there are 3 different types of missing values:
+
+- MAR: missing at random, does not depend on any variables and can not be explained by any biological nature/peptide intensity
+- MNAR: missing not at random, esp in situations where proteins occur at low intensities, 
+
+
+
+file:///C:/Users/yamil/Downloads/Proteomics%20-%202022%20-%20Kong%20-%20Dealing%20with%20missing%20values%20in%20proteomics%20data.pdf
 
 
 
@@ -153,5 +282,51 @@ paste0("java -jar MSGFPlus/MSGFPlus.jar",
 ```
 
 
-# 
 
+Make data tidy, so samples can be filtered based on whether they exist in the dataframes with high/low_viab_30
+```{r}
+tidy_data <- data %>% 
+            pivot_longer(
+                cols = 4:ncol(data),
+                names_to = "Sample",
+                values_to = "expression")
+
+```
+
+```{r}
+low_viab_30_expr <- tidy_data %>%
+    filter(Sample %in% low_viab_30$Sample)
+```
+
+```{r}
+high_viab_30_expr <- tidy_data %>%
+    filter(Sample %in% high_viab_30$Sample)
+```
+
+
+Filter all 30 min measure points from the livers with either high/low biliary viability
+```{r}
+low_viab_30 <- merged_sample_id %>%
+    filter(`Biliary viability score group` == "Low" & Timepoint == "30min")
+
+high_viab_30 <- merged_sample_id %>%
+    filter(`Biliary viability score group` == "High" & Timepoint == "30min")
+```
+
+
+```{r}
+# Reorder column order in data to match metadata
+#data_filtered <- data_filtered[, meta_data_liver$Sample]
+
+#meta_data_liver <- merged_sample_id
+
+# # Select columns with info on genes
+# genes <- data[1:3]
+# 
+# # pass dataframes for counts, gene info and meta data
+# se <- SummarizedExperiment(
+#   assays=list(counts = data_filtered),
+#   colData = colnames(data_filtered),
+#   rowData = genes
+# )
+```
