@@ -64,6 +64,7 @@ colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", 
 
 ```{r}
 # adds unique identifier columns based on name/id columns, new columns are added to 'data_unique' as 'name' and
+
 library(DEP)
 data_unique <- make_unique(data, 
                            names = "PG.Genes", 
@@ -77,90 +78,158 @@ library(SummarizedExperiment)
 
 # Filter only the 30 min samples
 samples_30min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "30min"]
-cols <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_30min)
+cols_30min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_30min)
 
+# Filter only the 30 min samples
+samples_150min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "150min"]
+cols_150min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_150min)
 
-samples_30min_data <- data_unique[, colnames(data_unique) %in% cols]
+samples_30min_data <- data_unique[, colnames(data_unique) %in% cols_30min]
 samples_30min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_30min, ]
+
+samples_150min_data <- data_unique[, colnames(data_unique) %in% cols_150min]
+samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_150min, ]
 ```
 
 Preparing data for imputation
 ```{r}
 # remove rows where all columns are NA, so genes where there is not a single value measured/quantified
+samples_150min_data <- samples_150min_data %>%
+  filter(rowSums(is.na(samples_150min_data[4:46])) != ncol(samples_150min_data[4:46]))
+
+
 samples_30min_data <- samples_30min_data %>%
   filter(rowSums(is.na(samples_30min_data[4:47])) != ncol(samples_30min_data[4:47]))
 
 # Replace all NaN with NA
 samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
+samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
-count_data <- samples_30min_data[, 4:47]
+
+count_data_30min <- samples_30min_data[, 4:47]
+
+count_data_150min <- samples_150min_data[, 4:46]
+```
+
+Imputation
+```{r}
 
 # Convert to matrix (also needed for imputation)
 #samples_30min_data_matr <- as.matrix(samples_30min_data)
 library(missForest)
 library(MsCoreUtils)
 
-samples_30min_data_imp <- impute_RF(count_data)
+samples_150min_data_imp <- impute_RF(count_data_150min)
+samples_30min_data_imp <- impute_RF(count_data_30min)
 
 
-annotation_columns <- samples_30min_data[, colnames(samples_30min_data) %in% c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions")]
+annotation_columns_30min <- samples_30min_data[, colnames(samples_30min_data) %in% c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions")]
+
+annotation_columns_150min <- samples_150min_data[, colnames(samples_150min_data) %in% c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions")]
 
 # merge imputed samples with annotation columns
-joined_data <- cbind(samples_30min_data_imp, annotation_columns)
+joined_data_30min <- cbind(samples_30min_data_imp, annotation_columns_30min)
+
+joined_data_150min <- cbind(samples_150min_data_imp, annotation_columns_150min)
 ```
 
+make experimental designs
 
 ```{r}
 
-experimental_design <- data.frame(
-  label = colnames(samples_30min_data[,4:47]), # has to match sample names in experimental design
+experimental_design_30min <- data.frame(
+  label = colnames(joined_data_30min[,1:44]), # has to match sample names in experimental design
   condition = samples_30min_metadata$`Biliary viability score group`,
-  replicate = colnames(samples_30min_data[,4:47]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+  replicate = colnames(joined_data_30min[,1:44]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
-```
 
-```{r}
-sample_columns <- grep("NMP.", colnames(joined_data))
-
-data_se <- make_se(joined_data, sample_columns, experimental_design)
-
-```
-
-
-```{r}
-data_norm <- normalize_vsn(data_se)
+experimental_design_150min <- data.frame(
+  label = colnames(joined_data_150min[,1:43]), # has to match sample names in experimental design
+  condition = samples_150min_metadata$`Biliary viability score group`,
+  replicate = colnames(joined_data_150min[,1:43]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+)
 
 ```
 
 ```{r}
-meanSdPlot(data_norm)
+
+# The wrapper function performs the full analysis
+data_results <- LFQ(joined_data, experimental_design, name = "name", ids = "ID", 
+                    fun ="MinProb", type = "all", alpha = 0.05, lfc = 1, filter=NULL)
 
 ```
+
 ```{r}
-data_diff <- test_diff(data_norm, type = "all")
-dep <- add_rejections(data_diff, alpha = 0.05, lfc = log2(1.5))
-plot_pca(dep, x = 1, y = 2, n = 500, point_size = 4)
+sample_columns_30min <- grep("NMP.", colnames(joined_data_30min))
+sample_columns_150min <- grep("NMP.", colnames(joined_data_150min))
+
+
+data_se_30min <- make_se(joined_data_30min, sample_columns_30min, experimental_design_30min)
+
+data_se_150min <- make_se(joined_data_150min, sample_columns_150min, experimental_design_150min)
+
 ```
+
+
 ```{r}
-plot_volcano(dep, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
-plot_cond(dep)
+data_norm_30min <- normalize_vsn(data_se_30min)
+data_norm_150min <- normalize_vsn(data_se_150min)
+
+```
+
+```{r}
+meanSdPlot(data_norm_30min)
+meanSdPlot(data_norm_150min)
+
+
+```
+
+```{r}
+data_diff_30min <- test_diff(data_norm_30min, type = "all")
+data_diff_150min <- test_diff(data_norm_150min, type = "all")
+
+
+dep_30min <- add_rejections(data_diff_30min, alpha = 0.05, lfc = log2(1.5))
+dep_150min <- add_rejections(data_diff_150min, alpha = 0.05, lfc = log2(1.5))
 ```
 
 
+
+
+```{r}
+plot_volcano(dep_30min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+plot_volcano(dep_150min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Unused stuff
+--------------------------------------------------------------
 
 ```{r}
 plot_frequency(data_se)
 plot_numbers(data_se)
-plot_normalization(se)
+plot_normalization(data_se)
 ```
 
+```{r}
+plot_cor(dep, significant = TRUE, lower = 0, upper = 1, pal = "Reds")
 
 
-
-
-
-
+```
 
 
 https://bioconductor.org/packages/devel/bioc/vignettes/DEP/inst/doc/MissingValues.html
@@ -171,8 +240,6 @@ https://bioconductor.org/packages/devel/bioc/vignettes/DEP/inst/doc/MissingValue
 data_filt <- filter_missval(se, thr = 0)
 
 ```
-
-
 
 
 ```{r}
