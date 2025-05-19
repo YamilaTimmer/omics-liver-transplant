@@ -2,7 +2,7 @@
 title: "Logbook"
 output: html_document
 ---
-##Meta stuff
+## Meta stuff
 
 ```{r}
 list.of.packages <- c("ggplot2", "tidyverse", "mdatools")
@@ -230,7 +230,6 @@ Nu wil ik zien hoeveel van de variantie verklaard wordt door de 1e 20 prinipale 
 
 ```{r}
 plotVariance(model)
-
 ```
 
 Dit geeft weer dat component 1 ongeveer 21% van de variantie verklaard
@@ -259,16 +258,49 @@ top_x_genes
 Dit zijn de top 100 genen
 
 
-## Mapping transcriptomics data
+### Mapping transcriptomics data
 Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen.
 Dit ga ik doen met Falco en multiqc
 
-```{}
+```{bash, eval = FALSE}
 ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ | \
 parallel "/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"
 ```
 
 
-```{}
+```{bash, eval = FALSE}
 multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/
+```
+
+
+### 19-05-2025
+
+```{bash, eval = FALSE}
+cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
+    parallel 'STAR --runThreadN 6 ' \
+        '--genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ ' \
+        '--readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq.gz /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq.gz ' \
+        '--outSAMtype BAM SortedByCoordinate ' \
+        '--quantMode GeneCounts ' \
+        '--genomeLoad LoadAndRemove' \
+        '--limitBAMsortRAM 2000000000 ' \
+        '--outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_'
+
+```
+
+
+```{bash, eval = FALSE}
+STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ --readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --genomeLoad LoadAndRemove --limitBAMsortRAM 2000000000 --outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_
+
+```
+
+## Pca 150 minute data
+
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
+```
+
+
+```{bash, eval = FALSE}
+echo hoi
 ```
