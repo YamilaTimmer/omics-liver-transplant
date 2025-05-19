@@ -1,0 +1,354 @@
+
+# preliminary proteomics tool research
+
+msn base:
+https://bioconductor.org/packages/release/bioc/html/MSnbase.html
+
+AIO solution for general proteomics processing from the mass spectometry to visualisation
+
+msgf+:
+for protein identification
+e value calculation
+minimal as possible protein clusters
+protdb or smth files to compare to
+
+
+# dividing of tasks
+me: confusion matrix
+jarno: pls-da
+yamila: normalisation & imputation
+ramon: pca
+
+
+
+
+
+# confusion matrix
+what do i need for a confusion matrix and what is it for?:
+
+I need candidates from the pca for biomarker, since this is proteiomics I need proteins.
+I also need a threshold to determine what is high and what is low expression
+
+the matrix is for finding the precision of potential biomarkers(prediction data) in comparison to the biliary viability groups(actual data)
+
+
+
+
+loading in count data
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
+```
+
+loading in meta data
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
+
+```
+
+loading in imputed count data
+```{r}
+
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
+
+```
+
+seperate into 2 groups
+```{r}
+high_viability_data <- assay_norm[, grep("^High", colnames(assay_norm))]
+low_viability_data <- assay_norm[, grep("^Low", colnames(assay_norm))]
+
+
+```
+
+```{r}
+type(assay_norm)
+```
+```{r}
+colnames(assay_norm)
+```
+
+summary
+```{r}
+
+summary_high_vial <- DataFrame(high_viability_data)
+summary(summary_high_vial)
+
+
+```
+
+
+protein to use as potential biomarker
+```{r}
+pot_biomarker <- "IGLV7-46"
+```
+
+```{r}
+pot_bio_marker_high_counts <- DataFrame(high_viability_data[pot_biomarker, ])
+
+```
+
+biomarker corresponding count values
+```{r}
+pot_bio_marker_high_counts <- data.matrix(high_viability_data[pot_biomarker, ])
+```
+
+```{r}
+pot_bio_marker_low_counts <- data.matrix(low_viability_data[pot_biomarker, ])
+```
+
+
+determining low/high expression categorisation (in this case I will use the median of the potential biomarker's expression values)
+
+I am redoing the flow of this to optimise a little bit, because we might be doing this on a larger scale.
+
+so instead of splitting the groups immediatly into low/high viability, I will first get the pot_biomarker's corresponding count val
+
+```{r}
+# clearing env
+rm(list=ls())
+
+# loading in imputed and normalised data
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
+
+# choosing potential biomarker protein (current one is random)
+pot_biomarker <- "IGLV7-46"
+
+# filtering for the counts of only the potential biomarker
+pot_bio_marker_counts <- data.matrix(assay_norm[pot_biomarker, ])
+
+# determining the median for the expression categorisation threshhold
+expression_categorisation_threshold <- median(pot_bio_marker_counts)
+
+# divinding the counts into low and high viability groups
+high_viability_pot_bio_marker_counts <- 
+    data.matrix(pot_bio_marker_counts[grep("^High", rownames(pot_bio_marker_counts)),])
+
+low_viability_pot_bio_marker_counts <- 
+    data.matrix(pot_bio_marker_counts[grep("^Low", rownames(pot_bio_marker_counts)),])
+
+
+```
+
+making the matrixes into dataframes for filtering purposes
+```{r}
+high_viability_pot_bio_marker_counts_df <- data.frame(high_viability_pot_bio_marker_counts)
+low_viability_pot_bio_marker_counts_df <- data.frame(low_viability_pot_bio_marker_counts)
+```
+
+checking on the df
+```{r}
+high_viability_pot_bio_marker_counts_df
+```
+load in dyplr for count function
+```{r}
+library("dyplr")
+```
+test on initial matrix value of top left aka high biliary and high expression
+```{r}
+true_true <- sum(high_viability_pot_bio_marker_counts_df$high_viability_pot_bio_marker_counts
+ > expression_categorisation_threshold)
+```
+
+matrix values calculated (I have made it so expressions equal to the threshold still count as highly expressed, note that there is no logic behind this) 
+```{r}
+# confusion matrix scores
+
+# biliary viability is high and so is protein count
+true_true <- 
+    sum(high_viability_pot_bio_marker_counts_df$high_viability_pot_bio_marker_counts
+ >= expression_categorisation_threshold)
+
+# biliary viability is low and protein count is high
+false_true <- 
+    sum(low_viability_pot_bio_marker_counts_df$low_viability_pot_bio_marker_counts
+ >= expression_categorisation_threshold)
+
+# biliary viability is low and so is protein count
+true_false<- 
+    sum(low_viability_pot_bio_marker_counts_df$low_viability_pot_bio_marker_counts
+ < expression_categorisation_threshold)
+
+# biliary viability is high and protein count is low
+false_false <- 
+    sum(high_viability_pot_bio_marker_counts_df$high_viability_pot_bio_marker_counts
+ < expression_categorisation_threshold)
+
+```
+
+loading in the caret library for automatic confusion matrices
+```{r}
+if (!require("caret", quietly = TRUE)) {
+  install.packages("caret")
+  library("caret")
+}
+```
+
+inputting the values into the ConfusionMatrix() funtion. reference: https://www.rdocumentation.org/packages/caret/versions/7.0-1/topics/confusionMatrix
+```{r}
+confusionMatrix(  
+    # transform into a table
+    as.table(matrix(c(false_false, false_true, false_false, true_true), nrow = 2)),
+  positive = "positive"
+)
+```
+I think it doesn't work because the data is in an incompatible format
+
+put the data in a matrix instead of a table to prep it for caret
+```{r}
+matrix(c(true_false, false_true, false_false, true_true),
+    nrow = 2,
+    dimnames = list(
+    protein_expression = c("low", "high"),
+    biliary_viability = c("low", "high")))
+```
+bit of an unclear confusion matrix compared to the usual format
+
+make the same matrix but with labels that are more standard
+```{r}
+conf_matrix <- matrix(c(true_false, false_true, false_false, true_true),
+    nrow = 2,
+    dimnames = list(
+    protein_expression = c("false", "true"),
+    biliary_viability = c("false", "true")))
+```
+due to this njot working in the caret function it could still make a good backup handmade matrix
+
+better layout(subjectiovely speaking) matrix
+```{r}
+conf_matrix <- matrix(
+  c(true_true, false_false, 
+    false_true, true_false),
+  nrow = 2,
+  dimnames = list(
+    protein_expression = c("high", "low"),      
+    biliary_viability = c("high", "low")    
+  )
+)
+```
+
+
+put it in caret function again
+```{r}
+confusionMatrix(conf_matrix,
+                positive = "positive") # seems to only be lable according to the documentation
+```
+according to the documentation it has to be of "class table" so back to table
+
+```{r}
+confusionMatrix(as.table(conf_matrix), #data
+                positive="high")
+```
+subscript out of bounds again
+
+
+turns out the positive wasn't a lable but had to instead match the lable given to the true option in the table object
+```{r}
+confusionMatrix(as.table(conf_matrix), #data
+                positive="true")
+```
+
+
+The initial loading in of the Rdata doesn't work anymore because the file cannot be found for some reason.
+So I will try to navigate to the folder before once again loading in the Rdata object
+```{r}
+# navigating to the folder the file is in
+setwd("/students/2024-2025/Thema08/liver-transplant/proteomics/")
+
+# checking on the current directory
+getwd()
+
+# load in the file
+load("normalized_imputed_count_data.Rdata")
+
+```
+This still doesn't work
+
+turns out it's because the file got renamed so we change the loading in chunk to the following:
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_30min.Rdata")
+
+```
+
+I want to make this script more efficent as we might (hopefully) need to upscale this.
+
+## final version of confusion matrix script
+
+clear environment of previous objects
+```{r}
+# clear env
+rm(list=ls())
+```
+
+load in caret library
+```{r}
+if (!require("caret", quietly = TRUE)) {
+  install.packages("caret")
+  library("caret")
+}
+```
+
+load in data
+```{r}
+#oad in data
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_30min.Rdata")
+```
+
+define potential bio marker protein
+```{r}
+# potential biomarker definitin
+pot_biomarker <- "IGLV7-46"
+```
+
+extract only relevant expression data
+```{r}
+# filter for expression values of only the biomarker
+pot_bio_marker_counts <- assay_norm[pot_biomarker, ]
+```
+
+threshold definition
+```{r}
+# get median threshhold (note that this is temp and if another is neccesary then we will do that)
+expression_threshold <- median(pot_bio_marker_counts)
+```
+
+split the expression data into high and low viability groups with grepl instead of grep so I won't have to run it twice by basically creating a mask for both viabilities whilst keeping the original pot_bio_marker_counts
+```{r}
+# split into viability groups
+high_viability <- grepl("^High", names(pot_bio_marker_counts))
+low_viability <- !high_viability
+```
+
+"calculate" matrix components. this time with better lables cause I found the previous ones confusing
+```{r}
+true_positive <- sum(pot_bio_marker_counts[high_viability] >= expression_threshold)
+false_positive <- sum(pot_bio_marker_counts[low_viability] >= expression_threshold)
+true_negative <- sum(pot_bio_marker_counts[low_viability] < expression_threshold)
+false_negative <- sum(pot_bio_marker_counts[high_viability] < expression_threshold)
+```
+
+make a matrix with the elements generated. honestly it would be more efficient to make a table directly but that's a format that offers less control and the effort required for it doesn't seem worth it.
+```{r}
+conf_matrix <- matrix(
+  c(true_positive, false_negative, # fuckass layout for the actual data in the matrix
+    false_positive, true_negative),
+  nrow = 2, # amount of rows
+  dimnames = list(
+    protein_expression = c("high", "low"),  # labels for the rows
+    biliary_viability = c("high", "low")    # labels for the columns
+  )
+)
+```
+
+convert to confusionMatrix object of caret and all the stats that accompany it
+```{r}
+final_matrix <- confusionMatrix(
+  as.table(conf_matrix), # convert matrix obj to table so it's suited in terms of input
+  positive = "high" # give the label for the equivalent of positive in a confusion matrix
+)
+
+print(final_matrix)
+```
+
+
+### conclusion on confusion matrix
+basically for efficiency's sake I tried to avoid using complecated data structures like matrices and dataframes. and lessen the amount of casting I used for convenience
