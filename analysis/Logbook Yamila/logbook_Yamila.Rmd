@@ -209,6 +209,42 @@ plot_volcano(dep_150min, contrast = "Low_vs_High", label_size = 2, add_names = T
 
 
 
+Count proteins
+
+```{r}
+# Calculate the number of proteins identified per sample, before imputation
+num_proteins <- colSums(!is.na(count_data_30min))
+
+# Print overview
+summary(num_proteins)
+
+
+plot(num_proteins, pch = 19, xlab = "Sample Index", 
+     ylab = "Number of Proteins Detected")
+
+
+num_proteins_after <- colSums(!is.na(joined_data_30min))
+
+```
+```{r}
+# Horizontal boxplot
+boxplot(num_proteins, horizontal = TRUE,
+        xlab = "Number of Proteins Detected")
+```
+Seems like the number of proteins detected over the samples peaks around 2500 proteins. There does not seem to be contamination with blood proteins (NP proteins).
+
+
+Trying out PCA on the summarized experiment
+```{r}
+PCA_30min <- assay(data_norm_30min)
+
+plot_pca(data_norm_30min, indicate = c("condition"))
+plot_pca(data_norm_150min, indicate = c("condition"))
+
+
+```
+
+
 
 
 
