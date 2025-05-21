@@ -91,6 +91,8 @@ samples_150min_data <- data_unique[, colnames(data_unique) %in% cols_150min]
 samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_150min, ]
 ```
 
+
+
 Preparing data for imputation
 ```{r}
 # remove rows where all columns are NA, so genes where there is not a single value measured/quantified
@@ -100,6 +102,10 @@ samples_150min_data <- samples_150min_data %>%
 
 samples_30min_data <- samples_30min_data %>%
   filter(rowSums(is.na(samples_30min_data[4:47])) != ncol(samples_30min_data[4:47]))
+
+
+filter_proteins(se, type = c("complete", "condition", "fraction"),
+thr = NULL, min = NULL)
 
 # Replace all NaN with NA
 samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
@@ -152,13 +158,7 @@ experimental_design_150min <- data.frame(
 
 ```
 
-```{r}
 
-# The wrapper function performs the full analysis
-data_results <- LFQ(joined_data, experimental_design, name = "name", ids = "ID", 
-                    fun ="MinProb", type = "all", alpha = 0.05, lfc = 1, filter=NULL)
-
-```
 
 ```{r}
 sample_columns_30min <- grep("NMP.", colnames(joined_data_30min))
@@ -185,27 +185,46 @@ meanSdPlot(data_norm_150min)
 
 ```
 
+
 ```{r}
 data_diff_30min <- test_diff(data_norm_30min, type = "all")
 data_diff_150min <- test_diff(data_norm_150min, type = "all")
 
 
-dep_30min <- add_rejections(data_diff_30min, alpha = 0.05, lfc = log2(1.5))
-dep_150min <- add_rejections(data_diff_150min, alpha = 0.05, lfc = log2(1.5))
+dep_30min <- add_rejections(data_diff_30min, alpha = 0.05, lfc = 1)
+dep_150min <- add_rejections(data_diff_150min, alpha = 0.05, lfc = 1)
 ```
 
 
 
 
 ```{r}
-plot_volcano(dep_30min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+plot_volcano(dep_30min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE, adjusted=FALSE)
 plot_volcano(dep_150min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
 
 ```
 
+```{r}
+results <- get_results(dep_30min)
+
+process(data_norm_150min, thr = 0, fun = c("bpca"))
+
+```
+```{r}
+plot_missval(data_se_30min)
+```
+
+```{r}
+#expression heatmap
+complex_heatmap(m, color_range = c(-1.5, 1.5))
+#sample correlation
+complex_heatmap(m, heatmap_type = "sample")
+#feature correlation
+complex_heatmap(m, heatmap_type = "feature")
 
 
 
+```
 
 
 
@@ -246,6 +265,25 @@ plot_pca(data_norm_150min, indicate = c("condition"))
 
 
 
+
+
+
+
+Volgorde veranderen:
+
+SE maken
+normalizeren
+imputeren!
+
+
+
+```{r}
+
+# The wrapper function performs the full analysis
+data_results <- LFQ(joined_data, experimental_design, name = "name", ids = "ID", 
+                    fun ="MinProb", type = "all", alpha = 0.05, lfc = 1, filter=NULL)
+
+```
 
 
 

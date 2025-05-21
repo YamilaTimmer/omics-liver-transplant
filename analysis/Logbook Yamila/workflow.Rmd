@@ -1,0 +1,331 @@
+---
+title: "Untitled"
+author: "Yamila Timmer"
+date: "2025-05-08"
+output: html_document
+---
+
+```{r}
+# Load packages
+library(pathview)
+library(tidyverse)
+library(readxl)
+library(DEP)
+library(SummarizedExperiment)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+library(clusterProfiler)
+```
+
+# 7/8/9 may
+
+- Looking into what data we need and how to process this in R
+
+Report contains all the quantified proteins (results from protein identification/quantification), is a tsv file and can be read with read.delim. In this file
+rows is proteins/genes columns is sample id.
+
+```{r}
+data <- read.delim("../../../NMP_Bile_Proteomics_Report.txt", header = TRUE)
+
+```
+
+File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
+```{r}
+meta_data <- read.delim("../../../E-MTAB-13501.sdrf.txt")
+
+```
+
+
+Idea: compare between biliary viability score group (high/low) per time point, so at 30 min, 150 min and end.
+
+Files below are supp data 3a + 4a and seems to contain transcriptomics data (gene expression)
+```{r}
+sup_data <- read_excel("../../../supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+```
+
+
+```{r}
+sup_data2 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
+
+```
+
+
+Make dataframe for identifying all sample no:
+- From the regular data (NMP_Bile_Proteomics_Report.txt) it is unclear which sample number belongs to which liver/measure point
+- Dataframe shows sample ID, liver number (so what liver the sample was derived from) and timepoint from when sample was taken (after 30 min/150 min/end)
+
+# Creating Metadata Dataframe
+```{r}
+sample_id1 <- sup_data[c("Sample", "Liver number", "Timepoint")]
+
+sample_id2 <- sup_data2[c("Sample", "Biliary viability score group", "Total BDI score group", "Transplant")]
+
+# Only merges when sample ID is in both dataframes, leaves some livers out as there seems to be some missing data?
+merged_sample_id <- inner_join(sample_id1, sample_id2, by = "Sample")
+
+```
+
+
+# Pre-processing steps
+
+Change colnames to NMP_Bile_Proteomics_X, in order to be able to filter on samples later
+```{r}
+colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", colnames(data)[4:ncol(data)]) # regex that removes everthing, but the "NMP_Bile_Proteomics_X" identifier and replaces colnames of data with this, we need that to match it to the metadata
+```
+
+
+```{r}
+# adds unique identifier columns based on name/id columns, new columns are added to 'data_unique' as 'name' and
+
+data_unique <- make_unique(data, 
+                           names = "PG.Genes", 
+                           ids = "PG.ProteinAccessions", 
+                           delim = ";")
+```
+
+```{r}
+# Filter only the 30 min samples
+samples_30min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "30min"]
+cols_30min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_30min)
+
+# Filter only the 30 min samples
+samples_150min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "150min"]
+cols_150min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_150min)
+
+samples_30min_data <- data_unique[, colnames(data_unique) %in% cols_30min]
+samples_30min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_30min, ]
+
+samples_150min_data <- data_unique[, colnames(data_unique) %in% cols_150min]
+samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_150min, ]
+```
+
+
+# Creating Summarized Experiment Object
+
+```{r}
+experimental_design_30min <- data.frame(
+    label = colnames(samples_30min_data[,4:47]), # has to match sample names in experimental design
+    condition = samples_30min_metadata$`Biliary viability score group`,
+    replicate = colnames(samples_30min_data[,4:47]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+)
+
+experimental_design_150min <- data.frame(
+    label = colnames(samples_150min_data[,4:46]), # has to match sample names in experimental design
+    condition = samples_150min_metadata$`Biliary viability score group`,
+    replicate = colnames(samples_150min_data[,4:46]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+)
+
+```
+
+```{r}
+# Convert NaN to NA, which is neccessary to create SE object and for normalisation
+samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
+samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
+
+```
+
+```{r}
+sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
+sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
+
+
+data_se_30min <- make_se(samples_30min_data, sample_columns_30min, experimental_design_30min)
+
+data_se_150min <- make_se(samples_150min_data, sample_columns_150min, experimental_design_150min)
+
+```
+
+# Removing Samples/Proteins with high missing values
+```{r}
+mean_missing_percentage_samples_30min <- median(colMeans(is.na(assay(data_se_30min))) * 100)
+mean_missing_percentage_samples_30min
+
+mean_missing_percentage_samples_150min <- median(colMeans(is.na(assay(data_se_150min))) * 100)
+mean_missing_percentage_samples_150min
+
+# samples with >70% missing values, would rely too much on imputation
+
+bad_samples_30min <- names(mean_missing_percentage_samples_30min
+                           [mean_missing_percentage_samples_30min > 70])
+
+data_se_30min <- data_se_30min[, !colnames(data_se_30min) %in% bad_samples_30min]
+
+bad_samples_150min <- names(mean_missing_percentage_samples_150min
+                            [mean_missing_percentage_samples_150min > 70])
+
+data_se_150min <- data_se_150min[, !colnames(data_se_150min) %in% bad_samples_150min]
+```
+
+
+
+```{r}
+# Calculate the median average presence of proteins per sample, in the article this was 41.5%
+mean_protein_presence_150min <- median(rowMeans(!is.na(assay(data_se_150min)))) * 100
+mean_protein_presence_150min
+mean_protein_presence_30min <-  median(rowMeans(!is.na(assay(data_se_30min))))
+mean_protein_presence_30min
+
+```
+
+```{r}
+# Keep all proteins with at least 30% presence across all samples (based on mean_protein_presence)
+
+data_se_30min_filter <- filter_proteins(data_se_30min, type = "fraction", min = 0.61)
+
+data_se_150min_filter <- filter_proteins(data_se_150min, type = "fraction", min = 0.34)
+```
+
+
+# Normalisation
+
+```{r}
+data_norm_30min <- normalize_vsn(data_se_30min_filter)
+data_norm_150min <- normalize_vsn(data_se_150min_filter)
+
+```
+
+```{r}
+
+meanSdPlot(data_norm_30min)
+meanSdPlot(data_norm_150min)
+
+```
+```{r}
+plot_frequency(data_norm_30min)
+plot_frequency(data_norm_150min)
+```
+```{r}
+plot_detect(data_norm_30min)
+
+plot_detect(data_norm_150min)
+
+```
+
+On average the missing values come from proteins with low intensities (points to MNAR), an imputation method that is suited for this is (“QRILC”) quantile regression-based left-censored function
+
+
+
+After imputation with QRILC, a second "top" exists, with low intensity, this is because it fills NA values with low intensity values that were failed to be measured in the first place (MNAR)
+
+eerst imputatie of normalisatie?
+
+# Imputation
+```{r}
+#set.seed()
+
+data_imp_150min <- impute(data_norm_150min, fun="QRILC")
+data_imp_30min <- impute(data_norm_30min, fun="QRILC")
+
+```
+
+```{r}
+plot_pca(data_imp_150min, indicate = "condition")
+
+plot_pca(data_imp_30min, indicate = "condition")
+```
+
+
+```{r}
+plot_imputation(data_norm_150min, data_imp_150min)
+plot_imputation(data_norm_30min, data_imp_30min)
+
+
+```
+
+# Differential Analysis (comparing groups)
+```{r}
+
+#data_norm_150min <- data_clean
+data_diff_30min <- test_diff(data_imp_30min, type = "all")
+data_diff_150min <- test_diff(data_imp_150min, type = "all")
+
+
+
+dep_30min <- add_rejections(data_diff_30min, alpha = 0.05, lfc = 1)
+dep_150min <- add_rejections(data_diff_150min, alpha = 0.05, lfc = 1)
+
+```
+
+```{r}
+plot_volcano(dep_30min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+plot_volcano(dep_150min, contrast = "Low_vs_High", label_size = 2, add_names = TRUE)
+
+```
+```{r}
+results_df_150min <- get_results(dep_150min)
+
+```
+
+
+# Pathway Analysis
+## Subset on significant DEG's
+```{r}
+# Subset results for comparison, based on p-adjusted of 0.05 and/or below
+low_vs_high_150min <- results_df_150min[results_df_150min$Low_vs_High_p.adj <= 0.05, ]
+```
+
+```{r}
+# Create dataframe with corresponding entrez ID's for gene symbols
+entrez_ID <- function(sig_df) {
+    gene_names <- sig_df$name
+    genes_entrez <- AnnotationDbi::select(org.Hs.eg.db, keys = gene_names,
+                                          columns = c('ENTREZID'), keytype = 'SYMBOL')
+}
+
+low_vs_high_150min_entrez <- entrez_ID(sig_df = low_vs_high_150min)
+
+```
+
+```{r}
+# Make dataframe that shows all pathways that have one or more DEG
+pathway_low_vs_high_150min <- enrichKEGG(gene =
+                                             low_vs_high_150min_entrez$ENTREZID,
+                                         organism = 'hsa')
+
+pathway_low_vs_high_150min_res <- pathway_low_vs_high_150min@result
+
+# Only keep significantly differentially expressed pathways
+pathway_low_vs_high_150min_res <- subset(pathway_low_vs_high_150min_res, pvalue <=
+                                             0.05 & pvalue < p.adjust)
+
+
+```
+
+```{r}
+# Make dataframe that inclused log fold change (Low_vs_High_ratio) and entrez id per significantly differentially expressed gene
+low_vs_high_150min_log <-
+    data.frame(low_vs_high_150min$Low_vs_High_ratio)
+rownames(low_vs_high_150min_log) <- low_vs_high_150min_entrez$ENTREZID
+```
+
+
+```{r}
+# Create visualisations for each pathway with at least 1 DEG
+
+pathview_visualise <- function(comparison, pathway_id){
+    pathview(gene.data = comparison, # chosen comparison
+             pathway.id = pathway_id, # hsa ID
+             species = "hsa", # human sapiens
+             low = list(gene="magenta"), # underexpressed = purple
+             high = list(gene="green")) # overexpressed = green
+}
+
+# Generate all pathway visualisations per comparison
+comparisons = c(pathway_low_vs_high_150min_res, pathway_low_vs_high_30min_res)
+
+for (comparison in comparisons){
+    for (pathway_id in pathway_low_vs_high_150min_res$ID){
+        pathview_visualise(comparison = comparison, pathway_id=pathway_id)
+    }
+}
+```
+
+
+
+
+Since proteomics data is often affected by missing values and some statistical tests do not allow a high amount of missingness in the data, people have to options to reduce the amount of missingness in the data: (1) remove proteins with missing values or (2) impute missing values.
+
+(1): this point is already shown in the Preprocessing tutorial, where we removed samples with a high amount of missing values using a predefined threshold.
+
+(2): this point will be discussed here.
+
