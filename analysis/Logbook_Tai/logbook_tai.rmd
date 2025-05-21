@@ -31,8 +31,10 @@ I also need a threshold to determine what is high and what is low expression
 
 the matrix is for finding the precision of potential biomarkers(prediction data) in comparison to the biliary viability groups(actual data)
 
+for the threshhol and optimal biomarker performance I can do the following options:
 
-
+- mean (very good against outliers but assumes high is about half of the dataset)
+- mean + std (assumes high is more rare)
 
 loading in count data
 ```{r}
@@ -350,5 +352,7 @@ print(final_matrix)
 ```
 
 
-### conclusion on confusion matrix
 basically for efficiency's sake I tried to avoid using complecated data structures like matrices and dataframes. and lessen the amount of casting I used for convenience
+
+## building a profile
+I'm building a profile based on the proteomics data and every protein's accuracy
