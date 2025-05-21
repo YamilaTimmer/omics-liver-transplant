@@ -33,8 +33,7 @@ vignettes/*.pdf
 /cache/
 
 # Temporary files created by R markdown
-*.utf8.md
-*.knit.md
+*.utf8.md*.knit.md
 
 # R Environment Variables
 .Renviron
@@ -50,3 +49,5 @@ rsconnect/
 /analysis/Logbook_Jarno/data
 analysis/.DS_Store
 .DS_Store
+
+/tai_local_data
