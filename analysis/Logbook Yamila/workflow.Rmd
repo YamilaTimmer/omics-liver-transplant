@@ -35,7 +35,6 @@ meta_data <- read.delim("../../../E-MTAB-13501.sdrf.txt")
 
 ```
 
-
 Idea: compare between biliary viability score group (high/low) per time point, so at 30 min, 150 min and end.
 
 Files below are supp data 3a + 4a and seems to contain transcriptomics data (gene expression)
@@ -48,7 +47,6 @@ sup_data <- read_excel("../../../supp_data.xlsx", sheet = "Figure 3a", col_names
 sup_data2 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
 
 ```
-
 
 Make dataframe for identifying all sample no:
 - From the regular data (NMP_Bile_Proteomics_Report.txt) it is unclear which sample number belongs to which liver/measure point
@@ -103,16 +101,20 @@ samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples
 # Creating Summarized Experiment Object
 
 ```{r}
+sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
+
 experimental_design_30min <- data.frame(
-    label = colnames(samples_30min_data[,4:47]), # has to match sample names in experimental design
+    label = colnames(samples_30min_data[, sample_columns_30min]), # has to match colnames of samples 
     condition = samples_30min_metadata$`Biliary viability score group`,
-    replicate = colnames(samples_30min_data[,4:47]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+    replicate = colnames(samples_30min_data[, sample_columns_30min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
 
+sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
+
 experimental_design_150min <- data.frame(
-    label = colnames(samples_150min_data[,4:46]), # has to match sample names in experimental design
+    label = colnames(samples_150min_data[, sample_columns_150min]),  #has to match colnames of samples 
     condition = samples_150min_metadata$`Biliary viability score group`,
-    replicate = colnames(samples_150min_data[,4:46]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+    replicate = colnames(samples_150min_data[, sample_columns_150min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
 
 ```
@@ -122,12 +124,17 @@ experimental_design_150min <- data.frame(
 samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
+load("../../top_x_genes_150_new.Rdata")
+
+# Select only rows with 200 genes with highest loadings
+top_200_genes <- top_x_genes_150[1:80]
+#top_200_genes
+samples_150min_data <- samples_150min_data%>%
+  filter(samples_150min_data$PG.Genes %in% top_200_genes)
+
 ```
 
 ```{r}
-sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
-sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
-
 
 data_se_30min <- make_se(samples_30min_data, sample_columns_30min, experimental_design_30min)
 
@@ -143,36 +150,40 @@ mean_missing_percentage_samples_30min
 mean_missing_percentage_samples_150min <- median(colMeans(is.na(assay(data_se_150min))) * 100)
 mean_missing_percentage_samples_150min
 
-# samples with >70% missing values, would rely too much on imputation
-
-bad_samples_30min <- names(mean_missing_percentage_samples_30min
-                           [mean_missing_percentage_samples_30min > 70])
-
-data_se_30min <- data_se_30min[, !colnames(data_se_30min) %in% bad_samples_30min]
-
-bad_samples_150min <- names(mean_missing_percentage_samples_150min
-                            [mean_missing_percentage_samples_150min > 70])
-
-data_se_150min <- data_se_150min[, !colnames(data_se_150min) %in% bad_samples_150min]
+# bad_samples_30min <- names(missing_per_sample_30min[missing_per_sample_30min > 70])
+# 
+# 
+# # samples with >70% missing values, would rely too much on imputation
+# 
+# 
+# bad_samples_30min <- names(mean_missing_percentage_samples_30min
+#                            [mean_missing_percentage_samples_30min > 70])
+# 
+# data_se_30min <- data_se_30min[, !colnames(data_se_30min) %in% bad_samples_30min]
+# 
+# missing_per_sample_150min <- colMeans(is.na(assay(data_se_30min))) * 100
+# high_amount_missing_sample_150min <- missing_per_sample_150min
+# bad_samples_150min <- names(mean_missing_percentage_samples_150min
+#                             [mean_missing_percentage_samples_150min > 70])
+# 
+# data_se_150min <- data_se_150min[, !colnames(data_se_150min) %in% bad_samples_150min]
 ```
-
-
 
 ```{r}
 # Calculate the median average presence of proteins per sample, in the article this was 41.5%
-mean_protein_presence_150min <- median(rowMeans(!is.na(assay(data_se_150min)))) * 100
-mean_protein_presence_150min
 mean_protein_presence_30min <-  median(rowMeans(!is.na(assay(data_se_30min))))
 mean_protein_presence_30min
 
+mean_protein_presence_150min <- median(rowMeans(!is.na(assay(data_se_150min))))
+mean_protein_presence_150min
 ```
 
 ```{r}
 # Keep all proteins with at least 30% presence across all samples (based on mean_protein_presence)
 
-data_se_30min_filter <- filter_proteins(data_se_30min, type = "fraction", min = 0.61)
+data_se_30min_filter <- filter_proteins(data_se_30min, type = "condition", thr = 2)
 
-data_se_150min_filter <- filter_proteins(data_se_150min, type = "fraction", min = 0.34)
+data_se_150min_filter <- filter_proteins(data_se_150min, type = "condition", thr = 2)
 ```
 
 
@@ -196,32 +207,28 @@ plot_frequency(data_norm_150min)
 ```
 ```{r}
 plot_detect(data_norm_30min)
-
 plot_detect(data_norm_150min)
 
 ```
 
 On average the missing values come from proteins with low intensities (points to MNAR), an imputation method that is suited for this is (“QRILC”) quantile regression-based left-censored function
 
-
-
 After imputation with QRILC, a second "top" exists, with low intensity, this is because it fills NA values with low intensity values that were failed to be measured in the first place (MNAR)
 
-eerst imputatie of normalisatie?
+
 
 # Imputation
 ```{r}
 #set.seed()
-
-data_imp_150min <- impute(data_norm_150min, fun="QRILC")
 data_imp_30min <- impute(data_norm_30min, fun="QRILC")
+data_imp_150min <- impute(data_norm_150min, fun="QRILC")
 
 ```
 
 ```{r}
-plot_pca(data_imp_150min, indicate = "condition")
+plot_pca(data_imp_150min, indicate = "condition", n=71)
 
-plot_pca(data_imp_30min, indicate = "condition")
+#plot_pca(data_imp_30min, indicate = "condition")
 ```
 
 
@@ -234,11 +241,8 @@ plot_imputation(data_norm_30min, data_imp_30min)
 
 # Differential Analysis (comparing groups)
 ```{r}
-
-#data_norm_150min <- data_clean
 data_diff_30min <- test_diff(data_imp_30min, type = "all")
 data_diff_150min <- test_diff(data_imp_150min, type = "all")
-
 
 
 dep_30min <- add_rejections(data_diff_30min, alpha = 0.05, lfc = 1)
@@ -313,19 +317,12 @@ pathview_visualise <- function(comparison, pathway_id){
 # Generate all pathway visualisations per comparison
 comparisons = c(pathway_low_vs_high_150min_res, pathway_low_vs_high_30min_res)
 
-for (comparison in comparisons){
-    for (pathway_id in pathway_low_vs_high_150min_res$ID){
-        pathview_visualise(comparison = comparison, pathway_id=pathway_id)
-    }
-}
+# for (comparison in comparisons){
+#     for (pathway_id in pathway_low_vs_high_150min_res$ID){
+#         pathview_visualise(comparison = comparison, pathway_id=pathway_id)
+#     }
+# }
 ```
 
 
-
-
-Since proteomics data is often affected by missing values and some statistical tests do not allow a high amount of missingness in the data, people have to options to reduce the amount of missingness in the data: (1) remove proteins with missing values or (2) impute missing values.
-
-(1): this point is already shown in the Preprocessing tutorial, where we removed samples with a high amount of missing values using a predefined threshold.
-
-(2): this point will be discussed here.
-
+https://www.bioconductor.org/packages/devel/bioc/vignettes/DEqMS/inst/doc/DEqMS-package-vignette.html
