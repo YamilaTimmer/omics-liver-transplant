@@ -4,6 +4,11 @@ format:
   html:
     toc: true
     toc-location: left
+theme:
+  light: flatly
+  dark: darkly
+code-overflow: wrap
+engine: knitr
 ---
 
 ## Meta stuff
@@ -269,20 +274,23 @@ Dit zijn de top 100 genen
 Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen.
 Dit ga ik doen met Falco en multiqc
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ | \
 parallel "/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"
 ```
 
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/
 ```
 
 
 ## 19-05-2025
 ### Mapping transcriptomics
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
     parallel 'STAR --runThreadN 6 ' \
         '--genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ ' \
@@ -296,7 +304,8 @@ cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt |
 ```
 
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ --readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --genomeLoad LoadAndRemove --limitBAMsortRAM 2000000000 --outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_
 
 ```
@@ -506,9 +515,7 @@ argsort_transscript <- order(loadings_transcriptomics[,1]^2, decreasing = T)
 plot(loadings_transcriptomics[,1][argsort_transscript])
 ```
 
-
 ```{r}
-
 genes_pca1_transcript <- transcriptomics_data[argsort_transscript,2]
 head(genes_pca1_transcript)
 ```
