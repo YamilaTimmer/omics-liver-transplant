@@ -1,13 +1,11 @@
 ---
-title: "Logbook"
-output: 
-  html_document:
-    toc: yes
-    toc_depth: 3
-    toc_float:
-      collapsed: yes
-      smooth_scroll: yes
+title: "logbook"
+format:
+  html:
+    toc: true
+    toc-location: left
 ---
+
 ## Meta stuff
 
 ```{r}
@@ -22,8 +20,9 @@ library(ggplot2)
 library(tidyverse)
 
 ```
-## Data inlezen
-### 14-05-2025
+## 14-05-2025
+### Data inlezen
+
 
 
 ```{r}
@@ -114,9 +113,9 @@ ggplot(explained_var[1:20,],
   geom_col()
 
 ```
+## 18-05-2025
+### PCA met mdatools
 
-## PCA met mdatools
-### 18-05-2025
 
 Om te vergelijken of MDA tools een ander resultaat geeft wil ik de PCA uitvoeren met deze tool en vergelijken met mijn eigen uitgevoerde PCA.
 
@@ -150,7 +149,7 @@ ggplot(
 ```
 Naast dat de plot geflipped is ziet deze er hetzelfde uit als mijn eigen gegenereerde PCA plot, dit houd in dat ik deze tool kan gaan gebruiken om de data te verwerken
 
-## Echte data PCA
+### Echte data PCA
 Voorheen was er data gebruikt waar nog geen imputatie op gebruikt was. Yamila heeft een nieuwe dataset gedeeld waarbij alle NA-waarden geimputeerd zijn. Hier zal ik opnieuw een PCA op uitvoeren.
 
 #### Laden data
@@ -281,8 +280,8 @@ multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o 
 ```
 
 
-### 19-05-2025
-
+## 19-05-2025
+### Mapping transcriptomics
 ```{bash, eval = FALSE}
 cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
     parallel 'STAR --runThreadN 6 ' \
@@ -302,7 +301,7 @@ STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcri
 
 ```
 
-## Pca 150 minute data
+### Pca 150 minute data
 
 ```{r}
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/new_data_150min.Rdata")
@@ -375,8 +374,8 @@ head(top_x_genes_150)
 save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_150_new.Rdata")
 ```
 
-### 20-05-2025
-## Mapping hisat
+## 20-05-2025
+### Mapping hisat
 
 ```{bash, eval = FALSE}
 sbatch --partition=assemblix \
@@ -395,8 +394,8 @@ hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/
 ```
 
 
-### 21-05-2025
-## Featurecounts
+## 21-05-2025
+### Featurecounts
 
 count data halen uit de sam files.
 
@@ -433,7 +432,8 @@ transcriptomics_data <- transcriptomics_data %>%
 head(transcriptomics_data)
 ```
 
-### 22-05-2025
+## 22-05-2025
+### PCA and transcriptomics processing
 Nu moeten de juiste sample namen gebruikt worden in de dataframe, zodat deze gelinkt kunnen worden aan de meta data.
 
 ```{r}
