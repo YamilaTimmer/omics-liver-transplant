@@ -1,7 +1,16 @@
 ---
-title: "Logbook"
-output: html_document
+title: "logbook"
+format:
+  html:
+    toc: true
+    toc-location: left
+theme:
+  light: flatly
+  dark: darkly
+code-overflow: wrap
+engine: knitr
 ---
+
 ## Meta stuff
 
 ```{r}
@@ -16,8 +25,9 @@ library(ggplot2)
 library(tidyverse)
 
 ```
-## Data inlezen
-### 14-05-2025
+## 14-05-2025
+### Data inlezen
+
 
 
 ```{r}
@@ -30,11 +40,11 @@ load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
 ```{r}
 na_mask <- is.na(data_filtered)
 data_filtered[na_mask] <- 0
-data_filtered
+head(data_filtered)
 ```
 
 ```{r}
-meta_data_liver
+head(meta_data_liver)
 
 ```
 
@@ -76,7 +86,7 @@ scores_df <- as.data.frame(scores)
 col_n <- seq(ncol(scores))
 col_names <- paste0("PC", col_n)
 names(scores_df) <- col_names
-scores_df
+head(scores_df)
 ```
 
 ```{r}
@@ -87,6 +97,7 @@ ggplot(
       color = meta_data_liver$`Biliary viability score group`,
       shape = meta_data_liver$Transplant),) +
   geom_point() +
+  scale_fill_brewer(palette="Dark2") +
   labs(color = "Billiary viability score")
 
 ```
@@ -96,7 +107,7 @@ Explained variances
 explained_var <- as.data.frame(eig$values / sum(eig$values)) * 100
 explained_var$PC <- paste0("PC", col_n)
 names(explained_var) <- c("ex_var","PC")
-explained_var
+head(explained_var)
 ```
 
 
@@ -107,9 +118,9 @@ ggplot(explained_var[1:20,],
   geom_col()
 
 ```
+## 18-05-2025
+### PCA met mdatools
 
-## PCA met mdatools
-### 18-05-2025
 
 Om te vergelijken of MDA tools een ander resultaat geeft wil ik de PCA uitvoeren met deze tool en vergelijken met mijn eigen uitgevoerde PCA.
 
@@ -148,7 +159,7 @@ Voorheen was er data gebruikt waar nog geen imputatie op gebruikt was. Yamila he
 
 #### Laden data
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_30min.Rdata")
 ```
 
 Omdat deze data niet meer past bij de metadata ga ik zelf high en low values uit de naam halen.
@@ -163,14 +174,14 @@ df_data <- as.data.frame(assay_norm)
 bil_via <- str_extract(names(df_data), "[^_]+")
 sample_names <- str_extract(names(df_data), "_(.*)") %>%
   str_replace("^_", "")
-sample_names
+head(sample_names)
 ```
 
 ```{r}
 meta_data_liver_filtered <- meta_data_liver %>%
   dplyr::filter((Sample %in% sample_names) & (Timepoint == '30min'))
 
-meta_data_liver_filtered
+head(meta_data_liver_filtered)
 
 ```
 
@@ -251,8 +262,9 @@ plot(loadings$pc1[argsort])
 ```
 
 ```{r}
-top_x_genes <- df_data[argsort[1:100], 1]
-top_x_genes
+top_x_genes <- df_data[argsort, 1]
+head(top_x_genes)
+
 ```
 
 Dit zijn de top 100 genen
@@ -262,20 +274,23 @@ Dit zijn de top 100 genen
 Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen.
 Dit ga ik doen met Falco en multiqc
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ | \
 parallel "/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"
 ```
 
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/
 ```
 
 
-### 19-05-2025
-
-```{bash, eval = FALSE}
+## 19-05-2025
+### Mapping transcriptomics
+```{bash}
+#| eval: false
 cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
     parallel 'STAR --runThreadN 6 ' \
         '--genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ ' \
@@ -289,18 +304,218 @@ cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt |
 ```
 
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ --readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --genomeLoad LoadAndRemove --limitBAMsortRAM 2000000000 --outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_
 
 ```
 
-## Pca 150 minute data
+### Pca 150 minute data
 
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/new_data_150min.Rdata")
+```
+
+```{r}
+df_data_150 <- as.data.frame(new_data_150min)
+
+bil_via_150 <- str_extract(names(df_data_150), "[^_]+")
+sample_names_150 <- str_extract(names(df_data_150), "_(.*)") %>%
+  str_replace("^_", "")
+sample_names_150
+
+head(df_data_150)
+```
+
+```{r}
+meta_data_liver_filtered_150 <- meta_data_liver %>%
+  dplyr::filter((Sample %in% sample_names_150) & (Timepoint == '150min'))
+
+head(meta_data_liver_filtered_150)
+
+```
+
+Nu komt de metadata overeen met de nieuwe gefilterde data. Deze kan nu gebruikt worden om kleuren te geven in plots, en zo kan er beter groepen weergegeven worden.
+
+
+```{r}
+df_data_150 <- df_data_150 %>%
+  tibble::rownames_to_column("protein")
+
+```
+
+```{r}
+model_150 <- pca(t(df_data_150[,2:ncol(df_data_150)]), center = T, scale = T)
+
+```
+
+```{r}
+ggplot(
+  model_150$res$cal$scores,
+  aes(x = `Comp 1`,
+      y = `Comp 2`,
+      color = meta_data_liver_filtered_150$`Biliary viability score group`,
+      shape = meta_data_liver_filtered_150$Transplant),) +
+  geom_point() +
+  labs(color = "Billiary viability score",
+       shape = "Transplanted")
+```
+
+Conclusie
+
+```{r}
+plotVariance(model_150)
 ```
 
 
+Conclusie
+Top 100 genes
+```{r}
+loadings_150 <- model_150$loadings
+
+pc1_150 <- loadings_150[,1]
+argsort_150 <- order(pc1_150^2, decreasing = T)
+```
+
+```{r}
+top_x_genes_150 <- df_data_150[argsort_150, 1]
+head(top_x_genes_150)
+save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_150_new.Rdata")
+```
+
+## 20-05-2025
+### Mapping hisat
+
 ```{bash, eval = FALSE}
-echo hoi
+sbatch --partition=assemblix \
+  --job-name=hisat2 \
+  --ntasks=1 \
+  --cpus-per-task=8 \
+  --mem=300G \
+  --time=12:00:00 \
+  --wrap="ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/*.filtered | parallel -j 8 'hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/genome_tran -U {} -S /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/{/.}.sam --phred33 --mm'"
+```
+
+
+```{}
+hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/genome_tran  -U /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161065_1.fastq.filtered -S file_name_unpaired.sam --phred33   
+
+```
+
+
+## 21-05-2025
+### Featurecounts
+
+count data halen uit de sam files.
+
+```{bash, eval = FALSE}
+featureCounts -T 5 -t exon -g gene_id -a /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/Homo_sapiens.GRCh38.84.gtf -o counts.txt /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/*.sam
+```
+
+```{r}
+transcriptomics_data <- read.table("/students/2024-2025/Thema08/liver-transplant/transcriptomics/featurecounts/counts.txt", skip = 1, header = T)
+head(transcriptomics_data)
+```
+
+
+```{r}
+head(meta_data_liver)
+```
+
+```{r}
+transcriptomics_metadata <- read.table("/students/2024-2025/Thema08/liver-transplant/data/E-MTAB-13501.sdrf.txt", header = T, sep = "\t")
+head(transcriptomics_metadata)
+```
+
+Adding gene symbol to dataframe
+
+```{r}
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+genes <- transcriptomics_data$Geneid
+ann <- select(org.Hs.eg.db, keys = genes, keytype = 'ENSEMBL', columns = 'SYMBOL')
+transcriptomics_data <- merge(transcriptomics_data, ann, by.x = "Geneid", by.y = "ENSEMBL", all.x = TRUE)
+transcriptomics_data <- transcriptomics_data %>%
+  dplyr::select(c(Geneid, SYMBOL), everything())
+
+head(transcriptomics_data)
+```
+
+## 22-05-2025
+### PCA and transcriptomics processing
+Nu moeten de juiste sample namen gebruikt worden in de dataframe, zodat deze gelinkt kunnen worden aan de meta data.
+
+```{r}
+names_transcript <- names(transcriptomics_data)
+sample_name <- sub(".*(ERR[0-9]+).*", "\\1", names_transcript)
+sample_name
+
+names(transcriptomics_data) <- sample_name
+head(transcriptomics_data)
+
+```
+
+```{r}
+count_data_transcript <- transcriptomics_data[,8:ncol(transcriptomics_data)]
+head(count_data_transcript)
+```
+Deze bevat alleen de samples met de juiste sample namen. Deze data kan nu geschaald en genormaliseerd worden.
+
+De metadata bevat elke sample 2x, deze haal ik er uit.
+```{r}
+
+transcriptomics_metadata_dups_rem <- transcriptomics_metadata[!duplicated(transcriptomics_metadata[c('Comment.ENA_SAMPLE.')]),]
+```
+
+```{r}
+count_transcript_t <- t(count_data_transcript)
+variances_transcript <- apply(count_transcript_t, 2, var)
+count_transcript_t <- count_transcript_t[, which(variances_transcript > 0)]
+dim(count_transcript_t)
+transformed_trans <- log2(count_transcript_t + 1)
+
+scaled_trans <- scale(transformed_trans, center = T, scale = T)
+
+```
+Hier kan ik nu een PCA op uitvoeren
+
+```{r}
+model_transcriptomics <- pca(scaled_trans, center = T, scale = T, info = "Transcriptomics",ncomp = ncol(count_data_transcript))
+```
+
+```{r}
+ggplot(
+  model_transcriptomics$res$cal$scores,
+  aes(x = `Comp 1`,
+      y = `Comp 2`,
+      color = transcriptomics_metadata_dups_rem$Factor.Value.biliary.viability.score.group.,
+      shape = transcriptomics_metadata_dups_rem$Characteristics.transplant.suitability.),) +
+  geom_point() +
+  labs(color = "Billiary viability score",
+       shape = "Transplanted")
+
+
+```
+TODO conclusie
+
+```{r}
+plotVariance(model_transcriptomics)
+```
+TODO conclusie
+
+
+```{r}
+loadings_transcriptomics <- model_transcriptomics$loadings
+plot(loadings_transcriptomics[,1])
+```
+
+
+```{r}
+argsort_transscript <- order(loadings_transcriptomics[,1]^2, decreasing = T)
+plot(loadings_transcriptomics[,1][argsort_transscript])
+```
+
+```{r}
+genes_pca1_transcript <- transcriptomics_data[argsort_transscript,2]
+head(genes_pca1_transcript)
 ```
