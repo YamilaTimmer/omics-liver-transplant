@@ -10,7 +10,6 @@ output:
 bibliography: bibliography.bib    # Path to your .bib file
 ---
 
-
 # Introduction
 
 This is a logbook for the Omics liver transplant project. The goal of this project is to perform a PCA on both the proteomics data and RNA transcriptomics data, and find a link.
@@ -22,6 +21,10 @@ library(tidyverse) # For data manipulation and visualization
 library(ggplot2) # For data visualization
 library(ggfortify) # For PCA visualization
 library(factoextra) # For PCA visualization
+library(Rsamtools) # For Reading Bam files
+library(Rsubread) # Feature count
+library(mdatools)
+
 ```
 
 ## Reading the Paper
@@ -53,7 +56,6 @@ eigenvalues <- pca$sdev^2
 summary(pca)
 ```
 
-
 ```{r, fig.cap= "Fig.1 - SCREE plot"}
 # Percentage of variance explained
 plot(eigenvalues/sum(eigenvalues), type = "b",
@@ -80,8 +82,8 @@ iris.pca.plot <- autoplot(pca,
   
 iris.pca.plot
 ```
-Here a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the color indicates the species of the flower. The groups are show by taking all the most outside points and drawing a line around the rest of the dots.
 
+Here a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the color indicates the species of the flower. The groups are show by taking all the most outside points and drawing a line around the rest of the dots.
 
 ```{r, fig.cap= "Fig.2 - Loading plot"}
 # Graph of the variables
@@ -90,29 +92,27 @@ fviz_pca_var(pca, col.var = "black")
 
 This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. Longer arrow means stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their close proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
 
-**applying PCA to the data**
-After reading the PCA that was done in the paper and exploring and explenation of different sides of a good PCA, i wrote down a small list of suggestions that we should keep in mind when we are doing our PCA. This being to first do a propper analysis of the data, this means looking at the data and seeing if there are any outliers or missing values. If there are outliers or missing values, we should remove them from the dataset. After this we should scale the data, this is important because PCA is sensitive to the scale of the data. If the data is not scaled, the PCA will be biased towards the variables with larger scales. After scaling we can do a PCA on the data and plot it using a scatterplot. This will give us a good overview of how the data looks like and if there are any patterns in it. After this we can do a loading plot to see how much each variable contributes to each principal component. This will help us understand which variables are important for the PCA and which ones are not.
+**applying PCA to the data** After reading the PCA that was done in the paper and exploring and explenation of different sides of a good PCA, i wrote down a small list of suggestions that we should keep in mind when we are doing our PCA. This being to first do a propper analysis of the data, this means looking at the data and seeing if there are any outliers or missing values. If there are outliers or missing values, we should remove them from the dataset. After this we should scale the data, this is important because PCA is sensitive to the scale of the data. If the data is not scaled, the PCA will be biased towards the variables with larger scales. After scaling we can do a PCA on the data and plot it using a scatterplot. This will give us a good overview of how the data looks like and if there are any patterns in it. After this we can do a loading plot to see how much each variable contributes to each principal component. This will help us understand which variables are important for the PCA and which ones are not.
 
 After this PCA, we should analyse the cluster groups by subsetting the data and looking at the different groups. This will help us understand how the different groups are related to each other and if there are any patterns in the data. After this we can do a correlation analysis to see how the different variables are related to each other. Also a heatmap can be made to see correlation. E
 
-ANOVA? 
+ANOVA?
 
-KEGG, 
+KEGG,
 
 Diablo
 
-
 \sGCCA
-
 
 MOFA+
 
 Transcriptomics
 
 ### Proposal for research question
-**Question** Can longer usage of NMP lead to benefits in preservation and functional assessment of Sub-optimal ECD livers?
 
-**Why?** The paper it self calls for this as an interesting question for research, the data this paper has provided can be used with the Diablo tool to see what proteins are 
+**Question** Does longer usage of NMP lead to benefits in preservation and functional assessment of Sub-optimal ECD livers?
+
+**Why?** The reason for this research question is because the paper itself also refers to a study that is going towards this and also because we have quite a lot of data that has been taken over multiple points in the NMP cycle, so that we can use the change between these points for the estimates of the next points. Finding certain biomarkers that could support this hypothesis should be reasonably doable and the paper also mentions interesting genes/proteins that could support this hypothesis
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
@@ -121,6 +121,10 @@ Transcriptomics
 ```{r, echo=FALSE, include = FALSE}
 data_proteomics <- read.delim("data/NMP_Bile_Proteomics_Report.txt", sep = "\t")
 data.frame(data_proteomics)
+
+```
+
+```{r}
 head(data_proteomics)
 
 ```
@@ -131,6 +135,326 @@ colnames_proteomics
 ```
 
 ```{r, echo=FALSE, include = FALSE}
-summary(data_proteomics)
+
+df_proteom <- data_proteomics[,-1:-3 ]
+
 ```
 
+```{r}
+# Perform PCA on the  dataset
+pca_proteom <- prcomp(df_proteom, scale = TRUE)
+
+# Extract the eigenvalues from the PCA object
+eigenvalues_proteom <- pca_proteom$sdev^2
+
+summary(pca_proteom)
+
+```
+
+### Chosen research question
+
+\*\*
+
+look at this by comparing the samples from the 2 'biliary viability' groups (high vs low) and do this for the bile proteomics data and the liver transcriptomics data and then see which proteins are more/less abundant or which metabolic pathways in the liver are more/less expressed per group. The biliary viability is determined as follows: "The addition of biliary viability criteria, such as bile pH, glucose reabsorption and bicarbonate secretion, for selection of viable liver grafts has been explored by us and others", but it is not discussed whether there is a certain proteomics/transcriptomics profile associated with this 'biliary viability'. The biliary viability score describes the state of 'cholangiocytes', these are specialized epithelial cells lining the bile ducts. Determining the biliary viability in advance (before transplantation) reduces the risk of cholangiopathies (cholangiocyte disorders) after transplantation. The article also states that the data is suitable for further refining the 'viability assessment criteria' ("Our comprehensive bile proteomics and liver transcriptomics data sets provide the potential to further evaluate molecular mechanisms during NMP and refine viability assessment criteria viability assessment criteria"). A reason to look for biomarkers, instead of using the normal tests, could be, for example, that values ​​at the proteomics/transcriptomics level provide a better picture.
+
+### Maken flowchart voor potentiele transcriptomics pipeline
+
+![](images/clipboard-2677362579.png)
+
+## Transcriptomics experimentation
+
+Looking at the bam header to see if the reads are mapped
+
+```{r}
+scanBamHeader(files = "data/ERR12161053.bam")
+```
+
+For this reason we have to donwload the fastq data, this data has a quirk too thought
+
+The data we have got is aligned bam data we only have to use feature count on this file
+
+```{r}
+featureCounts("data/ERR12161053.bam", annot.inbuilt = "hg38", GTF.featureType = "exon",isPairedEnd = TRUE, )
+
+
+
+```
+
+Using hisat2 i indexed the refrence genome. Due to the article not saying what ref genome they used we will be using the most recent GRC38 human genome. The following bash code was used to index the genome
+
+```{bash}
+#hisat2-build GCF_000001405.40_GRCh38.p14_genomic.fna h38_index
+```
+
+This command is used to build an index for the refrence genome, this is quite important pre read allignment due to it being requered by hisat2 and also making the whole process faster.
+
+After the index with refrence genome 38 (the most recent humane refrence genome released that is used widely) hisat gave me an about 20% mapping result. This resulted in me also indexing and mapping with an old refrence genome the 37 human refrence genome. This gave me a 38% mapping rate with an unpaired fastq sample.
+
+```{bash}
+#!/bin/bash
+#
+#SBATCH --job-name=hg19index
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+
+hisat2-build hg19.fa.gz h19_index
+
+```
+
+(This is using slurm)
+
+Here is the file that gave me the highest mapping.
+
+```{bash}
+#hisat2 -x h19_index -U R10_1.fastq -S R10_h19_unpaired.sam --phred33                                                             
+```
+
+Now i will try using feature count again
+
+```{r}
+counts_results <- featureCounts("data/R10.sam", annot.ext = "data/Homo_sapiens.GRCh37.75.gtf", GTF.featureType = "exon", isGTFAnnotationFile = TRUE)
+
+write.table(
+  counts_results$counts,
+  file = "data/R10_counts_matrix.txt", # Naam voor het counts matrix bestand
+  sep = "\t", # Gebruik tabs als scheidingsteken
+  quote = FALSE, # Geen quotes rond celwaarden
+  row.names = TRUE # Gen IDs als rijnamen
+)
+```
+
+```{r}
+counts_results
+```
+
+## MDA TOOLS
+
+Omdat onze data nu nog niet te gebruiken is gebruik ik de iris dataset als voorbeeld
+
+```{r}
+# calibration set from iris data (3 classes)
+x.cal = iris[seq(1, nrow(iris), 2), 1:4]
+c.cal = iris[seq(1, nrow(iris), 2), 5]
+
+model = plsda(x.cal, c.cal, ncomp = 3, cv = 1, info = 'IRIS data example')
+model = selectCompNum(model, 1)
+
+summary(model)
+plot(model)
+```
+
+```{r}
+summary(model, nc = 2)
+plot(model, nc = 2)
+```
+
+```{r}
+summary(model, nc = 3, ncomp = 3)
+plot(model, nc = 3, ncomp = 3)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plotSpecificity(model)
+plotSensitivity(model)
+plotMisclassified(model)
+plotMisclassified(model, nc = 2)
+par(mfrow = c(1, 1))
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plotPredictions(model)
+plotPredictions(model, res = "cal", ncomp = 2, nc = 2)
+plotPredictions(structure(model, class = "regmodel"))
+plotPredictions(structure(model, class = "regmodel"), ncomp = 2, ny = 2)
+par(mfrow = c(1, 1))
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plotXYScores(model)
+plotYVariance(model)
+plotXResiduals(model)
+plotRegcoeffs(model, ny = 2)
+par(mfrow = c(1, 1))
+
+```
+
+### **1. X-distances (Score vs. Orthogonal distance)**
+
+-   **Score distance (h/h0)**: hoe ver een punt van het centrum van het model ligt in de richting van de belangrijkste component(en).
+-   **Orthogonal distance (q/q0)**: hoe ver een punt van het modelvlak ligt (dus afwijking van het model).
+-   De grijze lijnen geven grenzen aan voor outliers en invloedrijke punten.
+-   Punten dichtbij (0,0) zijn goed verklaard door het model.
+-   Punten buiten de grenslijnen (met name rechts of hoog) kunnen outliers zijn.
+-   In jouw plots zie je dat de meeste punten binnen de grenzen vallen → geen grote outliers.
+
+### **2. Regression Coefficients**
+
+-   De gewichten (coëfficiënten) van elke **predictor** (de 4 bloemenkenmerken: sepal length, sepal width, petal length, petal width).
+-   Dit geeft aan hoe belangrijk elk kenmerk is voor het onderscheiden van de betreffende klasse (*setosa*, *versicolor* of *virginica*).
+-   Positieve/negatieve waarden laten zien of een kenmerk positief of negatief bijdraagt aan de kans dat een punt bij die klasse hoort.
+-   Bijvoorbeeld: bij *setosa* (eerste figuur) heeft "Predictor 3" (waarschijnlijk **petal length**) een sterke negatieve invloed.
+
+### **3. Misclassified**
+
+-   Aantal fout geclassificeerde objecten bij **training (cal)** en **cross-validation (cv)**.
+-   De x-as toont het aantal gebruikte componenten (ncomp = 1, 2, 3).
+-   Lager is beter: minder misclassificaties.
+-   In jouw plots zie je dat *setosa* (eerste figuur) helemaal goed gaat (0 fout), terwijl *versicolor* en *virginica* iets meer fouten hebben.
+-   Bij virginica zie je verbetering met 3 componenten → model pakt meer variatie.
+
+### **4. Predictions (cv)**
+
+-   Werkelijke klasse (kleur) versus voorspelde klasse per object.
+-   Elk punt is een object uit de dataset.
+-   De Y-as toont de voorspelde klasse (setosa, versicolor, virginica), de X-as de observatienummers.
+-   Correcte voorspellingen zijn punten op hun juiste rij.
+-   Foute voorspellingen zijn bijvoorbeeld een rood puntje op de "versicolor"-rij (dan is een virginica als versicolor geclassificeerd).
+-   In de eerste figuur zijn bijna alle voorspellingen correct, vooral voor *setosa*.
+
+1.  **Figuur 1 (Setosa):**
+
+    -   Perfecte classificatie.
+    -   Predictor 3 speelt een grote negatieve rol.
+    -   Geen misclassificaties.
+    -   Score/afstand OK → betrouwbaar model.
+
+2.  **Figuur 2 (Versicolor):**
+
+    -   Iets meer misclassificaties.
+    -   Positieve invloed van Predictor 3.
+    -   Enkele fouten zichtbaar in de "Predictions"-plot.
+
+3.  **Figuur 3 (Virginica, ncomp = 3):**
+
+    -   Betere classificatie door meer componenten.
+    -   Positieve bijdrage van Predictors 2-4.
+    -   Iets lagere fouten dan in de versicolor-figuur.
+
+## PLS-DA our data data
+
+PLS Discriminant Analysis (PLS-DA) is a discrimination method based on PLS regression. The used R library t
+
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_150min.Rdata")
+
+first_data <- assay_norm # Assay norm is the loaded Rdata object
+as.data.frame(first_data) # Transform the data to a dataframe
+```
+
+```{r}
+data_for_plsda <- t(first_data) #transpose the dataframe so the model runs quicker
+data_for_plsda <- as.data.frame(data_for_plsda)
+```
+
+```{r}
+sample_names <- rownames(data_for_plsda)
+classes <-factor(c(sample_names))
+```
+
+```{r}
+print(dim(data_for_plsda)) # printing the dimensions of data for plsda
+print(length(classes)) # printing length of the classes to check if they are the same as the dimensions
+ncomp_to_try <- min(nrow(data_for_plsda) - 1, ncol(data_for_plsda), 10) #The ncomp settings for the model
+```
+
+```{r}
+model_plsda <- plsda(data_for_plsda, classes, ncomp = ncomp_to_try, cv = 1) # cv is cross validation
+```
+
+```{r}
+summary(model_plsda)
+```
+
+This shows the results of the models for each class
+
+1.  PLS-DA model (class plsda) summary
+    ------------------------------------
+    Info:
+    Number of selected components: 1
+    Cross-validation: full (leave one out)
+
+    Class #1 (High_NMP_Bile_Proteomics_09)
+    X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+    Cal 26.65 2.38 0 0 42 1 1 0 0.977
+    Cv NA NA 0 0 42 1 1 0 0.977
+
+    Class #2 (High_NMP_Bile_Proteomics_102)
+    X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+    Cal 26.65 2.38 0 0 42 1 1 0 0.977
+    Cv NA NA 0 0 42 1 1 0 0.977
+
+    Class #3 (High_NMP_Bile_Proteomics_109)
+    X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+    Cal 26.65 2.38 0 0 42 1 1 0 0.977
+    Cv NA NA 0 0 42 1 1 0 0.977
+
+    Class #4 (High_NMP_Bile_Proteomics_14)
+    X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+    Cal 26.65 2.38 0 0 42 1 1 0 0.977
+    Cv NA NA 0 0 42 1 1 0 0.977
+
+Here is a small snippet of the first results.
+
+Now it is possible to tweak the model settings. Right now all the different samples are used but what if we devide them between HIGH_NMP and LOW_NMP subsets.
+
+```{r}
+sample_identifiers <- rownames(data_for_plsda) 
+
+actual_classes <- character(length(sample_identifiers))
+
+# look in to sample_identifiers if it matches High_nmp_bile then put it in the class High_nmp this is done using grepl the same for Low_nmp
+for (i in 1:length(sample_identifiers)) {
+  if (grepl("High_NMP_Bile_Proteomics", sample_identifiers[i])) {
+    actual_classes[i] <- "High_NMP"
+  } else if (grepl("Low_NMP_Bile_Proteomics", sample_identifiers[i])) {
+    actual_classes[i] <- "Low_NMP"
+  } else {
+    actual_classes[i] <- "Unknown" 
+    warning(paste("Sample", sample_identifiers[i], "couldn't be put in a class"))
+  }
+}
+
+classes_corrected <- factor(actual_classes)
+
+print(length(classes_corrected)) # Check the length to see if its correct 
+print(summary(classes_corrected)) # check how the classses look
+```
+
+```{r}
+model_plsda_corrected <- plsda(data_for_plsda, classes_corrected, ncomp = 10, cv = 1)
+
+summary(model_plsda_corrected)
+```
+
+PLS-DA model (class plsda) summary
+------------------------------------
+Info:
+Number of selected components: 3
+Cross-validation: full (leave one out)
+
+Class #1 (High_NMP)
+X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+Cal 36.75 89 28 0 15 0 1.0 1.000 1.000
+Cv NA NA 25 6 9 3 0.6 0.893 0.791
+
+Class #2 (Low_NMP)
+X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy
+Cal 36.75 89 15 0 28 0 1.000 1.0 1.000
+Cv NA NA 9 3 25 6 0.893 0.6 0.791
+
+This is the outcome and the model seems to have a bit of overfitting but lets look at the results anyways.
+
+### Results - plots
+
+![](images/clipboard-2517190296.png)
+
+A VIP plot also known as variable importance plot tells us the importance from each variable. In this model there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, CPA3 these proteins should be looked at in the main dataset.
+
+![The model seems to be good at differntaiting between the two classes, there are some mis qualifications seen by the red dots in the high nmp field. ](images/clipboard-4104918162.png)
+
+![](images/clipboard-1623296035.png)
