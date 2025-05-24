@@ -51,3 +51,6 @@ analysis/.DS_Store
 .DS_Store
 
 /tai_local_data
+*.log
+analysis/Logbook_Jarno/my_index.files
+analysis/Logbook_Jarno/subread-index-sam-016027-Uzdt6a
