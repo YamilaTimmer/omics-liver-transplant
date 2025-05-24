@@ -453,8 +453,16 @@ This is the outcome and the model seems to have a bit of overfitting but lets lo
 
 ![](images/clipboard-2517190296.png)
 
-A VIP plot also known as variable importance plot tells us the importance from each variable. In this model there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, CPA3 these proteins should be looked at in the main dataset.
+A VIP plot also known as variable importance plot tells us the importance from each variable. In this model there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, CPA3 these proteins should be looked at in the main dataset. Some of these proteins were also called important in our paper
 
 ![The model seems to be good at differntaiting between the two classes, there are some mis qualifications seen by the red dots in the high nmp field. ](images/clipboard-4104918162.png)
 
 ![](images/clipboard-1623296035.png)
+
+Loading plot identifies the orignial variables that are most impactful for the 2 main components, it helps understand what variables work together and if there are any patterns. Vav2 slc39A7 and HRNR have a high loading for component 2 and SMCR8 PRSS3 LUZP1 have a high loading for the component 1.
+
+![It seems that component 1 is the most important so we should analyse this for the most significant proteins.](images/clipboard-1079986677.png)
+
+![![](images/clipboard-3595140848.png)](images/clipboard-928030800.png)
+
+![](images/clipboard-293168836.png)
