@@ -356,3 +356,316 @@ basically for efficiency's sake I tried to avoid using complecated data structur
 
 ## building a profile
 I'm building a profile based on the proteomics data and every protein's accuracy
+
+loading in the dep library and the biocmanager package
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("DEP")
+```
+load in DEP
+```{r}
+if (!require("DEP", quietly = TRUE)) {
+  BiocManager::install("DEP")
+  library("DEP")
+}
+```
+
+load in depmap result for both datasets
+```{r}
+load("../../tai_local_data/dep_high_vs_low_30min.Rdata")
+```
+
+```{r}
+get_results(data_diff_30min)
+```
+
+
+
+
+
+
+
+
+
+## choosing a new threshold method
+
+define potential bio marker protein
+```{r}
+# potential biomarker definitin
+pot_biomarker <- "IGLV7-46"
+```
+
+I'll now try to make a confusion matrix out of all of these but I will try and 
+
+extract only relevant expression data
+```{r}
+# filter for expression values of only the biomarker
+pot_bio_marker_counts <- assay_norm[pot_biomarker, ]
+```
+
+
+split the expression data into high and low viability groups with grepl instead of grep so I won't have to run it twice by basically creating a mask for both viabilities whilst keeping the original pot_bio_marker_counts
+```{r}
+# split into viability groups
+high_viability <- grepl("^High", names(pot_bio_marker_counts))
+low_viability <- !high_viability
+```
+
+```{r}
+# get median threshhold (note that this is temp and if another is neccesary then we will do that)
+expression_threshold <- abs(mean(pot_bio_marker_counts[high_viability]) + mean(pot_bio_marker_counts[low_viability]))/2
+
+```
+
+"calculate" matrix components. this time with better lables cause I found the previous ones confusing
+```{r}
+true_positive <- sum(pot_bio_marker_counts[high_viability] >= expression_threshold)
+false_positive <- sum(pot_bio_marker_counts[low_viability] >= expression_threshold)
+true_negative <- sum(pot_bio_marker_counts[low_viability] < expression_threshold)
+false_negative <- sum(pot_bio_marker_counts[high_viability] < expression_threshold)
+```
+
+
+```{r}
+conf_matrix <- matrix(
+  c(true_positive, false_negative, # fuckass layout for the actual data in the matrix
+    false_positive, true_negative),
+  nrow = 2, # amount of rows
+  dimnames = list(
+    protein_expression = c("high", "low"),  # labels for the rows
+    biliary_viability = c("high", "low")    # labels for the columns
+  )
+)
+```
+
+convert to confusionMatrix object of caret and all the stats that accompany it
+```{r}
+final_matrix <- confusionMatrix(
+  as.table(conf_matrix), # convert matrix obj to table so it's suited in terms of input
+  positive = "high" # give the label for the equivalent of positive in a confusion matrix
+)
+
+print(final_matrix)
+```
+median threshhold:
+![median_thershold_IGLV7_46](./media/Screenshot from 2025-05-22 11-05-23.png)
+
+new median of means threshold:
+![median_of_means_thershold_IGLV7_46](./media/Screenshot from 2025-05-22 11-07-02.png)
+
+
+we can see a slight increase in most metrics which means this would probably be better
+
+now to do it again but without caret to confirm the unnecessary usage of caret
+we mostly care about precision to prevent false positives because transplanting bad livers is dangerous and would cause the most harm
+
+
+define potential bio marker protein
+```{r}
+# potential biomarker definitin
+pot_biomarker <- "IGLV7-46"
+```
+
+I'll now try to make a confusion matrix out of all of these but I will try and 
+
+extract only relevant expression data
+```{r}
+# filter for expression values of only the biomarker
+pot_bio_marker_counts <- assay_norm[pot_biomarker, ]
+```
+
+
+split the expression data into high and low viability groups with grepl instead of grep so I won't have to run it twice by basically creating a mask for both viabilities whilst keeping the original pot_bio_marker_counts
+```{r}
+# split into viability groups
+high_viability <- grepl("^High", names(pot_bio_marker_counts))
+low_viability <- !high_viability
+```
+
+```{r}
+# get median threshhold (note that this is temp and if another is neccesary then we will do that)
+expression_threshold <- abs(mean(pot_bio_marker_counts[high_viability]) + mean(pot_bio_marker_counts[low_viability]))/2
+
+```
+
+"calculate" matrix components. this time with better lables cause I found the previous ones confusing
+```{r}
+true_positive <- sum(pot_bio_marker_counts[high_viability] >= expression_threshold)
+false_positive <- sum(pot_bio_marker_counts[low_viability] >= expression_threshold)
+true_negative <- sum(pot_bio_marker_counts[low_viability] < expression_threshold)
+false_negative <- sum(pot_bio_marker_counts[high_viability] < expression_threshold)
+```
+
+make a matrix (basically only for display purposes rn)
+```{r}
+conf_matrix <- matrix(
+  c(true_positive, false_negative, # fuckass layout for the actual data in the matrix
+    false_positive, true_negative),
+  nrow = 2, # amount of rows
+  dimnames = list(
+    protein_expression = c("high", "low"),  # labels for the rows
+    biliary_viability = c("high", "low")    # labels for the columns
+  )
+)
+```
+
+calculating metrics
+```{r}
+precision <- true_positive/ (true_positive+false_positive)
+specificity <- true_negative/ (true_negative + false_positive)
+
+cat("precision: ",precision," specificity: ", specificity)
+```
+![result_manually_calc_precision_specificity_IGLV7_46](./media/Screenshot from 2025-05-22 11-21-48.png)
+
+add accuracy metric 
+```{r}
+accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + false_negative + false_positive)
+```
+
+
+## perform it on all of the top 150 genes from ramon
+
+```{r}
+load("~/Documents/git_stuff/omics-liver-transplant/tai_local_data/top_x_genes_150.Rdata")
+```
+
+take only the top 500 (number has been arbitrarily chosen)
+```{r}
+top_500_genes <- top_x_genes_150[1:500]
+```
+after manually searching I can confirm all the names match
+
+initialise resulting matrix
+```{r}
+results_top_500 <- matrix(nrow = length(top_500_genes), ncol = 3,
+                   dimnames = list(top_500_genes, 
+                                  c("precision", "specificity", "accuracy")))
+```
+
+split into groups, doing this first because we'll have to filter many times on biomarkers and only once on groups
+```{r}
+# split into viability groups
+high_viability <- grepl("^High", colnames(assay_norm))
+low_viability <- !high_viability
+```
+
+generating metrics and storing them in the matrix
+```{r}
+for (index in 1:length(results_top_500)) {
+  pot_biomarker <- results_top_500[index]
+  marker_expression <- assay_norm[pot_biomarker, ]
+  
+  expression_threshold <- (mean(marker_expression[high_viability]) + mean(marker_expression[low_viability]))/2
+  
+  true_positive <- sum(marker_expression[high_viability] >= expression_threshold)
+  false_positive <- sum(marker_expression[low_viability] >= expression_threshold)
+  true_negative <- sum(marker_expression[low_viability] < expression_threshold)
+  false_negative <- sum(marker_expression[high_viability] < expression_threshold)
+  
+  results_top_500[index, ] <- c(
+    true_positive/(true_positive),    # precision
+    true_positive/(true_positive + false_positive),    # specificity
+    (true_positive + true_negative)/(true_positive + true_negative + false_positive + false_negative)  # accuracy
+  )
+}
+```
+didn't work because:
+```{shell}
+Error in `[<-`(`*tmp*`, index, , value = c(true_positive/(true_positive),  : 
+  subscript out of bounds
+```
+which is because I accidentally referred to the result matrix at the forlooping index instead of the actual vector containing the gene names
+
+so with the code below corrected
+```{r}
+for (index in 1:length(top_500_genes)) {
+  pot_biomarker <- top_500_genes[index]
+  print(pot_biomarker)
+  marker_expression <- assay_norm[pot_biomarker, ]
+  
+  expression_threshold <- (mean(marker_expression[high_viability]) + mean(marker_expression[low_viability]))/2
+  
+  true_positive <- sum(marker_expression[high_viability] >= expression_threshold)
+  false_positive <- sum(marker_expression[low_viability] >= expression_threshold)
+  true_negative <- sum(marker_expression[low_viability] < expression_threshold)
+  false_negative <- sum(marker_expression[high_viability] < expression_threshold)
+  
+  results_top_500[index, ] <- c(
+    true_positive/(true_positive),    # precision
+    true_positive/(true_positive + false_positive),    # specificity
+    (true_positive + true_negative)/(true_positive + true_negative + false_positive + false_negative)  # accuracy
+  )
+}
+```
+results in na matrix because the pot_biomarker variable only gets na's. which is because I once again referred to the resulting matrix instead of the initial input vactor when retrieving the potential biomarker
+
+so with that fixed we get the error subscipt out of bounds at biomarker SLC34A2. and when looking through the expression data by hand it's because SLC34A2 acnnot be found in it
+
+so after making a check to skip the biomarker if it isn't present within the expression data we get the code below.
+```{r}
+for (index in 1:length(top_500_genes)) {
+  pot_biomarker <- top_500_genes[index]
+  
+  if (!pot_biomarker %in% rownames(assay_norm)) { # check to see if it's present iwithin the expression data
+    next  
+  }
+  
+  marker_expression <- assay_norm[pot_biomarker, ]
+  
+  expression_threshold <- (mean(marker_expression[high_viability]) + mean(marker_expression[low_viability]))/2
+  
+  true_positive <- sum(marker_expression[high_viability] >= expression_threshold)
+  false_positive <- sum(marker_expression[low_viability] >= expression_threshold)
+  true_negative <- sum(marker_expression[low_viability] < expression_threshold)
+  false_negative <- sum(marker_expression[high_viability] < expression_threshold)
+  
+  results_top_500[index, ] <- c(
+    true_positive/(true_positive),    # precision
+    true_positive/(true_positive + false_positive),    # specificity
+    (true_positive + true_negative)/(true_positive + true_negative + false_positive + false_negative)  # accuracy
+  )
+}
+  
+```
+
+which results in an easily navigable matrix of the confusion matrix metrics belonging to each of the top 500 protein's ramon sent me but it seems the precision is off because it's always 1 and on further inspection I seem to have forgotten the false positives in the equation for precision and have the actual precision matric in the specificity slot.
+```{r}
+for (index in 1:length(top_500_genes)) {
+  pot_biomarker <- top_500_genes[index]
+  
+  if (!pot_biomarker %in% rownames(assay_norm)) { # check to see if it's present iwithin the expression data
+    next  
+  }
+  
+  marker_expression <- assay_norm[pot_biomarker, ]
+  
+  expression_threshold <- (mean(marker_expression[high_viability]) + mean(marker_expression[low_viability]))/2
+  
+  true_positive <- sum(marker_expression[high_viability] >= expression_threshold)
+  false_positive <- sum(marker_expression[low_viability] >= expression_threshold)
+  true_negative <- sum(marker_expression[low_viability] < expression_threshold)
+  false_negative <- sum(marker_expression[high_viability] < expression_threshold)
+  
+  results_top_500[index, ] <- c(
+    true_positive/(true_positive + false_positive),    # precision
+    true_negative/(true_negative + false_positive),    # specificity
+    (true_positive + true_negative)/(true_positive + true_negative + false_positive + false_negative)  # accuracy
+  )
+}
+  
+```
+
+
+after that this will result in a matrix in which the row id's correspond to the potential biomarkers and 3 columns are present to represent what I find the 3 most important metrics of the confusion matrix
+![top_500_pot_biomarkers_sorted_by_accuracy](./media/Pasted image.png)
+
+## execution ons PLS-DA
+it turns out that the confusion matrix is meant to verify the resulting profile of the PLS-DA so I will do that now
+
+
+
+
+
