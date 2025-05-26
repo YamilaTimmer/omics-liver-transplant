@@ -466,3 +466,9 @@ Loading plot identifies the orignial variables that are most impactful for the 2
 ![](images/clipboard-293168836.png)
 
 It seems that our ncomp 1 that was shown in the previous Variance graph was shown to contain the most info has different important variables then the ncomp 3. The most important proteins in this component are the MAP1S, PRPSAP1, CDH23, PUF60 and CPA3. These are protein to look at in a subset of the total data.
+
+![**X-distances** - This plot shows us how good the object can be moddeled in the X space. Our model shows most of the dots are under the line meaning there are no big outliers in the X space and they are described well](images/clipboard-2985439270.png)
+
+**Regression coefficients** - predictions with positive coëfficiënts say it does belong to the High_nmp class and the ones with a negative prediction value say they don't belong to this class. The line is the point 0 so this is used as the refrence point.
+
+**Misclassified** - This plot tells
