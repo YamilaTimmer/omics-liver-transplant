@@ -4,11 +4,14 @@ format:
   html:
     toc: true
     toc-location: left
+    smooth-scroll: true
 theme:
   light: flatly
   dark: darkly
 code-overflow: wrap
 engine: knitr
+execute: 
+  cache: true
 ---
 
 ## Meta stuff
@@ -25,17 +28,16 @@ library(ggplot2)
 library(tidyverse)
 
 ```
+
 ## 14-05-2025
+
 ### Data inlezen
-
-
 
 ```{r}
 
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
 ```
-
 
 ```{r}
 na_mask <- is.na(data_filtered)
@@ -49,6 +51,7 @@ head(meta_data_liver)
 ```
 
 Verwijder alle 0 variance metingen.
+
 ```{r}
 
 X_t <- t(data_filtered)
@@ -56,7 +59,6 @@ variances <- apply(X_t, 2, var)
 X_t <- X_t[, which(variances > 0)]
 dim(X_t)
 ```
-
 
 Transform and scale the data with log2 and scaling
 
@@ -71,14 +73,15 @@ Covariances
 covmat <- cov(t(scaled))
 
 ```
+
 Eigen
+
 ```{r}
 eig <- eigen(covmat)
 
 loadings <- t(scaled) %*% eig$vectors
 loadings <- t(t(loadings) / sqrt(colSums(loadings^2)))
 ```
-
 
 ```{r}
 scores <- scaled %*% loadings
@@ -101,6 +104,7 @@ ggplot(
   labs(color = "Billiary viability score")
 
 ```
+
 Explained variances
 
 ```{r}
@@ -110,7 +114,6 @@ names(explained_var) <- c("ex_var","PC")
 head(explained_var)
 ```
 
-
 ```{r}
 ggplot(explained_var[1:20,],
        aes(x = PC,
@@ -118,9 +121,10 @@ ggplot(explained_var[1:20,],
   geom_col()
 
 ```
-## 18-05-2025
-### PCA met mdatools
 
+## 18-05-2025
+
+### PCA met mdatools
 
 Om te vergelijken of MDA tools een ander resultaat geeft wil ik de PCA uitvoeren met deze tool en vergelijken met mijn eigen uitgevoerde PCA.
 
@@ -129,18 +133,15 @@ library(mdatools)
 
 ```
 
-
 ```{r}
 model <- pca(transformed, center = T, scale = T, info ="Test PCA model")
 model$ncomp
 ```
 
-
 ```{r}
 
 plotScores(model, )
 ```
-
 
 ```{r}
 ggplot(
@@ -152,14 +153,17 @@ ggplot(
   geom_point() +
   labs(color = "Billiary viability score")
 ```
+
 Naast dat de plot geflipped is ziet deze er hetzelfde uit als mijn eigen gegenereerde PCA plot, dit houd in dat ik deze tool kan gaan gebruiken om de data te verwerken
 
 ### Echte data PCA
+
 Voorheen was er data gebruikt waar nog geen imputatie op gebruikt was. Yamila heeft een nieuwe dataset gedeeld waarbij alle NA-waarden geimputeerd zijn. Hier zal ik opnieuw een PCA op uitvoeren.
 
-#### Laden data
+#### Laden data 30 minuten
+
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_30min.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data_norm_imputed_newest_30min.Rdata")
 ```
 
 Omdat deze data niet meer past bij de metadata ga ik zelf high en low values uit de naam halen.
@@ -169,7 +173,8 @@ library(stringr)
 ```
 
 ```{r}
-df_data <- as.data.frame(assay_norm)
+
+df_data <- as.data.frame(assay(data_imp_30min))
 
 bil_via <- str_extract(names(df_data), "[^_]+")
 sample_names <- str_extract(names(df_data), "_(.*)") %>%
@@ -187,15 +192,17 @@ head(meta_data_liver_filtered)
 
 Nu komt de metadata overeen met de nieuwe gefilterde data. Deze kan nu gebruikt worden om kleuren te geven in plots, en zo kan er beter groepen weergegeven worden.
 
-
 ```{r}
 df_data <- df_data %>%
   tibble::rownames_to_column("protein")
 
+
 ```
 
+#### PCA 30 minuten
+
 ```{r}
-model <- pca(t(assay_norm), center = T, scale = T)
+model <- pca(t(assay(data_imp_30min)), center = T, scale = T)
 ```
 
 ```{r}
@@ -206,20 +213,26 @@ ggplot(
       color = meta_data_liver_filtered$`Biliary viability score group`,
       shape = meta_data_liver_filtered$Transplant),) +
   geom_point() +
+  theme_minimal()   +
   labs(color = "Billiary viability score",
        shape = "Transplanted")
 ```
+
 In deze plot zijn een aantal dingen zichtbaar:
 
-- Een hogere viability houd vaak in dat de lever getransplanteerd is.
-- De PCA geeft niet een duidelijke seperatie weer tussen de 2 groepen.
-- Hoge viability is iets meer verspreid dan laag
-- 1 lage viability ligt ver weg van alle andere punten.
-- De meeste punten liggen bij elkaar rond de origin
-- PLS-DA kan aangeraden worden om hier beter naar te kijken.
+-   Een hogere viability houd vaak in dat de lever getransplanteerd is.
+-   De PCA geeft niet een duidelijke seperatie weer tussen de 2 groepen.
+-   Hoge viability is iets meer verspreid dan laag
+-   1 lage viability ligt ver weg van alle andere punten.
+-   De meeste punten liggen bij elkaar rond de origin
+-   PLS-DA kan aangeraden worden om hier beter naar te kijken.
+```{r}
 
-Imputatie kan verklaren waarom de meeste punten gewoon bij elkaar liggen.
-Ik wil graag noteren welke sample die blauwe is aan de rechterkant. Later tijdens de DEP analyse kunnen we die mogelijk ook bekijken.
+
+ggsave("../../plots/pca_30_min.svg", last_plot(), bg='transparent')
+
+```
+Imputatie kan verklaren waarom de meeste punten gewoon bij elkaar liggen. Ik wil graag noteren welke sample die blauwe is aan de rechterkant. Later tijdens de DEP analyse kunnen we die mogelijk ook bekijken.
 
 ```{r}
 scores_df <- as.data.frame(model$res$cal$scores)
@@ -235,7 +248,8 @@ standout_low_sample <- scores_df %>%
 
 standout_low_sample
 ```
-Hieruit zien we dat NMP_Bile_Proteomics_48 de grote outlier is, deze kunnen we bij volgende stappen in de gaten houden.
+
+Hieruit zien we dat NMP_Bile_Proteomics_212 de grote outlier is, deze kunnen we bij volgende stappen in de gaten houden.
 
 Nu wil ik zien hoeveel van de variantie verklaard wordt door de 1e 20 prinipale componenten.
 
@@ -243,8 +257,7 @@ Nu wil ik zien hoeveel van de variantie verklaard wordt door de 1e 20 prinipale 
 plotVariance(model)
 ```
 
-Dit geeft weer dat component 1 ongeveer 21% van de variantie verklaard
-PC-2 rond de 9, en vanaf PC-5 is het < 5%.
+Dit geeft weer dat component 1 ongeveer 21% van de variantie verklaard PC-2 rond de 9, en vanaf PC-5 is het \< 5%.
 
 Ik wil nu de top 20 proteins weergeven van PC-1
 
@@ -254,7 +267,6 @@ loadings$pc1 <- loadings[,1]
 
 plot(loadings$pc1)
 ```
-
 
 ```{r}
 argsort <- order(loadings$pc1^2, decreasing = T)
@@ -269,10 +281,14 @@ head(top_x_genes)
 
 Dit zijn de top 100 genen
 
+```{r}
+#| eval: false
+save(top_x_genes, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_30_new_new.Rdata")
+```
 
 ### Mapping transcriptomics data
-Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen.
-Dit ga ik doen met Falco en multiqc
+
+Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen. Dit ga ik doen met Falco en multiqc
 
 ```{bash}
 #| eval: false
@@ -280,15 +296,15 @@ ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ | \
 parallel "/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"
 ```
 
-
 ```{bash}
 #| eval: false
 multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/
 ```
 
-
 ## 19-05-2025
+
 ### Mapping transcriptomics
+
 ```{bash}
 #| eval: false
 cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
@@ -303,7 +319,6 @@ cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt |
 
 ```
 
-
 ```{bash}
 #| eval: false
 STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ --readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --genomeLoad LoadAndRemove --limitBAMsortRAM 2000000000 --outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_
@@ -313,11 +328,11 @@ STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcri
 ### Pca 150 minute data
 
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/new_data_150min.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data_norm_imputed_newest_150min.Rdata")
 ```
 
 ```{r}
-df_data_150 <- as.data.frame(new_data_150min)
+df_data_150 <- as.data.frame(data_imp_150min)
 
 bil_via_150 <- str_extract(names(df_data_150), "[^_]+")
 sample_names_150 <- str_extract(names(df_data_150), "_(.*)") %>%
@@ -336,7 +351,6 @@ head(meta_data_liver_filtered_150)
 ```
 
 Nu komt de metadata overeen met de nieuwe gefilterde data. Deze kan nu gebruikt worden om kleuren te geven in plots, en zo kan er beter groepen weergegeven worden.
-
 
 ```{r}
 df_data_150 <- df_data_150 %>%
@@ -357,19 +371,23 @@ ggplot(
       color = meta_data_liver_filtered_150$`Biliary viability score group`,
       shape = meta_data_liver_filtered_150$Transplant),) +
   geom_point() +
+  theme_minimal() +
   labs(color = "Billiary viability score",
        shape = "Transplanted")
 ```
 
 Conclusie
+```{r}
+#| eval: false
+ggsave("../../plots/pca_150_min.svg", last_plot(), bg='transparent')
+```
 
 ```{r}
 plotVariance(model_150)
 ```
 
+Conclusie Top 100 genes
 
-Conclusie
-Top 100 genes
 ```{r}
 loadings_150 <- model_150$loadings
 
@@ -380,13 +398,19 @@ argsort_150 <- order(pc1_150^2, decreasing = T)
 ```{r}
 top_x_genes_150 <- df_data_150[argsort_150, 1]
 head(top_x_genes_150)
-save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_150_new.Rdata")
+```
+
+```{r}
+#| eval: false
+save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_150_new_new.Rdata")
 ```
 
 ## 20-05-2025
+
 ### Mapping hisat
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 sbatch --partition=assemblix \
   --job-name=hisat2 \
   --ntasks=1 \
@@ -396,19 +420,20 @@ sbatch --partition=assemblix \
   --wrap="ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/*.filtered | parallel -j 8 'hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/genome_tran -U {} -S /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/{/.}.sam --phred33 --mm'"
 ```
 
-
-```{}
+```{bash}
+#| eval: false
 hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/genome_tran  -U /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161065_1.fastq.filtered -S file_name_unpaired.sam --phred33   
 
 ```
 
-
 ## 21-05-2025
+
 ### Featurecounts
 
 count data halen uit de sam files.
 
-```{bash, eval = FALSE}
+```{bash}
+#| eval: false
 featureCounts -T 5 -t exon -g gene_id -a /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/Homo_sapiens.GRCh38.84.gtf -o counts.txt /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/*.sam
 ```
 
@@ -416,7 +441,6 @@ featureCounts -T 5 -t exon -g gene_id -a /students/2024-2025/Thema08/liver-trans
 transcriptomics_data <- read.table("/students/2024-2025/Thema08/liver-transplant/transcriptomics/featurecounts/counts.txt", skip = 1, header = T)
 head(transcriptomics_data)
 ```
-
 
 ```{r}
 head(meta_data_liver)
@@ -442,7 +466,9 @@ head(transcriptomics_data)
 ```
 
 ## 22-05-2025
+
 ### PCA and transcriptomics processing
+
 Nu moeten de juiste sample namen gebruikt worden in de dataframe, zodat deze gelinkt kunnen worden aan de meta data.
 
 ```{r}
@@ -455,13 +481,34 @@ head(transcriptomics_data)
 
 ```
 
+Removing dupes
+
+```{r}
+# Remove duplicate geneID's
+transcriptomics_data <- transcriptomics_data %>%
+  distinct(Geneid, .keep_all = TRUE)
+
+# Addup symbols that are duplicated
+transcriptomics_data <- transcriptomics_data %>%
+  group_by(SYMBOL) %>%
+  mutate(across(starts_with("ERR"), sum, na.rm = TRUE)) %>%
+  distinct(SYMBOL, .keep_all = TRUE)
+
+sum(is.na(transcriptomics_data$SYMBOL)) # == 1
+transcriptomics_data <- transcriptomics_data %>%
+  filter(!is.na(SYMBOL))
+```
+
 ```{r}
 count_data_transcript <- transcriptomics_data[,8:ncol(transcriptomics_data)]
+
 head(count_data_transcript)
 ```
+
 Deze bevat alleen de samples met de juiste sample namen. Deze data kan nu geschaald en genormaliseerd worden.
 
 De metadata bevat elke sample 2x, deze haal ik er uit.
+
 ```{r}
 
 transcriptomics_metadata_dups_rem <- transcriptomics_metadata[!duplicated(transcriptomics_metadata[c('Comment.ENA_SAMPLE.')]),]
@@ -477,6 +524,7 @@ transformed_trans <- log2(count_transcript_t + 1)
 scaled_trans <- scale(transformed_trans, center = T, scale = T)
 
 ```
+
 Hier kan ik nu een PCA op uitvoeren
 
 ```{r}
@@ -484,6 +532,7 @@ model_transcriptomics <- pca(scaled_trans, center = T, scale = T, info = "Transc
 ```
 
 ```{r}
+#| fig-cap: "PC analyse on transcriptomics data. Color shows biliary viability, Shape shows transplant status"
 ggplot(
   model_transcriptomics$res$cal$scores,
   aes(x = `Comp 1`,
@@ -496,19 +545,19 @@ ggplot(
 
 
 ```
+
 TODO conclusie
 
 ```{r}
 plotVariance(model_transcriptomics)
 ```
-TODO conclusie
 
+TODO conclusie
 
 ```{r}
 loadings_transcriptomics <- model_transcriptomics$loadings
 plot(loadings_transcriptomics[,1])
 ```
-
 
 ```{r}
 argsort_transscript <- order(loadings_transcriptomics[,1]^2, decreasing = T)
@@ -518,4 +567,66 @@ plot(loadings_transcriptomics[,1][argsort_transscript])
 ```{r}
 genes_pca1_transcript <- transcriptomics_data[argsort_transscript,2]
 head(genes_pca1_transcript)
+```
+
+### DESEQ2
+
+```{r}
+#| warning: false
+library(DESeq2)
+
+```
+
+## 25-05-2025
+
+### DESEQ2
+
+Creating coldata
+
+```{r}
+coldata <- transcriptomics_metadata_dups_rem %>%
+  dplyr::filter(Comment.ENA_RUN. %in% names(count_data_transcript)) %>%
+  dplyr::select(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) %>%
+  tibble::column_to_rownames("Comment.ENA_RUN.")
+coldata
+```
+
+```{r}
+row.names(transcriptomics_data) <- NULL
+count_data_dds <- transcriptomics_data[,c(2,8:ncol(transcriptomics_data))] %>%
+  tibble::column_to_rownames("SYMBOL")
+
+```
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = count_data_dds,
+                              colData = coldata,
+                              design = ~ Characteristics.biliary.viability.score.group.)
+dds <- DESeq(dds)
+```
+
+```{r}
+resultsNames(dds)
+res <- results(dds, name = "Characteristics.biliary.viability.score.group._low_vs_high")
+res
+```
+
+Nu hebben we de resultaten voor alle genen en de verschillen tussen de hoge en lage viability. Hier kan met een lfcShrink de log fold change geschaald worden
+
+```{r}
+#| warning: false
+resLFC <- lfcShrink(dds, coef = "Characteristics.biliary.viability.score.group._low_vs_high")
+resLFC
+```
+
+```{r}
+summary(res)
+```
+
+```{r}
+plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viability.score.group.")
+```
+
+```{r}
+plotMA(res)
 ```
