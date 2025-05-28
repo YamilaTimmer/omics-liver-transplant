@@ -1,0 +1,140 @@
+---
+title: "Using multi-omics to identify bile- and liver- biomarkers that correlate with biliary viability of ECD livers"
+author: |
+  | Jarno Duiker $^1$, Ramon Reilman $^1$, Tai Vo $^1$, Yamila Timmer $^1$
+  | $^1$Hanze Groningen
+lang: eng 
+date: "`r Sys.Date()`"
+bibliography: "library.bib"
+output:
+  pdf_document:
+    number_sections: true
+header-includes:
+   - \usepackage{float}
+---
+```{r, echo=FALSE}
+suppressWarnings(library(knitr))
+```
+
+# Abstract
+
+# Introduction
+Liver transplantation is the first treatment option for patients with liver dysfunctionality, e.g. in patients with liver cirrhosis or acute liver failure. There is a shortage of donor livers that meet required standards, so now extended criteria donors (ECD) are increasingly used, these consist of livers that do not meet the normally required standards and are often extracted from cardiac death donors (DCD) but also include e.g. elderly donors. Using ECD can provide a solution for the shortage of liver donors, however, there are also risks to these donor livers, such as the increased risk of primary organ dysfunction, which is a quick onset dysfunctionality of the graft post-transplant. ECD livers are also more susceptible to biliary complications and to ischemia-reperfusion injury, which is damage that occurs when an organ with a lack of oxygen gets reperfused with oxygen again (Shen et al., 2023).
+Certain techniques, such as normothermic machine perfusion (NMP) can reduce the risk of post-transplant complications. NMP attempts to restore and/or maintain cell metabolism by simulating the natural environment of the liver, by maintaining a temperature of 37 degrees Celsius and providing the organ with the required oxygen and nutrition. NMP is considered a better alternative to static cold storage (SCS), as it reduces the risk of ischemia-reperfusion injury, early allograft dysfunction (EAD), and biliary complications, improving general graft viability. In various research, it has been shown that (prolonged) NMP can restore liver viability, which allows the transplantation of livers that have initially been deemed as not eligible for transplanting. NMP also allows evaluation of the donor liver pre-transplant, further reducing transplantation risks (Shen et al., 2023). 
+
+Thorne et al. (2023) describe how NMP is used for assessing organ viability before transplantation of the liver. Here, the general viability of the organ is divided into two distinct measurements. First, hepatocellular viability, which focuses on the metabolic functionality of the parenchyma, or the 'functional tissue' of the liver. The second measurement focuses on biliary viability, which focuses on the state of the cholangiocytes, the epithelial cells of the bile ducts. Biliary viability is measured based on physiological factors such as bile pH and glucose reabsorption but as of today, there is no golden standard, and measurement criteria differ between centers. Biliary viability, unlike hepatocellular viability, is not yet adopted in all clinical trials that work with ECD donor livers; however, it has been shown that the use of both hepatocellular as well as biliary viability in the selection of ECD donors has led to a lower incidence of post-transplant complications affecting cholangiocytes, also known as cholangiopathies.
+
+To gain a more comprehensive understanding of the molecular changes that contribute to biliary viability, a multi-omics approach is employed. Multi-omics integrates data from various biological levels, such as genomics, transcriptomics, metabolomics, and proteomics, to provide a view of complex biological systems, cellular responses, and disease progression. Specifically, this paper leverages a multi-omics strategy to identify bile and liver-based biomarkers that correlate with biliary viability. This is achieved by integrating and analyzing data derived from various omics techniques, including principal component analysis (PCA), partial least squares discriminant analysis (PLS-DA), differential expression analysis (DEA), and other relevant statistical and bioinformatics analyses to identify differentiating genes and proteins.
+
+We are looking to find similar results as Thorne et al. (2023), to confirm that our results are comparable. Since they accessed the viability based partly on 'metabolic functionality' we expect to see upregulations of genes that are part of metabolic pathways in the liver, in livers with high biliary viability. Such as the glycogen production pathway. We also expect to find DEGs with functions related to bile production and/or epithelial tissue, as the measured high/low biliary viabilities are based on factors such as bile pH and capacity of epithelial bile duct cells (cholangiocytes).
+
+# Methods
+## Proteomics 
+For the proteomics analysis, samples collected by Thorne et al. (2023) were used. These samples consist of raw mass spectrometry data obtained from bile samples of donor livers. Samples were taken at different time points during NMP, at 30 minutes, and 150 minutes, and only for livers that ended up being transplanted at the end time point. The proteomics analysis was performed using only the 30- and 150-minute samples, as many low biliary viability samples did not end up being transplanted. In total, there are 43 samples for 150 min and 44 samples for 30 min.
+These samples have previously undergone protein identification and quantification. Samples containing more than 70% missing values were removed, which led to the removal of 2 samples for 150 min (n = 41) and 1 sample for 30 min (n = 43). Features missing in more than 4 samples in one or both biliary viability groups were removed. The data is normalized across samples using median centering, this method is used to center the data over the median of the distribution of each sample (Dubois et al., 2022). The mean percentage of missingness for the features is 59% for the 30 min samples and 45% for the 150 min samples.
+The features were then normalized by 'variance stabilizing transformation' using vsn (v.3.72.0), this package uses a robust variant of the maximum-likelihood estimator (Huber et al., 2002). Missing values in the data were identified to mostly consist of MNAR values (missing not at random), making the missing data left-censored. Thus, imputing was performed using DEP (v.1.26.0) (Zhang et al., 2018) with the function "MinDet", which uses a deterministic minimal value approach. Here all the missing values are replaced with a minimal observed value per sample. Principal component analyses (PCA) were performed on the normalized and imputed data using the mdatools (v 0.14.2) package in R (Kucheryavskiy, 2020). 
+Potential biomarker protein evaluation was done using a confusion matrix framework to assess their viability in categorizing livers into high and low biliary viability. The tested thresholds were set in intervals of 0.01 in the range of the expression value of the corresponding potential biomarker protein, and predictive performance was done by calculating accuracy, precision, and AUC-ROC from the resulting confusion matrix. Statistical significance was assessed using Fisher’s exact test to confirm whether classification outperformed chance.
+Using limma (v.3.60.6) (Ritchie et al., 2015) a DEA was performed on all features that passed the filtering steps. In this DEA, two distinct groups are compared to each other, the comparison consists of the samples with high biliary viability against samples with low biliary viability.  First, a linear model is fitted to each protein. The Empirical Bayes method is applied for smoothing estimates of discrete probabilities and lastly, a false discovery rate correction is applied. After determining which genes are down/upregulated, a pathway analysis was performed. The results were visualized using e.g. volcano plots and pathview.
+The supervised discrimination method Partial Least Squares Discriminant Analysis (PLS-DA), based on PLS regression, was applied using the mdatools (version 0.14.2) R package (Kucheryavskiy, 2020). Normalized, imputed proteomics data was used as input with samples classified into high biliary viability and low biliary viability classes. The cross validation used was - full (leave one out). The model generated from this was analysed with different plots that showed its parameters and explained what proteins are important and what proteins are not.
+
+ 
+## Transcriptomics
+Liver tissue biopsies, stored in the cold, were taken right before the start of the NMP. RNA from these samples was isolated using the Qiagen RNeasy Lipid Tissue Mini Kit. RNA was sequenced using the Illumina NextSeq 500. The resulting reads were trimmed with TrimGalore (v.0.6.7) (Krueger et al., 2023), and deduplicated with SeqKit (v.2.4.0) (Shen et al., 2024). They were then mapped with Hisat2 (v2.2.1) (HISAT2, n.d.) to the human genome h38. The counts were extracted from the resulting files using featureCounts (v.2.0.3) (Liao et al., 2014).
+MultiQC (v 1.14) (Ewels et al., 2016) was used to show a comprehensive overview of the quality of multiple FASTQ samples. This generated an HTML report that summarized the results from various QC reports. Showing the combined results across all samples. This report shows if there are potential issues such as adapter contamination or high repeat rates among other possibilities.
+
+RNA-sequencing data was aligned to the GRCh38 (Homo Sapiens Genome Assembly GRCh38.p14, Feb 3, 2022, available from NCBI Assembly: GCF_000001405.40) using HISAT2 (v 2.2.1) (Kim et al., 2019). HISAT2 was used to build a splice-aware genome index, using the hisat2-build command with default parameters. This build genome index was then used to align the RNA-sequencing FASTQ files. This was done with certain parameters, -U (meaning unpaired FASTQ files), and using the --phred33 score read. The output format from this aligning was a SAM file. 
+All genes with a variance of 0 were removed from the data, this is done to speed up the following analyses and tools. The data was log2 transformed and scaled using R for a PCA. A differential gene expression analysis was performed on the raw count data using the R-package DESeq2 (v.1.38.3) (Love et al., 2014). 
+
+# Results
+## DEA
+The DEA in total evaluated 2255 features for the 30-minute samples and 1610 features for the 150-min samples. The DEA using the 30-minute samples did not yield any significantly differently expressed genes. The 150-min samples contained a total of 44 DEGs (Fig.1), details on e.g. p-values and logFC per differentially expressed gene can be found in Table 1.
+
+
+
+```{r, fig.pos='H', out.width='100%', fig.cap="Volcano plot showing all significantly upregulated- and downregulated genes in the comparison of high biliary viability against low biliary viability in the samples taken during NMP after 150 minutes. Genes were deemed as significantly upregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\geq 1.0 \\). Genes were deemed as significantly downregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\leq -1.0 \\).", echo=FALSE}
+
+knitr::include_graphics("deg_150min.png")
+```
+
+## PCA
+Figure 2 shows that the group with low biliary viability is a bit less spread throughout the second component. Samples with a high biliary viability show to have a bit higher spread over the second component compared to the samples with low viability. 3 samples with a high biliary viability and 1 sample with a low biliary viability cause a high variance in the first component. A perfect linear separation of the 2 groups is not possible.
+
+From the PCA that was performed on the 150-minute samples (Figure 3) it becomes clear that there appears to be more of a separation between the 2 groups, compared to Figure 2. Still, there does not appear to be any clear clustering between the groups, only with a couple of samples.
+
+```{r, fig.pos='H', out.width='75%', fig.cap="PCA performed on proteomic samples 30 minutes after starting NMP.  Shows how the samples are spread over component 1 and component 2. Biliary viability is displayed with color.", echo=FALSE}
+knitr::include_graphics("pca30.png")
+```
+
+```{r, fig.pos='H', out.width='75%', fig.cap="PCA performed on proteomic samples 150 minutes after starting NMP.  Shows how the samples are spread over component 1 and component 2. Biliary viability is displayed with color.", echo=FALSE}
+knitr::include_graphics("pca150.png")
+```
+
+
+## PLS-DA
+
+PLS-DA was performed on the normalized, imputed proteomics data. This data was then split into two groups, high biliary viability and low biliary viability. Figure 4 shows a comparison between the 3rd component, which contains 4.62% of the info, and Component 1, which contains 21.9% of the info. The mentioned info is the amount of each component that relates to the original data file. The reason for this comparison is that component 1 - component 2 and component 2 - component 3 showed nothing significant and no groups; therefore, there were no clear results from these comparisons. In figure 5 a clear divide is visible in the middle. 
+
+
+```{r, fig.pos='H', fig.cap="Weights of each protein, the weight means how much influence it has on each of the components. The names have been hidden for readability. But each spike shows an important protein.", echo=FALSE, out.width="75%"}
+knitr::include_graphics("weights.png")
+```
+
+```{r, fig.pos='H', out.width='75%', fig.cap="PLS-DA Score plot showing component 1 – component 3, performed on the proteomic samples at 150 min after starting NMP. Showing how the samples are laid out over components 1 and 3. Viability is shown with colour.", echo=FALSE}
+knitr::include_graphics("PLS-DA.png")
+```
+
+## Confusion Matrix
+Differential gene expression analyses on RNA data revealed 0 significant changes in the expression of genes between a high and low biliary viability. To identify proteins and thresholds with potential as biomarkers, we filtered the dataset using a p-value cut-off of 0.05. This analysis was performed on the 150-minute time point dataset, as no proteins met this significance threshold at the 30-minute time point. From the filtered 150-minute dataset, 14 unique thresholds were identified where proteins demonstrated statistically significant p-values (< 0.05). These thresholds correspond to optimal expression cut-offs used to classify samples based on protein abundance.
+
+Among the proteins meeting the significance criteria, SND1 and SNRPD1 consistently appeared at multiple thresholds. Both proteins demonstrated high classification metrics across these thresholds, indicating significant categorization performance ability. Specifically, SND1 achieved the highest area under the receiver operating characteristic curve (AUROC) of 0.95 indicating a high ability to distinguish between sample classes. It was observed at two thresholds: 13.89 and 13.79, with precision values of 0.67 and 0.75, and accuracy values of 0.85 and 0.89, respectively. The specificity for both thresholds was perfect (1.0), with zero false positive rates. Similarly, SNRPD1 was found at three thresholds (13.72, 13.62, and 13.52), reaching a maximum AUROC of 0.933. Precision ranged from 0.75 to 0.83, while accuracy improved from 0.89 to 0.93 across these thresholds. Specificity remained at 1.0 with zero false positive rates. The protein HSD17B13 was observed with a statistically significant p-value and showed moderate performance metrics, including an AUROC of 0.775, precision of 0.67, and accuracy of 0.85.
+
+In contrast are the proteins ACE2, MMP7, and PUF60. Although they met the p-value criteria, they demonstrated notably lower classification performance. These proteins showed AUROC values below 0.7 (approximately 0.65–0.66), despite high precision values (0.93). However, their specificity was significantly lower (0.44), resulting in high false positive rates (approximately 0.56).
+
+# Discussion
+## Confirmation of Findings Thorne, et al. (2023)
+Two out of the three genes with the highest average AUC for the comparison of ECD donors across biliary viability groups (high/low) as found by Thorne, et al. (2023) are also found in this analysis, which are the genes MUC1 and FCGBP. The third gene with the highest average AUC, MUC5B, was not found significantly differentially expressed in our research. Thorne, et al. (2023) also found that MUC5B, MUC1, and LCN2 are the only genes that show significant differences in expression between biliary viability groups, regardless of histological BDI, we did not compare histological BDI and focused on biliary viability, but we also found LCN2 to be a statistically significant DEG.
+
+MUC1, FCGBP and LCN2 were significantly upregulated (p-adjust: 7.81×10-3, logFC: 2.49) (p-adjust:0.025, logFC: 1.96)(p-adjust: 4.38x10-4, logFC: 1.44) in ECD livers with high biliary viability, confirming what Thorne, et al. (2023) found. MUC1 is associated with cell signalling and proliferation pathways and expression of MUC1 was predominantly found in cholangiocytes (Thorne, et al., 2023). FCGBP (IgGFc-binding protein) has been linked to contribute to wound healing in order to maintain epithelial barrier function (Gorman et al., 2023). LCN2 has been found to contribute to liver fibrosis and hypertension of the portal vein (Chen et al., 2020). 
+
+MUC1 was also found in our PLS-DA analysis, here it was found to be an significant variable that allows for differentiating between biliary viability groups. MUC1, the transmembrane glycoprotein mucin 1, is a mucin family member that has different functions in normal and cancer cells. This is caused by its structure and biochemical properties. Mucin1 can act as a lubricant, moisturizer, and physical barrier in normal cells. In cancer cells, mucin 1 gets overexpressed and often faces aberrant glycosylation (Chen et al., 2021). MUC1 is also expressed in the liver and is key for maintaining cellular functions, specifically for the epithelial surfaces (Kasprzak & Adamek, 2019). This gene could help in the regeneration of liver cells and thereby increase liver viability. 
+
+## Novel DEGs and Biological Insights
+Other than 3 DEGs that were already found by Thorne, et al. (2023), 41 more DEGs were found (Table 1), having a logFC range from 2.60 to -2.08 for the comparison of low biliary viability against high biliary viability. Literature research was performed for all DEG’s with a logFC > 2 or < -2. MMP7 (logFC: 2.60) was found to contribute to the pathogenesis of bile duct epithelial injury, which does not seem very logical as samples with high biliary viability should have a better state of the epithelial tissue than the low biliary viability samples, but the DEA points towards genes expressed in high samples that have been tied to tissue damage. PGC (logFC: 2.32) is a known activator of bile acid biosynthesis (Shin et al., 2003) and adds to the profile of healthy bile ducts. ACE2 (logFC:2.23) is a receptor that is involved in allowing viral entry into host cells, including members of the SARS-CoV group (Pirola & Sookoian, 2020). ABCG5 (logFC: 2.08) is needed for transporting cholesterols into bile, Yu et al. (2002) found that expression of ABCG5 increased biliary cholesterol concentrations. COPZ1(logFC: -2.08) encodes for a subunit of the cytoplasmic coatamer protein complex, this complex is involved in protein transport and autophagy (NCBI, n.d.).
+
+In Figure 4, two low biliary viability livers seemed to be misclassified as high biliary viability; this possibly suggests that these livers could have unique characteristics. This group formation could also imply that proteins driving the separation are biologically relevant, and the analysis of these livers could provide valuable insight into the mechanisms differentiating between the high and low classifications. By identifying the important variables that cause the most separation, there is a deeper understanding to be gained of what molecular drivers distinguish these groups and allow for better assessment of biliary viability. 
+
+### COPZ1
+Our PLS-DA analysis identified COPZ1 as an important variable differentiating between the biliary viability groups. COPZ1 was also found to be downregulated in high biliary viability livers. COPZ1 encodes for a subunit that makes up the cytoplasmic coatomer protein, complex. The coatomer protein complex is involved in autophagy and intracellular protein trafficking (NCBI, n.d.). The primary transport it facilitates is from the Golgi complex to the endoplasmic reticulum, also known as retrograde transport. This is important to maintain homeostasis by removing aging proteins and organelles for degradation and recycling of components. (Kucheryavskiy, 2020) This protein is a prognostic marker in liver hepatocellular carcinoma. Other info about this protein is the essential role it plays in maintaining the survival of some types of tumors (Hong et al., 2023).
+
+### MMP7
+The matrix metalloproteinase MMP7 was highlighted in our PLS-DA. MMP7 is part of a family of enzymes responsible for the breakdown of extracellular matrix expressed, the blood flow through the liver could be messed up and the blood vessels could be worn down, causing a lower biliary viability (Lambert et al., 2005). 
+
+### SLC6A19
+SLC6A19, encoding for the system B transmembrane protein, was also identified in our analysis. This protein actively transports neutral amino acids across the apical membrane of epithelial cells (SLC6A19 Solute Carrier Family 6 Member 19 [Homo Sapiens (Human)] - Gene - NCBI, z.d.). This gene and protein don’t seem to have any relation to biliary viability and mainly focus on transporting amino acids in organs such as the kidneys and intestine (Bröer, 2008).
+
+## Limitations of Transcriptomics Data
+The DGE analysis on the transcriptomics data showed no significant differences between the high and low biliary viability. This could be due to issues with the used data. We were able to download the RNA data in 2 different file formats: paired FASTQ files and BAM files. It appeared, after running feature counts on the BAM files, that these were not aligned to a reference genome. This was very unusual, BAM-files are supposed to be mapped to a reference genome. So, the FASTQ files were used to extract the counts. A new issue showed up, the alignment rate of these FASTQ files was very low (30%). Checking the quality revealed that, at random, either the reverse or forward file for every sample contained reads with a length of 6 base pairs. These reads were not used by the aligner, which caused it to have a very low alignment rate. Seeking guidance from our teachers revealed that no one could figure out how this happened. These issues could explain why we didn’t find any significant changes between high and low variability.
+
+## Imputation Method
+MinDet was chosen as the imputation method as it is a deterministic minimal value approach, meaning all missing values are replaced with the lowest observed value per sample. This method was chosen as it ensures reproducibility because it is not a stochastic method and it is also fitting for our data, which is left-censored with many missing not-at-random (MNAR) values. MNAR values are missing values that are caused by low peptide intensity signals, meaning the intensities are below the instrumental detection limit (Shi et al., 2025). However, the data also, to a lesser extent, contains missing completely at random (MCAR) values, which occur independently of peptide abundance. MAR values can occur at any intensity, unlike MNAR values and thus imputing these values using the lowest found value is not optimal. However, as there were a lot more MNAR values, it was still decided to use MinDet. Still, it should be noted that this imputation method can skew results to the left, towards lower values, which can affect outcomes.
+
+
+# Appendix
+```{r, echo=FALSE}
+load("diff_expressed_genes_table_150min.Rdata")
+
+knitr::kable(diff_expressed_genes_150min, format="latex")
+
+```
+Table 1. All found differentially expressed genes in the comparison between high- and low billiary viability livers after 150 minutes of NMP, with information on certain statistics such as p-values.
+
+
+```{r, echo=FALSE}
+load("significant_150_min_result.Rdata")
+
+knitr::kable(significant_150_min_results, format="latex")
+
+```
+Table 2.
+
+# References
