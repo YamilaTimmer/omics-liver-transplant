@@ -144,7 +144,7 @@ Table 1. All found differentially expressed genes in the comparison between high
 
 
 ```{r, echo=FALSE}
-load("../../proteomics/paper_tables/rounded_significant_150_min_result.Rdata")
+load("../../proteomics/paper_tables/extra_rounded_significant_150_min_result.Rdata")
 
 knitr::kable(significant_150_min_results, format="latex")
 
