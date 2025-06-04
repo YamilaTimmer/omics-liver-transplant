@@ -25,9 +25,9 @@ library(AnnotationDbi)
 library(clusterProfiler)
 library(limma)
 library(ggrepel)
+library(ggplot2)
 ```
 
-# 7/8/9 may
 
 - Looking into what data we need and how to process this in R
 
@@ -114,17 +114,17 @@ samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples
 sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
 
 experimental_design_30min <- data.frame(
-    label = colnames(samples_30min_data[, sample_columns_30min]), # has to match colnames of samples 
-    condition = samples_30min_metadata$`Biliary viability score group`,
-    replicate = colnames(samples_30min_data[, sample_columns_30min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+  label = colnames(samples_30min_data[, sample_columns_30min]), # has to match colnames of samples 
+  condition = samples_30min_metadata$`Biliary viability score group`,
+  replicate = colnames(samples_30min_data[, sample_columns_30min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
 
 sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
 
 experimental_design_150min <- data.frame(
-    label = colnames(samples_150min_data[, sample_columns_150min]),  #has to match colnames of samples 
-    condition = samples_150min_metadata$`Biliary viability score group`,
-    replicate = colnames(samples_150min_data[, sample_columns_150min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
+  label = colnames(samples_150min_data[, sample_columns_150min]),  #has to match colnames of samples 
+  condition = samples_150min_metadata$`Biliary viability score group`,
+  replicate = colnames(samples_150min_data[, sample_columns_150min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
 
 ```
@@ -134,23 +134,34 @@ experimental_design_150min <- data.frame(
 samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
-load("../../top_x_genes_150_new.Rdata")
+# Load genes with highest loadings for principal component 1
+load("../../top_x_genes_30_new_new.Rdata")
+load("../../top_x_genes_150_new_new.Rdata")
+
+# Load genes with highest loadings for principal component 2, not used as principal component 1 gives more results
+#load("../../top_x_genes_30_pca2.Rdata")
+#load("../../top_x_genes_150_pca2.Rdata")
+
 
 # Select only rows with 200 genes with highest loadings
-top_150_genes <- top_x_genes_150[1:150]
-
-samples_150min_data <- samples_150min_data%>%
-    filter(samples_150min_data$PG.Genes %in% top_150_genes)
+# top_genes_150min <- top_x_genes_150[1:200]
+# 
+# samples_150min_data <- samples_150min_data%>%
+#   filter(samples_150min_data$PG.Genes %in% top_genes_150min)
+# 
+# top_genes_30min <- top_x_genes[1:200]
+# 
+# samples_30min_data <- samples_30min_data%>%
+#   filter(samples_30min_data$PG.Genes %in% top_genes_30min)
 
 ```
 
 ```{r}
-
 data_se_30min <- make_se(samples_30min_data, sample_columns_30min, experimental_design_30min)
 
 data_se_150min <- make_se(samples_150min_data, sample_columns_150min, experimental_design_150min)
-
 ```
+
 
 # Removing Samples/Proteins with high missing values
 ```{r}
@@ -158,10 +169,10 @@ mean_missing_percentage_samples_30min <- colMeans(is.na(assay(data_se_30min))) *
 
 mean_missing_percentage_samples_150min <- colMeans(is.na(assay(data_se_150min))) * 100
 
-bad_samples_30min <- names(mean_missing_percentage_samples_30min[mean_missing_percentage_samples_30min > 60])
+bad_samples_30min <- names(mean_missing_percentage_samples_30min[mean_missing_percentage_samples_30min > 70])
 
 
-bad_samples_150min <- names(mean_missing_percentage_samples_150min[mean_missing_percentage_samples_150min > 60])
+bad_samples_150min <- names(mean_missing_percentage_samples_150min[mean_missing_percentage_samples_150min > 70])
 
 data_se_30min <- data_se_30min[, !colnames(data_se_30min) %in% bad_samples_30min]
 
@@ -169,37 +180,64 @@ data_se_150min <- data_se_150min[, !colnames(data_se_150min) %in% bad_samples_15
 
 ```
 
-```{r}
-# Calculate the median average presence of proteins per sample, in the article this was 41.5%
-mean_protein_presence_30min <-  median(rowMeans(!is.na(assay(data_se_30min))))
-mean_protein_presence_30min
+Median centering to normalize across samples (columns)
 
-mean_protein_presence_150min <- median(rowMeans(!is.na(assay(data_se_150min))))
-mean_protein_presence_150min
+```{r}
+# Sample medians visibly differ from eachother, so median centering will have to be performed to remove noise between samples
+plot_normalization(data_se_30min)
+plot_normalization(data_se_150min)
+
 ```
+```{r}
+
+median_centering <- function(data){
+  # Calculate median per column
+  colmed <- apply(assay(data), 2, median, na.rm = TRUE)
+  
+  # Remove sample median from all features, to centre data around median = 0, to correct for differences between samples
+  med_normalized_samples <- sweep(assay(data), 2, colmed, "-")
+  
+  # Place sample-adjusted data back in summarized experiment
+  assay(data) <- med_normalized_samples
+  
+  # Visualize data after sample normalizing
+  plot_normalization(data)
+}
+
+median_centering(data_se_30min)
+median_centering(data_se_150min)
+
+```
+
+
+
 
 ```{r}
 # Keep all proteins with at least 30% presence across all samples (based on mean_protein_presence)
-
 data_se_30min_filter <- filter_proteins(data_se_30min, type = "condition", thr = 4)
 
 data_se_150min_filter <- filter_proteins(data_se_150min, type = "condition", thr = 4)
 ```
 
+```{r}
+# Calculate the median average presence of proteins per sample, in the article this was 41.5%
+mean_protein_presence_30min <-  mean(rowMeans(!is.na(assay(data_se_30min)))) * 100
+mean_protein_presence_30min
+
+mean_protein_presence_150min <- mean(rowMeans(!is.na(assay(data_se_150min)))) * 100
+mean_protein_presence_150min
+```
 
 # Normalisation
 
 ```{r}
-
 data_norm_30min <- normalize_vsn(data_se_30min_filter)
 data_norm_150min <- normalize_vsn(data_se_150min_filter)
-
 ```
 
 ```{r}
 meanSdPlot(data_norm_30min)
 meanSdPlot(data_norm_150min)
-
 ```
 
 ```{r}
@@ -209,24 +247,22 @@ plot_frequency(data_norm_150min)
 ```{r}
 plot_detect(data_norm_30min)
 plot_detect(data_norm_150min)
-
 ```
 
 On average the missing values come from proteins with low intensities (points to MNAR), an imputation method that is suited for this is (“QRILC”) quantile regression-based left-censored function
 
 After imputation with QRILC, a second "top" exists, with low intensity, this is because it fills NA values with low intensity values that were failed to be measured in the first place (MNAR)
 
-
-
 # Imputation
 ```{r}
-data_imp_30min <- DEP::impute(data_norm_30min, fun="QRILC")
-data_imp_150min <- DEP::impute(data_norm_150min, fun="QRILC")
+data_imp_30min <- DEP::impute(data_norm_30min, fun="MinDet")
+data_imp_150min <- DEP::impute(data_norm_150min, fun="MinDet")
 
 ```
+plsda als histogram of componenten weergeven met scatterplot
 
 ```{r}
-plot_pca(data_imp_150min, indicate = "condition", n=147)
+plot_pca(data_imp_150min, indicate = "condition")
 plot_pca(data_imp_30min, indicate = "condition")
 ```
 
@@ -234,17 +270,22 @@ plot_pca(data_imp_30min, indicate = "condition")
 ```{r}
 plot_imputation(data_norm_150min, data_imp_150min)
 plot_imputation(data_norm_30min, data_imp_30min)
+```
+
 ```{r}
+  design <- model.matrix(~ condition, data = colData(data_imp_150min))
+
 # Function for differential expression analysis (DEA) with limma
 limma_fit <- function(data){
-design <- model.matrix(~ condition, data = colData(data))
-
-# Fit linear model to each protein
-fit <- lmFit(assay(data), design)
-# Empirical Bayes smoothing
-fit <- eBayes(fit)
-# Apply false fiscovery rate correction
-limma_results <- topTable(fit, adjust.method = "fdr", number = Inf)
+  # high = intercept
+  design <- model.matrix(~ condition, data = colData(data))
+  
+  # Fit linear model to each protein
+  fit <- lmFit(assay(data), design)
+  # Empirical Bayes smoothing
+  fit <- eBayes(fit)
+  # Apply false fiscovery rate correction
+  limma_results <- topTable(fit, adjust.method = "fdr", number = Inf)
 }
 
 # Run on both time datasets
@@ -257,9 +298,9 @@ limma_results_30min <- limma_fit(data_imp_30min)
 # add a column of NAs
 limma_results_150min$diffexpressed <- "NO"
 # if log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
-limma_results_150min$diffexpressed[limma_results_150min$logFC > 1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "UP"
+limma_results_150min$diffexpressed[limma_results_150min$logFC > 1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "DOWN"
 # if log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
-limma_results_150min$diffexpressed[limma_results_150min$logFC < -1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "DOWN"
+limma_results_150min$diffexpressed[limma_results_150min$logFC < -1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "UP"
 
 limma_results_150min$difflabel <- NA
 limma_results_150min$difflabel[limma_results_150min$diffexpressed != "NO"] <- rownames(limma_results_150min)[limma_results_150min$diffexpressed != "NO"]
@@ -278,32 +319,47 @@ limma_results_30min$difflabel[limma_results_30min$diffexpressed != "NO"] <- rown
 
 ```
 
-```{r}
-# Volcanoplot showing logFC/p-value for genes
-ggplot(data=limma_results_150min, aes(x=logFC, 
-                               y= - log10(adj.P.Val), 
-                               col=diffexpressed, label=difflabel)) +
-    geom_point() + 
-    theme_minimal() +
-    geom_text_repel() +
-    scale_color_manual(values=c("blue", "black", "red")) +
-    geom_vline(xintercept=c(-1.0, 1.0), col="black") +
-    geom_hline(yintercept=-log10(0.05), col="black")
+```{r, warning=FALSE}
+# Volcanoplot showing logFC/p-value for genes, comparing high(intercept) to low, so if a gene is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biloiary viability
+ggplot(data = limma_results_150min, 
+       aes(x = logFC, 
+           y = - log10(adj.P.Val), 
+           col = diffexpressed, 
+           label = difflabel)) +
+  
+  geom_point() + 
+  theme_minimal() +
+  geom_text_repel() +
+  scale_color_manual(values=c("blue", "black", "red")) +
+  geom_vline(xintercept=c(-1.0, 1.0), col="black") +
+  geom_hline(yintercept=-log10(0.05), col="black") +
+  scale_x_reverse()
 
 
-ggplot(data=limma_results_30min, aes(x=logFC, 
-                               y= - log10(adj.P.Val), 
-                               col=diffexpressed, label=difflabel)) +
-    geom_point() + 
-    theme_minimal() +
-    geom_text_repel() +
-    scale_color_manual(values=c("blue", "black", "red")) +
-    geom_vline(xintercept=c(-1.0, 1.0), col="black") +
-    geom_hline(yintercept=-log10(0.05), col="black")
+
+ggplot(data = limma_results_30min, 
+       aes(x = logFC, 
+           y = - log10(adj.P.Val), 
+           col = diffexpressed, 
+           label = difflabel)) +
+  
+  geom_point() + 
+  theme_minimal() +
+  geom_text_repel() +
+  scale_color_manual(values = c("blue", "black", "red")) +
+  geom_vline(xintercept=c(-1.0, 1.0), col="black") +
+  geom_hline(yintercept=-log10(0.05), col="black")
 
 ```
 
+```{r}
+upregulated_150min <- limma_results_150min %>% filter(diffexpressed =="UP")
+upregulated_150min
 
+downregulated_150min <- limma_results_150min %>% filter(diffexpressed =="DOWN")
+downregulated_150min
+
+```
 # Pathway Analysis
 ## Subset on significant DEG's
 ```{r}
@@ -314,9 +370,9 @@ diff_expressed_genes_150min <- limma_results_150min[!is.na (limma_results_150min
 ```{r}
 # Create dataframe with corresponding entrez ID's for gene symbols
 entrez_ID <- function(sig_df) {
-    gene_names <- sig_df$difflabel
-    genes_entrez <- AnnotationDbi::select(org.Hs.eg.db, keys = gene_names,
-                                          columns = c('ENTREZID'), keytype = 'SYMBOL')
+  gene_names <- sig_df$difflabel
+  genes_entrez <- AnnotationDbi::select(org.Hs.eg.db, keys = gene_names,
+                                        columns = c('ENTREZID'), keytype = 'SYMBOL')
 }
 
 low_vs_high_150min_entrez <- entrez_ID(sig_df = diff_expressed_genes_150min)
@@ -328,37 +384,73 @@ low_vs_high_150min_entrez <- entrez_ID(sig_df = diff_expressed_genes_150min)
 pathway_low_vs_high_150min <- enrichKEGG(gene = low_vs_high_150min_entrez$ENTREZID,
                                          organism = 'hsa')
 
-
 ```
 
 ```{r}
 # Make dataframe that contains log fold change ($logFC)
-low_vs_high_150min_FC <-
-    data.frame(diff_expressed_genes_150min$logFC)
+low_vs_high_150min_FC <- diff_expressed_genes_150min$logFC
 
 # Add entrez ids as rownames to dataframe
-rownames(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
+names(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
+
+
 ```
 
 
 ```{r}
 # Create visualisations for each pathway with at least 1 DEG
+dir.create("pathview_output")
+setwd("pathview_output")
 
-pathview_visualise <- function(comparison, pathway_id){
-    pathview(gene.data = comparison, # chosen comparison
+pathview_visualise <- function(pathway_id){
+  for (pathway_id in pathways$ID){
+    pathview(gene.data = low_vs_high_150min_FC, # chosen comparison
              pathway.id = pathway_id, # hsa ID
              species = "hsa", # human sapiens
+             
              low = list(gene="magenta"), # underexpressed = purple (colorblind friendly)
              high = list(gene="green")) # overexpressed = green (colorblind friendly)
+  }
 }
 
-# Generate all pathway visualisations per comparison
-comparisons = c(low_vs_high_150min_FC)#, low_vs_high_30min_FC)
 
-#for (comparison in comparisons){
-    for (pathway_id in pathway_low_vs_high_150min$ID){
-        pathview_visualise(comparison = low_vs_high_150min_FC, pathway_id=pathway_id)
-    }
-#}
+
+# Generate all pathway visualisations per comparison
+comparisons = low_vs_high_150min_FC 
+
+pathways <- pathway_low_vs_high_150min@result
+
+significant_pathways <- pathways[pathways$p.adjust <=0.05]
+pathview_visualise(pathway_id=pathway_id)
+significant_pathways
+```
+
+```{r}
+# Adjust table for paper
+# Add significance to values
+diff_expressed_genes_150min$P.Value <- signif(diff_expressed_genes_150min$P.Value,3)
+diff_expressed_genes_150min$t <- signif(diff_expressed_genes_150min$t,3)
+diff_expressed_genes_150min$adj.P.Val <- formatC(diff_expressed_genes_150min$adj.P.Val,
+                                                 format = "e",
+                                                 digits = 2)
+# Round values
+diff_expressed_genes_150min$logFC <- round(diff_expressed_genes_150min$logFC,2)
+diff_expressed_genes_150min$AveExpr <- round(diff_expressed_genes_150min$AveExpr,2)
+
+
+diff_expressed_genes_150min$B <- round(diff_expressed_genes_150min$B,2)
+
+# Order rows based on logFC
+diff_expressed_genes_150min <-
+  diff_expressed_genes_150min[order(diff_expressed_genes_150min$logFC),]
+
+# Remove column that is not important to show in article
+diff_expressed_genes_150min <- subset(diff_expressed_genes_150min, select = -difflabel)
+
+colnames(diff_expressed_genes_150min) <- c("logFC", "Average Expression", "t", "p-value", "adjusted p-value", "B", "up/down regulated")
+
+diff_expressed_genes_150min
+save(diff_expressed_genes_150min, file = "diff_expressed_genes_table_150min.Rdata")
+
 ```
 
