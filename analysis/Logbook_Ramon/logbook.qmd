@@ -35,8 +35,8 @@ library(tidyverse)
 
 ```{r}
 
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/count_data.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/meta_data.Rdata")
 ```
 
 ```{r}
@@ -163,7 +163,7 @@ Voorheen was er data gebruikt waar nog geen imputatie op gebruikt was. Yamila he
 #### Laden data 30 minuten
 
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/data_norm_imputed_newest_30min.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_30min.Rdata")
 ```
 
 Omdat deze data niet meer past bij de metadata ga ik zelf high en low values uit de naam halen.
@@ -174,7 +174,7 @@ library(stringr)
 
 ```{r}
 
-df_data <- as.data.frame(assay(data_imp_30min))
+df_data <- as.data.frame(data_imp_30min)
 
 bil_via <- str_extract(names(df_data), "[^_]+")
 sample_names <- str_extract(names(df_data), "_(.*)") %>%
@@ -202,7 +202,7 @@ df_data <- df_data %>%
 #### PCA 30 minuten
 
 ```{r}
-model <- pca(t(assay(data_imp_30min)), center = T, scale = T)
+model <- pca(t(data_imp_30min), center = T, scale = T)
 ```
 
 ```{r}
@@ -210,12 +210,16 @@ ggplot(
   model$res$cal$scores,
   aes(x = `Comp 1`,
       y = `Comp 2`,
-      color = meta_data_liver_filtered$`Biliary viability score group`,
-      shape = meta_data_liver_filtered$Transplant),) +
-  geom_point() +
+      color = meta_data_liver_filtered$`Biliary viability score group`),) +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = seq(-20, 70, 20)) +
+  scale_y_continuous(breaks = seq(-40, 30, 20)) +
+  coord_fixed() +
   theme_minimal()   +
   labs(color = "Billiary viability score",
-       shape = "Transplanted")
+       shape = "Transplanted",
+       x = paste("Comp 1: ", signif(model$res$cal$expvar[1], digits = 3), "%", sep = ""),
+       y = paste("Comp 2: ", signif(model$res$cal$expvar[2], digits = 3), "%", sep = ""))
 ```
 
 In deze plot zijn een aantal dingen zichtbaar:
@@ -226,12 +230,7 @@ In deze plot zijn een aantal dingen zichtbaar:
 -   1 lage viability ligt ver weg van alle andere punten.
 -   De meeste punten liggen bij elkaar rond de origin
 -   PLS-DA kan aangeraden worden om hier beter naar te kijken.
-```{r}
 
-
-ggsave("../../plots/pca_30_min.svg", last_plot(), bg='transparent')
-
-```
 Imputatie kan verklaren waarom de meeste punten gewoon bij elkaar liggen. Ik wil graag noteren welke sample die blauwe is aan de rechterkant. Later tijdens de DEP analyse kunnen we die mogelijk ook bekijken.
 
 ```{r}
@@ -263,7 +262,7 @@ Ik wil nu de top 20 proteins weergeven van PC-1
 
 ```{r}
 loadings <- model$loadings
-loadings$pc1 <- loadings[,1]
+loadings$pc1 <- loadings[,2]
 
 plot(loadings$pc1)
 ```
@@ -283,7 +282,7 @@ Dit zijn de top 100 genen
 
 ```{r}
 #| eval: false
-save(top_x_genes, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_30_new_new.Rdata")
+save(top_x_genes, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_30_final_pc2.Rdata")
 ```
 
 ### Mapping transcriptomics data
@@ -328,7 +327,7 @@ STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcri
 ### Pca 150 minute data
 
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/data_norm_imputed_newest_150min.Rdata")
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_150min.Rdata")
 ```
 
 ```{r}
@@ -368,18 +367,22 @@ ggplot(
   model_150$res$cal$scores,
   aes(x = `Comp 1`,
       y = `Comp 2`,
-      color = meta_data_liver_filtered_150$`Biliary viability score group`,
-      shape = meta_data_liver_filtered_150$Transplant),) +
-  geom_point() +
+      color = meta_data_liver_filtered_150$`Biliary viability score group`,),) +
+  geom_point(size = 2) +
+  coord_fixed(ratio = 1) +
+  scale_x_continuous(breaks = seq(-50, 30, 20)) +
+  scale_y_continuous(breaks = seq(-40, 30, 20)) +
   theme_minimal() +
   labs(color = "Billiary viability score",
-       shape = "Transplanted")
+       shape = "Transplanted",
+       x = paste("Comp 1: ", signif(model_150$res$cal$expvar[1], digits = 3), "%", sep = ""),
+       y = paste("Comp 2: ", signif(model_150$res$cal$expvar[2], digits = 3), "%", sep = ""))
 ```
 
 Conclusie
 ```{r}
 #| eval: false
-ggsave("../../plots/pca_150_min.svg", last_plot(), bg='transparent')
+ggsave("../../plots/pca_150_min.png", last_plot(), bg='transparent')
 ```
 
 ```{r}
@@ -391,7 +394,7 @@ Conclusie Top 100 genes
 ```{r}
 loadings_150 <- model_150$loadings
 
-pc1_150 <- loadings_150[,1]
+pc1_150 <- loadings_150[,2]
 argsort_150 <- order(pc1_150^2, decreasing = T)
 ```
 
@@ -402,7 +405,7 @@ head(top_x_genes_150)
 
 ```{r}
 #| eval: false
-save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes_150_new_new.Rdata")
+save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_150_final_pc2.Rdata")
 ```
 
 ## 20-05-2025
@@ -622,7 +625,6 @@ resLFC
 ```{r}
 summary(res)
 ```
-
 ```{r}
 plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viability.score.group.")
 ```
@@ -630,3 +632,4 @@ plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viab
 ```{r}
 plotMA(res)
 ```
+
