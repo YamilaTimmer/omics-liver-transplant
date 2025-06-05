@@ -430,22 +430,147 @@ This is the outcome and the model seems to have a bit of overfitting but lets lo
 
 ### Results - plots
 
+```{r}
+plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, ncomp = 1)
+```
+
 ![](images/clipboard-2517190296.png)
 
 A VIP plot also known as variable importance plot tells us the importance from each variable. In this model there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, CPA3 these proteins should be looked at in the main dataset. Some of these proteins were also called important in our paper
 
+```{r}
+plotPredictions(model_plsda_corrected, show.legend = FALSE, ncomp = 3)
+```
+
 ![The model seems to be good at differntaiting between the two classes, there are some mis qualifications seen by the red dots in the high nmp field.](images/clipboard-4104918162.png)
+
+```{r}
+plotXLoadings(model_plsda_corrected, show.labels = T)
+
+```
 
 ![](images/clipboard-1623296035.png)
 
 Loading plot identifies the orignial variables that are most impactful for the 2 main components, it helps understand what variables work together and if there are any patterns. Vav2 slc39A7 and HRNR have a high loading for component 2 and SMCR8 PRSS3 LUZP1 have a high loading for the component 1.
 
+```{r}
+plotXVariance(model_plsda_corrected, show.labels = T)
+
+```
+
 ![It seems that component 1 is the most important so we should analyse this for the most significant proteins.](images/clipboard-1079986677.png)
+
+```{r}
+plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, ncomp = 1)
+```
 
 ![](images/clipboard-293168836.png)
 
 It seems that our ncomp 1 that was shown in the previous Variance graph was shown to contain the most info has different important variables then the ncomp 3. The most important proteins in this component are the MAP1S, PRPSAP1, CDH23, PUF60 and CPA3. These are protein to look at in a subset of the total data.
 
+```{r}
+# Scatter plot of Component 1 vs. Component 3
+plot(model_plsda_corrected, ncomp = 1)
+```
+
 ![**X-distances** - This plot shows us how good the object can be moddeled in the X space. Our model shows most of the dots are under the line meaning there are no big outliers in the X space and they are described well](images/clipboard-2985439270.png)
 
 **Regression coefficients** - predictions with positive coëfficiënts say it does belong to the High_nmp class and the ones with a negative prediction value say they don't belong to this class. The line is the point 0 so this is used as the refrence point.
+
+```{r}
+
+# Take the xloadings from the model data
+xloadings <- model_plsda_corrected$xloadings  
+
+# put the data that was used for the model in a new variable
+X <- data_for_plsda  
+
+# scale and center the data according to the model
+X_scaled <- scale(X, center = model_plsda_corrected$center,
+                     scale  = model_plsda_corrected$scale)
+
+# Use matrix multiplication to calculate the xscores
+xscores <- X_scaled %*% xloadings
+
+# put these xscores in a new dataframe
+as.data.frame(xscores)
+```
+
+```{r}
+# devide the NMP's to high and low groups
+NMP <- ifelse(grepl("High_NMP_Bile_Proteomics", rownames(xscores)), "High",
+               ifelse(grepl("Low_NMP_Bile_Proteomics", rownames(xscores)), "Low", "Unknown"))
+
+# Give each score the correct nmp group (high or low)
+xscores <- cbind(xscores, NMP)
+
+# take the xscores from the components that have the most variance
+important_xscores <- subset(xscores, select=c("Comp 1", "Comp 2", "Comp 3", "NMP"))
+
+
+```
+
+```{r}
+
+# plot xscores using ggplot, first plot comp 1 and comp 2
+ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 2`, color = NMP )) +
+  geom_point(size = 3) +
+  labs(title = "PLS-DA Scores Plot", x = "Component 1", y = "Component 2") +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+```{r}
+# plot xscores using ggplot, plot comp 2 and comp 3
+ggplot(important_xscores, aes(x = `Comp 2`, y = `Comp 3`, color = NMP )) +
+  geom_point(size = 3) +
+  labs(title = "PLS-DA Scores Plot", x = "Component 2", y = "Component 3") +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+```{r}
+# plot xscores using ggplot, plot comp 3 and comp 1
+ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
+  geom_point(size = 3) +
+  labs(title = "PLS-DA Scores Plot", x = "Component 1", y = "Component 3") +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+If we look at this Component score plot, we are comparing component 3 with component 1 and are looking for groups that are formed.
+
+### Variance calculation
+
+Concept, Take xeigenval from the model. Calculate per collumn the variance for the normal data and add this all up. Dived the xeigen val from each component with the orignal data variance and multiply by a 100%.
+
+```{r}
+t_data_for_plsda <- t(data_for_plsda)
+t_data_for_plsda <- as.data.frame(t_data_for_plsda)
+```
+
+```{r}
+
+test_variance <- apply(t_data_for_plsda, 2, var)
+pc_1_eigenvalue <- model_plsda_corrected$yeigenvals[1]
+pc_3_eigenvalue <- model_plsda_corrected$yeigenvals[3]
+
+```
+
+```{r}
+variance_pc3 <- pc_3_eigenvalue / sum(test_variance) * 100
+variance_pc1 <- pc_1_eigenvalue / sum(test_variance) * 100
+
+```
