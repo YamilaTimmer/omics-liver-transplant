@@ -9,12 +9,11 @@ output:
     toc_depth: '3'
     df_print: paged
 lang: eng
-#bibliography: logboek_yamila.bib
+#bibliography: logbook_yamila.bib
 ---
 
-
+# Load libraries
 ```{r, warning = FALSE, message = FALSE}
-# Load packages
 library(pathview)
 library(tidyverse)
 library(readxl)
@@ -28,50 +27,65 @@ library(ggrepel)
 library(ggplot2)
 ```
 
-
-- Looking into what data we need and how to process this in R
-
-Report contains all the quantified proteins (results from protein identification/quantification), is a tsv file and can be read with read.delim. In this file
-rows is proteins/genes columns is sample id.
-
-```{r}
-data <- read.delim("../../../NMP_Bile_Proteomics_Report.txt", header = TRUE)
-
-```
-
-File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
-```{r}
 meta_data <- read.delim("../../../E-MTAB-13501.sdrf.txt")
 
-```
+File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
 
-Idea: compare between biliary viability score group (high/low) per time point, so at 30 min, 150 min and end.
 
-Files below are supp data 3a + 4a and seems to contain transcriptomics data (gene expression)
+# Introduction
+The article we have been assigned is "Bile proteome reveals biliary regeneration during normothermic preservation of human donor livers" (@thorne2023bile). Individually we have read the article and divided the tasks. My tasks include:
+
+- Primary analysis of data
+- Normalisation & imputation of data
+- Differential expression analysis
+
+I ended up only working with the proteomics data, as the transcriptomics data proved to be of insufficient quality. The proteomics data consists of bile samples taken from extended criteria donors (ECD), taken at three different time points after starting normothermic machine perfusion (NMP), at 30 and 150 minutes for the livers that end up not being transplanted (due to insufficient quality) and at 30, 150 minutes and before transplantation (timepoint: "end") for livers that did end up being transplanted. We will only work with the 30/150 minute samples as the 'end' timepoints consist of less samples and could skew the data as presumably only livers with higher quality get transplanted.
+
+One of the traits that can be used to determine whether an ECD liver is suited for transplantation, is the "biliary viability". This tells something on the quality of 'cholangiocytes', which are epethilial cells of the bile ducts. Higher biliary viability meaning the ECD liver is less likely to develop post-transplantation conditions such as cholangiopathy. A problem with this approach is that there are no set measurements for biliary viability, the way it gets measured varies per institute and consists of mostly physiological factors such as bile pH. 
+
+Our goal is to get a better understanding of biomarker profiles in low/high biliary ECD livers and we hope to achieve this through a variety of methods including a differential expression analysis (DEA), principal component analysis (PCA), Partial Least Squares Discriminant Analysis (PLS-DA) and a confusion matrix.
+
+Our research question is: "What bile- and liver- biomarkers correlate with biliary viability of ECD livers"
+
+# Data
+For proteomics, we have various data files, including:
+- *NMP_Bile_Proteomics_Report.txt* (.tsv): contains identified + quantified protein counts, rows = proteins, columns = sample ID.
+- *supp_data.xlsx*, figure 3a: contains metadata, including sample ID, liver number and time point the sample was taken at.
+- *supp_data.xlsx*, figure 4a: contains metadata, including sample ID, liver number and biliary viability.
+
+By joining figure 3a/4a together from *supp_data.xlsx*, the required metadata for our research question can be retrieved.
+
 ```{r}
-sup_data <- read_excel("../../../supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
-```
+# Load count data from .txt file
+data <- read.delim("../../../NMP_Bile_Proteomics_Report.txt", header = TRUE)
 
+# Loading figure 3a + 4a from the supp_data excel file
+sup_data1 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 3a", col_names = TRUE, skip = 4, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
 
-```{r}
 sup_data2 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 4a", col_names = TRUE, skip = 3, trim_ws = TRUE) # skip lines so the empty excel lines are not left in
-
 ```
 
-Make dataframe for identifying all sample no:
-- From the regular data (NMP_Bile_Proteomics_Report.txt) it is unclear which sample number belongs to which liver/measure point
-- Dataframe shows sample ID, liver number (so what liver the sample was derived from) and timepoint from when sample was taken (after 30 min/150 min/end)
 
 # Creating Metadata Dataframe
 ```{r}
-sample_id1 <- sup_data[c("Sample", "Liver number", "Timepoint")]
+# Retain only the columns containing metadata
+sample_id1 <- sup_data1[c("Sample", "Liver number", "Timepoint")]
 
 sample_id2 <- sup_data2[c("Sample", "Biliary viability score group", "Total BDI score group", "Transplant")]
+```
 
-# Only merges when sample ID is in both dataframes, leaves some livers out as there seems to be some missing data?
+Next both dataframes are merged by the common 'Sample'-column, only the samples are kept that are in both dataframes (by using inner_join). sample_id1 seems to contain more samples than sample_id2, so it is expected the resulting merged dataframe will contain as many rows as sample_id2, assuming all of the samples of sample_id2 are also in sample_id1.
+
+```{r}
+print(paste("Amount of samples in sample_id1:", length(rownames(sample_id1))))
+print(paste("Amount of samples in sample_id2:", length(rownames(sample_id2))))
+
+# Only merges when sample ID is in both dataframes, leaves some livers out as there seems to be some missing data
 merged_sample_id <- inner_join(sample_id1, sample_id2, by = "Sample")
 
+print(paste("Amount of samples in merged dataframe:", length(rownames(merged_sample_id))))
 ```
+**Conclusion**: The resulting dataframe indeed contains as many rows as sample_id2, some samples have been lost due to their absence in sample_id2 and cannot be used as there is no biliary viability label for them, however 114 samples should be enough to proceed with our research.
 
 
 # Pre-processing steps
