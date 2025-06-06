@@ -13,8 +13,12 @@ engine: knitr
 execute: 
   cache: true
 ---
+## Intro
+This logbooks contains PC-analyses on multiple proteomics datasets, DESEQ2 analysis on transcriptomics datasets, and plots. All of these
 
 ## Meta stuff
+
+Download and load the packages needed to run chunks.
 
 ```{r}
 list.of.packages <- c("ggplot2", "tidyverse", "mdatools")
@@ -31,7 +35,9 @@ library(tidyverse)
 
 ## 14-05-2025
 
-### Data inlezen
+### Loading data
+
+The data loaded here is not imputed yet, i will be using this data to test PCA on. Yamila is working on normalizing and imputing the data.
 
 ```{r}
 
@@ -39,18 +45,24 @@ load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/count_data.Rd
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/meta_data.Rdata")
 ```
 
+First i will make all of the NA values 0, so i can perform PCA on this.
+
 ```{r}
 na_mask <- is.na(data_filtered)
 data_filtered[na_mask] <- 0
 head(data_filtered)
 ```
 
+The data contains alot of NA values, Yamila will fix this with imputation.
+
 ```{r}
 head(meta_data_liver)
 
 ```
 
-Verwijder alle 0 variance metingen.
+This is the metadata, containing information about the different samples.
+
+I will delete the samples with a variance of 0, this samples won't contribute to the PCA, and removing them will speed the analysis up.
 
 ```{r}
 
@@ -67,14 +79,13 @@ transformed <- log2(X_t + 1)
 scaled <- scale(transformed, center = T, scale = T)
 ```
 
-Covariances
+Using the `cov` function i will calculate a covariance matrix, this will contain the linear correlations between 2 samples for every sample in the df.
 
 ```{r}
 covmat <- cov(t(scaled))
-
 ```
 
-Eigen
+From there i will calulate the eigenvectors with `eigen`, and the loadings.
 
 ```{r}
 eig <- eigen(covmat)
@@ -82,6 +93,8 @@ eig <- eigen(covmat)
 loadings <- t(scaled) %*% eig$vectors
 loadings <- t(t(loadings) / sqrt(colSums(loadings^2)))
 ```
+
+With these loadings i can project these loadings on our data, and get the scores. I can label the different components here and these scores can then be plotted.
 
 ```{r}
 scores <- scaled %*% loadings
@@ -93,6 +106,7 @@ head(scores_df)
 ```
 
 ```{r}
+#| fig-cap: "Scatterplot showing the scores of PC1 and PC2. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not."
 ggplot(
   scores_df,
   aes(x = PC1,
@@ -104,6 +118,15 @@ ggplot(
   labs(color = "Billiary viability score")
 
 ```
+
+Interesting:
+
+-   We see that most of the samples with a high billiary viability score appear more on the right of PC1, where ass the lower scores appear more left.
+-   There appears no real clustering on the PC2 between the 2 groups.
+
+::: {.callout-note title="Key Insight"}
+This could be explained by the amount of samples or genes with NA values.
+:::
 
 Explained variances
 
@@ -210,7 +233,7 @@ ggplot(
   model$res$cal$scores,
   aes(x = `Comp 1`,
       y = `Comp 2`,
-      color = meta_data_liver_filtered$`Biliary viability score group`),) +
+      colour = meta_data_liver_filtered$`Biliary viability score group`),) +
   geom_point(size = 2) +
   scale_x_continuous(breaks = seq(-20, 70, 20)) +
   scale_y_continuous(breaks = seq(-40, 30, 20)) +
@@ -380,6 +403,7 @@ ggplot(
 ```
 
 Conclusie
+
 ```{r}
 #| eval: false
 ggsave("../../plots/pca_150_min.png", last_plot(), bg='transparent')
@@ -487,6 +511,8 @@ head(transcriptomics_data)
 Removing dupes
 
 ```{r}
+#| warning: false
+
 # Remove duplicate geneID's
 transcriptomics_data <- transcriptomics_data %>%
   distinct(Geneid, .keep_all = TRUE)
@@ -625,6 +651,7 @@ resLFC
 ```{r}
 summary(res)
 ```
+
 ```{r}
 plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viability.score.group.")
 ```
@@ -632,4 +659,3 @@ plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viab
 ```{r}
 plotMA(res)
 ```
-
