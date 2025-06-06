@@ -541,7 +541,7 @@ ggplot(important_xscores, aes(x = `Comp 2`, y = `Comp 3`, color = NMP )) +
 # plot xscores using ggplot, plot comp 3 and comp 1
 ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
   geom_point(size = 3) +
-  labs(title = "PLS-DA Scores Plot", x = "Component 1", y = "Component 3") +
+  labs(title = "PLS-DA Scores Plot", x = "Component 1" + variance_pc1, y = "Component 3" + variance_pc3) +
   theme_minimal() +
   theme(legend.title = element_blank()) +
   theme(axis.text.x=element_blank(),
@@ -554,7 +554,9 @@ If we look at this Component score plot, we are comparing component 3 with compo
 
 ### Variance calculation
 
-Concept, Take xeigenval from the model. Calculate per collumn the variance for the normal data and add this all up. Dived the xeigen val from each component with the orignal data variance and multiply by a 100%.
+Concept, Take xeigenval from the model. Calculate per collumn the variance for the normal data and add this all up. Dived the xeigen val from each component with the orignal data variance and multiply by a 100%
+
+### Variance first try
 
 ```{r}
 t_data_for_plsda <- t(data_for_plsda)
@@ -574,3 +576,95 @@ variance_pc3 <- pc_3_eigenvalue / sum(test_variance) * 100
 variance_pc1 <- pc_1_eigenvalue / sum(test_variance) * 100
 
 ```
+
+### Variance second try.
+
+```{r}
+
+total_variance <- sum(model_plsda_corrected$yeigenvals)
+pc_1_eigenvalue_test <- model_plsda_corrected$yeigenvals[1]
+pc_3_eigenvalue_test <- model_plsda_corrected$yeigenvals[3]
+
+```
+
+```{r}
+variance_pc1_test <- round(pc_1_eigenvalue / total_variance * 100, 2)
+variance_pc3_test <- round(pc_3_eigenvalue / total_variance * 100, 2)
+```
+
+** PLot with variance added **
+
+```{r}
+as.character(variance_pc3_test)
+as.character(variance_pc1_test)
+
+ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
+  geom_point(size = 3) +
+  labs(
+    title = "PLS-DA Scores Plot", 
+    x = paste0("Component 1 (", variance_pc1_test, "%)"), 
+    y = paste0("Component 3 (", variance_pc3_test, "%)")
+  ) +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+![](images/clipboard-2117081198.png)
+
+```{r}
+# Same plot as before
+ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
+  geom_point(size = 3) +
+  labs(
+    title = "PLS-DA Scores Plot", 
+    x = paste0("Component 1 (", variance_pc1_test, "%)"), 
+    y = paste0("Component 3 (", variance_pc3_test, "%)")
+  ) +
+  # This is supossed to add a line arround each group to show seperation
+  geom_encircle(aes(group = NMP), expand = 0.05, alpha = 0.3) + 
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+
+```
+
+![](images/clipboard-3720311845.png)
+
+Without making it too complicated i am using canva to draw the line that i see
+
+## Biological background for the PLS-DA
+
+**COPZ1** 
+
+Our PLS-DA analysis identified COPZ1 as an important variable differentiating between the biliary viability groups. COPZ1 was also found to be downregulated in high biliary viability livers. COPZ1 encodes for a subunit that makes up the cytoplasmic coatomer protein, complex. The coatomer protein complex is involved in autophagy and intracellular protein trafficking (NCBI, n.d.). The primary transport it facilitates is from the Golgi complex to the endoplasmic reticulum, also known as retrograde transport. This is important to maintain homeostasis by removing aging proteins and organelles for degradation and recycling of components. (Kucheryavskiy, 2020) This protein is a prognostic marker in liver hepatocellular carcinoma. Other info about this protein is the essential role it plays in maintaining the survival of some types of tumors (Hong et al., 2023). 
+
+**MMP7** 
+
+The matrix metalloproteinase MMP7 was highlighted in our PLS-DA. MMP7 is part of a family of enzymes responsible for the breakdown of extracellular matrix expressed, the blood flow through the liver could be messed up and the blood vessels could be worn down, causing a lower biliary viability (Lambert et al., 2005).  
+
+**SLC6A19** 
+
+SLC6A19, encoding for the system B transmembrane protein, was also identified in our analysis. This protein actively transports neutral amino acids across the apical membrane of epithelial cells (SLC6A19 Solute Carrier Family 6 Member 19 [Homo Sapiens (Human)] - Gene - NCBI, z.d.). This gene and protein don’t seem to have any relation to biliary viability and mainly focus on transporting amino acids in organs such as the kidneys and intestine (Bröer, 2008). 
+
+**MUC1**
+
+MUC1 was also found in our PLS-DA analysis, here it was found to be an significant variable that allows for differentiating between biliary viability groups. MUC1, the transmembrane glycoprotein mucin 1, is a mucin family member that has different functions in normal and cancer cells. This is caused by its structure and biochemical properties. Mucin1 can act as a lubricant, moisturizer, and physical barrier in normal cells. In cancer cells, mucin 1 gets overexpressed and often faces aberrant glycosylation (Chen et al., 2021). MUC1 is also expressed in the liver and is key for maintaining cellular functions, specifically for the epithelial surfaces (Kasprzak & Adamek, 2019). This gene could help in the regeneration of liver cells and thereby increase liver viability.  
+
+![](images/clipboard-1315979708.png)
+
+**PLS-DA Score plot component 1 – component 3** \
+PLS-DA score plot performed on proteomic samples from 150 min after starting NMP. \
+Showing how the samples are laid out over components 1 & 3. Viability is shown with colour. There is a clear divide visible in the middle. 
+
+PLS-DA was performed on the normalized, imputed proteomics data. This data was then split into two groups, high biliary viability and low biliary viability. Figure 8 shows a comparison between the 3rd component, which contains 4.62% of the info, and Component 1, which contains 21.9% of the info. The mentioned info is the amount of each component that relates to the original data file. The reason for this comparison is that component 1 - component 2 & component 2 - component 3 showed nothing significant and no groups; therefore, there were no clear results from these comparisons.
+
+### Final PLS-DA score plot
+
+![](images/Ontwerp zonder titel (2).png)
