@@ -3,13 +3,13 @@ title: "Logbook 2.4.1 Omics (DEA with limma)"
 author: "Yamila Timmer"
 date: "`r Sys.Date()`"
 output:
-  word_document:
-    toc: true
-    toc_depth: '3'
   html_document:
     toc: true
     toc_depth: '3'
     df_print: paged
+  word_document:
+    toc: true
+    toc_depth: '3'
   pdf_document:
     toc: true
     toc_depth: '3'
@@ -51,8 +51,9 @@ Our goal is to get a better understanding of biomarker profiles in low/high bili
 
 Our research question is: "What bile- and liver- biomarkers correlate with biliary viability of ECD livers"
 
-# Data
+# Loading data
 For proteomics, we have various data files, including:
+
 - *NMP_Bile_Proteomics_Report.txt* (.tsv): contains identified + quantified protein counts, rows = proteins, columns = sample ID.
 - *supp_data.xlsx*, figure 3a: contains metadata, including sample ID, liver number and time point the sample was taken at.
 - *supp_data.xlsx*, figure 4a: contains metadata, including sample ID, liver number and biliary viability.
@@ -92,7 +93,7 @@ print(paste("Amount of samples in merged dataframe:", length(rownames(merged_sam
 **Conclusion**: The resulting dataframe indeed contains as many rows as sample_id2, some samples have been lost due to their absence in sample_id2 and cannot be used as there is no biliary viability label for them, however 114 samples should be enough to proceed with our research.
 
 
-## Pre-processing steps
+## Data pre-processing
 
 The colnames of the count data are very long (e.g."X.2..NMP_Bile_Proteomics_171.raw.PG.Quantity") and can be shortened using some regex, to make the names easier to work with, this is also needed because the sample names have to be the same as the format in the metadata (NMP_Bile_Proteomics_171), in order to filter on samples later on.
 
@@ -109,7 +110,7 @@ data_unique <- make_unique(data,
                            delim = ";")
 ```
 
-### Filtering samples
+### Filtering samples on timepoint
 
 We will only be using 30/150min samples and these will be filtered in seperate dataframes as we will be comparing low vs high biliary viability in the 30 minute samples and in the 150 minute samples. "End" samples are removed.
 
@@ -245,7 +246,9 @@ mean_protein_presence_150min
 
 
 # Normalizing data
-Median centering to normalize across samples (columns)
+## Normalizing across samples
+
+For normalizing across samples, median centering is used.
 
 ```{r}
 # Sample medians visibly differ from eachother, so median centering will have to be performed to remove noise between samples
@@ -274,7 +277,7 @@ median_centering(data_se_150min)
 
 ```
 
-Normalizing across proteins
+## Normalizing across proteins
 ```{r}
 # Visualizing row sd's versus row means, before normalizing across proteins
 meanSdPlot(data_se_30min)
@@ -395,7 +398,7 @@ limma_results_150min$difflabel[limma_results_150min$diffexpressed != "NO"] <-
   rownames(limma_results_150min)[limma_results_150min$diffexpressed != "NO"]
 ```
 
-# Visualisation
+## Visualisation
 Below the results from the DEA are made visible in a volcanoplot. The plot shows logFC/p-value for proteins, comparing high biliary vibility to low biliary viability, so if a protein is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biliary viability.
 ```{r, warning=FALSE}
 # Generate volcanoplot for 30 min results
@@ -446,7 +449,7 @@ downregulated_150min
 diff_expressed_genes_150min <- limma_results_150min[!is.na (limma_results_150min$difflabel), ]
 ```
 
-```{r}
+```{r, message=FALSE}
 # Create dataframe with corresponding entrez ID's for gene symbols
 entrez_ID <- function(sig_df) {
   gene_names <- sig_df$difflabel
@@ -458,7 +461,7 @@ low_vs_high_150min_entrez <- entrez_ID(sig_df = diff_expressed_genes_150min)
 
 ```
 
-```{r}
+```{r, message=FALSE}
 # Make dataframe that shows all pathways that have one or more DEG
 pathway_low_vs_high_150min <- enrichKEGG(gene = low_vs_high_150min_entrez$ENTREZID,
                                          organism = 'hsa')
@@ -475,7 +478,7 @@ names(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
 
 ```
 
-
+## Visualisation using pathview
 ```{r, eval=FALSE}
 # Create visualisations for each pathway with at least 1 DEG, eval=FALSE because this can generate a lot of visualisations, depending on the amount of pathways
 dir.create("pathview_output")
@@ -501,6 +504,8 @@ for (pathway_id in rownames(significant_pathways)){
 
 ```
 
+# Generating table for research article
+Minor changes are made to the table, such as adding significance and changing colnames, for the table to be better suited to put in our research article.
 ```{r}
 # Adjust table for paper
 # Add significance to values
