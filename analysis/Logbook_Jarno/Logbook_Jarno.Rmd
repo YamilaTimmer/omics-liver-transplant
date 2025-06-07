@@ -14,7 +14,7 @@ bibliography: bibliography.bib    # Path to your .bib file
 
 This is a logbook for the Omics liver transplant project. The goal of this project is to perform a PCA on both the proteomics data and RNA transcriptomics data, and find a link.
 
-This logbook shows the proces of exploring data and processing this, applying different statistical principals like PLS-DA and PCA and some biological background on the results from these statistical principals. First the paper that the project will be based of has been read and needed to be understood completely before a research question was to be made. The paper that was chosen was the @thorne2023 paper and this paper talked about biliary regeneration during normothermic preservation of doner livers. This paper looked if ECD livers could be recoverd to a useable liver for tranplantation by putting them through and NMP machine that would suposedly kickstart the regeneration of the liver cells.
+This logbook shows the process of exploring data and processing this, applying different statistical principles like PLS-DA and PCA and some biological background on the results from these statistical principles. First, the paper that the project will be based on has been read and needs to be understood completely before a research question can be made. The paper that was chosen was the @thorne2023 paper, and this paper talked about biliary regeneration during normothermic preservation of donor livers. This paper looked into whether ECD livers could be recovered to a useable liver for transplantation by putting them through an NMP machine that would supposedly kickstart the regeneration of the liver cells.
 
 ## Load libraries
 
@@ -33,17 +33,17 @@ library(mdatools)
 
 The paper selected for this multi-omics project is the *Bile proteome reveals biliary regeneration during normothermic preservation of human donor livers* @thorne2023
 
-The paper looks at the effects of NMP (Normothermic machine perfusion) on livers that are to be transplanted that may not be in the optimal shape, meaning they have high biliary injuries (Traumatic damage to the bile ducts) or lower biliary viality (a lower ammount of living cells). The research was conducted on 55 livers that were deemed suitable for transplantation analysis. The livers came from ECD (extended criteria donors) and DCD (donation after circulatory death) donors.
+The paper looks at the effects of NMP (Normothermic machine perfusion) on livers that are to be transplanted that may not be in the optimal shape, meaning they have high biliary injuries (Traumatic damage to the bile ducts) or lower biliary viability (a lower amount of living cells). The research was conducted on 55 livers that were deemed suitable for transplantation analysis. The livers came from ECD (extended criteria donors) and DCD (donation after circulatory death) donors.
 
-To analyse the livers a multitude of samples were taken. Before the NMP 46 bile duct biopsies were taken, and 50 liver tissue biopsies were taken (these biopsies were taken before the livers underwent Hypothermic oxygenated machine perfusion - DHOPE) after undergoing DHOPE and COR (controlled oxygenated rewarming) The livers were put in the NMP where metabolic processes, bloodflow and simulation of other physioligcal conditions were started. 30 minutes after these livers were in the NMP a Bile sample was taken, this was taken of all 55 livers. At 150 minutes another bile sampes was taken of 54 (not 55 because one sample did not contain any proteins) livers. At this point in the NMP process all livers were analysed for a multitude of things to determine organ viability. The two distinct areas that were looked at were the hepatocellular vaibility, this focused on the metabolic funationality of the liver parenchyme (functional tissue of the liver, makes up 80% of the liver volume as hepatocytes), this is assesed by criteria such as lactate clearance and bile production. The other area was biliary viability that focuses on the functional capacity of cholangiocytes (epithelial cells of the bile duct) this was assesed by specific biochemical composition of the bile @thorne2023 . After the viability assesement was concluded 35 livers were viable for further NMP treatment pre transplantation, 20 livers were deemed non-viabel and therefore had their NMP stopped then being discarded. For the 35 livers that continued another sample of bile was taken at the END of the NMP treatment. However 33 samples were taken because of complications with 2 livers at transplantation.
+To analyse the livers, a multitude of samples were taken. Before the NMP 46 bile duct biopsies were taken, 50 liver tissue biopsies were taken (these biopsies were taken before the livers underwent Hypothermic oxygenated machine perfusion - DHOPE) after undergoing DHOPE and COR (controlled oxygenated rewarming). The livers were put in the NMP, where metabolic processes, blood flow and simulation of other physiological conditions were started. 30 minutes after these livers were in the NMP, a Bile sample was taken, which was taken from all 55 livers. At 150 minutes, another bile sample was taken of 54 (not 55 because one sample did not contain any proteins) livers. At this point in the NMP process, all livers were analysed for a multitude of things to determine organ viability. The two distinct areas that were looked at were the hepatocellular viability, which focused on the metabolic functionality of the liver parenchyme (functional tissue of the liver, which makes up 80% of the liver volume as hepatocytes), this is assessed by criteria such as lactate clearance and bile production. The other area was biliary viability, which focuses on the functional capacity of cholangiocytes (epithelial cells of the bile duct). This was assessed by the specific biochemical composition of the bile @thorne2023 . After the viability assessment was concluded, 35 livers were viable for further NMP treatment pre-transplantation, 20 livers were deemed non-viable and therefore had their NMP stopped and were then discarded. For the 35 livers that continued, another sample of bile was taken at the END of the NMP treatment. However, 33 samples were taken because of complications with 2 livers at transplantation.
 
-The Bile, a very important part of this paper. But what is this bile? According too @boyer2013 bile consist out of a number of things \~95% of bile is water, Electrolyes, Organic Anions like Bile salts (Steroid/primary acids like cholic acid, chemodeoxcholic acid or secondary acids like deoxycholic acid and lithocholic acid) Lipids like cholesterol, Steroid hormons and estrogen. Proteins, peptides. heavy metals and others also are found in bile. For a more indepth look into what bile contains i would suggest reading table 1 in the @boyer2013 paper this gives the known composition of bile in most species.
+The Bile, a very important part of this paper. But what is this bile? According to @boyer2013, bile consists of a number of things. \~95% of bile is water, Electrolytes, Organic Anions like Bile salts (Steroid/primary acids like cholic acid, chemodeoxycholic acid or secondary acids like deoxycholic acid and lithocholic acid), Lipids like cholesterol, Steroid hormones and estrogen. Proteins, peptides. Heavy metals and others are also found in bile. For a more in-depth look into what bile contains, I would suggest reading table 1 in the @boyer2013 paper, which gives the known composition of bile in most species.
 
-The BDI, BDI meaning Bile Duct Injury is a metric that shows how much damage the liver has baised on 4 criteria. These being the presence of vascular lesions (abnormal growth or malformations in the bloodvessel), stromal necrosis (Organ tissue/cell death), Injury to the periluminal peribiliary gland and injury to the deep peribiliary glands. Using these 4 criteria a score was made called "a total histological bile duct injury score" this score ranged from 2 being the lowest to 14 being the highest with the median being 7. Using this previously mentioned median the livers were diveded into 2 groups. High BDI and Low BDI using this group system a number of analysis were made like seeing if BDI had influence of biliary viability and other analysises.
+The BDI, meaning Bile Duct Injury, is a metric that shows how much damage the liver has based on 4 criteria. These include the presence of vascular lesions (abnormal growth or malformations in the blood vessel), stromal necrosis (Organ tissue/cell death), Injury to the periluminal peribiliary gland and injury to the deep peribiliary glands. Using these 4 criteria, a score was made called "a total histological bile duct injury score" This score ranged from 2 being the lowest to 14 being the highest, with the median being 7. Using the previously mentioned median, the livers were divided into 2 groups. High BDI and Low BDI using this group system, several analyses were made, like seeing if BDI had the influence of biliary viability and other analyses.
 
-PCA, Principal component analysis was used in this paper and will be used in our research aswel. For this reason i made an explenation on how PCA works that is understandable for me and i will share here. PCA is an excelent tool to process datasets with a large ammount of factors. This is because when comparing factors you can only plot so many otherwise the dimensions would be too large and too difficult to zinterpret. Using PCA u can turn for examlpe 200 factors into 5 principal components (Principal components are ranked from most important to least important, meaning PRC1 will be more important then PCR3) To see how much info of the data set is explained within each principal component a SCREE plot could be used. This plot gives percentages on how much variance/info each PC contain
+PCA, Principal component analysis, was used in this paper and will be used in our research as well. For this reason, I made an explanation on how PCA works that is understandable to me, and I will share it here. PCA is an excellent tool to process datasets with a large number of factors. This is because when comparing factors, you can only plot so many; otherwise, the dimensions would be too large and too difficult to interpret. Using PCA, u can turn, for example, 200 factors into 5 principal components (Principal components are ranked from most important to least important, meaning PRC1 will be more important than PCR3). To see how much info of the data set is explained within each principal component, a SCREE plot could be used. This plot gives percentages on how much variance/info each PC contain
 
-**Here is an example of a scree plot**
+**Here is an example of a scatter plot**
 
 ```{r}
 # take only the collums with ints
@@ -66,15 +66,15 @@ plot(eigenvalues/sum(eigenvalues), type = "b",
 
 ```
 
-In Fig 1 A scree plot was made of the PCA of the iris dataset
+In Fig. 1, A scree plot was made of the PCA of the iris dataset
 
 The scree plot shows that the first two principal components explain the most variance in the data. The third and fourth principal components explain much less variance.
 
 Based on the scree plot, we can conclude that the first two principal components are sufficient for capturing the most important information in the data.
 
-what is an eigen value? It is a measure of the strength or importance of its corresponding Pricipal Component. A larger eigenvalue means the Principal Component captures more of the total variance in the data. The sum of all eigenvalues is equal to the total variance in the original dataset. The codes eigenvalues \<- psa\@sdev\^2 calculates the squared standard deviations, it's calculating these variances along the principal component directions, which are the eigenvalues of the data's coveriance/correlation matrix. These eigenvalues are needed for understanding how much information each PC retains for this in turn helps decide how many PC will be necersary to use.
+What is an eigenvalue? It is a measure of the strength or importance of its corresponding Principal Component. A larger eigenvalue means the Principal Component captures more of the total variance in the data. The sum of all eigenvalues is equal to the total variance in the original dataset. The code eigenvalues \<- psa\@sdev\^2 calculates the squared standard deviations, calculating these variances along the principal component directions, which are the eigenvalues of the data's covariance/correlation matrix. These eigenvalues are needed for understanding how much information each PC retains, for this in turn helps decide how many PC will be necessary to use.
 
-If we use PC1 and PC2 from the PCA of the iris dataset we will have about 90% of the info of the original dataset this will be more then enough. After deciding how many PC's need to be used it is important to plot them using a scatterplot for example
+If we use PC1 and PC2 from the PCA of the iris dataset, we will have about 90% of the info of the original dataset. This will be more than enough. After deciding how many PC's need to be used, it is important to plot them using a scatterplot, for example.
 
 ```{r}
 # Make a scatter plot that shows the different groups
@@ -86,18 +86,18 @@ iris.pca.plot <- autoplot(pca,
 iris.pca.plot
 ```
 
-Here a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the color indicates the species of the flower. The groups are show by taking all the most outside points and drawing a line around the rest of the dots.
+Here, a scatterplot was made of the PCA of the iris dataset. The plot shows the first two principal components (PC1 and PC2) on the x and y axes, respectively. Each point represents an observation (in this case, a flower), and the colour indicates the species of the flower. The groups are shown by taking all the most distant points and drawing a line around the rest of the dots.
 
 ```{r, fig.cap= "Fig.2 - Loading plot"}
 # Graph of the variables
 fviz_pca_var(pca, col.var = "black")
 ```
 
-This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. Longer arrow means stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their close proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
+This plot shows the variables and their correlation, also known as loadings. The arrows represent the original variables, and their direction and length indicate how they contribute to the principal components. A longer arrow means a stronger contribution. The plot also shows the correlation between the variables. For example, Petal Length and Petal Width are highly correlated, as indicated by their proximity and similar direction. Sepal Length is positively correlated with Petal Length and Width, but not as strongly. Sepal Width is negatively correlated with both Petal Length and Width.
 
-**applying PCA to the data** After reading the PCA that was done in the paper and exploring and explenation of different sides of a good PCA, i wrote down a small list of suggestions that we should keep in mind when we are doing our PCA. This being to first do a propper analysis of the data, this means looking at the data and seeing if there are any outliers or missing values. If there are outliers or missing values, we should remove them from the dataset. After this we should scale the data, this is important because PCA is sensitive to the scale of the data. If the data is not scaled, the PCA will be biased towards the variables with larger scales. After scaling we can do a PCA on the data and plot it using a scatterplot. This will give us a good overview of how the data looks like and if there are any patterns in it. After this we can do a loading plot to see how much each variable contributes to each principal component. This will help us understand which variables are important for the PCA and which ones are not.
+**Applying PCA to the data.** After reading the PCA that was done in the paper and exploring and explanation of different sides of a good PCA, I wrote down a small list of suggestions that we should keep in mind when we are doing our PCA. This is to first, do a proper analysis of the data, which means looking at the data and seeing if there are any outliers or missing values. If there are outliers or missing values, we should remove them from the dataset. After this, we should scale the data, this is important because PCA is sensitive to the scale of the data. If the data is not scaled, the PCA will be biased towards the variables with larger scales. After scaling, we can do a PCA on the data and plot it using a scatterplot. This will give us a good overview of what the data looks like and if there are any patterns in it. After this, we can do a loading plot to see how much each variable contributes to each principal component. This will help us understand which variables are important for the PCA and which ones are not.
 
-After this PCA, we should analyse the cluster groups by subsetting the data and looking at the different groups. This will help us understand how the different groups are related to each other and if there are any patterns in the data. After this we can do a correlation analysis to see how the different variables are related to each other. Also a heatmap can be made to see correlation. E
+After this PCA, we should analyse the cluster groups by subsetting the data and looking at the different groups. This will help us understand how the different groups are related to each other and if there are any patterns in the data. After this, we can do a correlation analysis to see how the different variables are related to each other. Also, a heatmap can be made to see the correlation. E
 
 ANOVA?
 
@@ -113,39 +113,39 @@ Transcriptomics
 
 ### Proposal for research question
 
-**Question** Does longer usage of NMP lead to benefits in preservation and functional assessment of Sub-optimal ECD livers?
+**Question:** Does longer usage of NMP lead to benefits in preservation and functional assessment of Sub-optimal ECD livers?
 
-**Why?** The reason for this research question is because the paper itself also refers to a study that is going towards this and also because we have quite a lot of data that has been taken over multiple points in the NMP cycle, so that we can use the change between these points for the estimates of the next points. Finding certain biomarkers that could support this hypothesis should be reasonably doable and the paper also mentions interesting genes/proteins that could support this hypothesis
+**Why?** The reason for this research question is because the paper itself also refers to a study that is going towards this and also because we have quite a lot of data that has been taken over multiple points in the NMP cycle, so that we can use the change between these points for the estimates of the next points. Finding certain biomarkers that could support this hypothesis should be reasonably doable, and the paper also mentions interesting genes/proteins that could support this hypothesis.
 
 [![Fig.2 Workflow of the paper used](images/clipboard-709717425.png)](https://www.nature.com/articles/s41467-023-43368-y)\
 
 ### Chosen research question
 
-\*\*
+Using multi-omics to identify bile- and liver-biomarkers that correlate with biliary viability of ECD livers
 
-look at this by comparing the samples from the 2 'biliary viability' groups (high vs low) and do this for the bile proteomics data and the liver transcriptomics data and then see which proteins are more/less abundant or which metabolic pathways in the liver are more/less expressed per group. The biliary viability is determined as follows: "The addition of biliary viability criteria, such as bile pH, glucose reabsorption and bicarbonate secretion, for selection of viable liver grafts has been explored by us and others", but it is not discussed whether there is a certain proteomics/transcriptomics profile associated with this 'biliary viability'. The biliary viability score describes the state of 'cholangiocytes', these are specialized epithelial cells lining the bile ducts. Determining the biliary viability in advance (before transplantation) reduces the risk of cholangiopathies (cholangiocyte disorders) after transplantation. The article also states that the data is suitable for further refining the 'viability assessment criteria' ("Our comprehensive bile proteomics and liver transcriptomics data sets provide the potential to further evaluate molecular mechanisms during NMP and refine viability assessment criteria viability assessment criteria"). A reason to look for biomarkers, instead of using the normal tests, could be, for example, that values ​​at the proteomics/transcriptomics level provide a better picture.
+Look at this by comparing the samples from the 2 'biliary viability' groups (high vs low) and do this for the bile proteomics data and the liver transcriptomics data, and then see which proteins are more/less abundant or which metabolic pathways in the liver are more/less expressed per group. The biliary viability is determined as follows: "The addition of biliary viability criteria, such as bile pH, glucose reabsorption and bicarbonate secretion, for selection of viable liver grafts has been explored by us and others", but it is not discussed whether there is a certain proteomics/transcriptomics profile associated with this 'biliary viability'. The biliary viability score describes the state of 'cholangiocytes', which are specialised epithelial cells lining the bile ducts. Determining the biliary viability in advance (before transplantation) reduces the risk of cholangiopathies (cholangiocyte disorders) after transplantation. The article also states that the data is suitable for further refining the 'viability assessment criteria' ("Our comprehensive bile proteomics and liver transcriptomics data sets provide the potential to further evaluate molecular mechanisms during NMP and refine viability assessment criteria viability assessment criteria"). A reason to look for biomarkers, instead of using the normal tests, could be, for example, that values ​​at the proteomics/transcriptomics level provide a better picture.
 
-### Flowchart for potential pipeline of the transcriptomics data
+### Flowchart for a potential pipeline of transcriptomics data
 
 ![](images/clipboard-2677362579.png)
 
-***Note -** After giving the mid-term presentation it has been decided that besides the DGE also a PCA and PLS-DA will be perfomed on the data.*
+***Note -** After giving the mid-term presentation, it has been decided that besides the DGE, also a PCA and PLS-DA will be performed on the data.*
 
 ## Transcriptomics experimentation
 
-First it is important to check weather our data is usable before starting the pipeline, the paper where we are using the data from refrenced a document that contained the links for each transcriptomics file used. There were two files with links to the transcriptomics data one send me to a website that had bam files available. Bam meaning Binary alignment map, this means the file should then be ready for feature count.
+First, it is important to check whether our data is usable before starting the pipeline. The paper where we are using the data from referenced a document that contained the links for each transcriptomics file used. There were two files with links to the transcriptomics data, one sent me to a website that had BAM files available. Bam, meaning Binary alignment map, this means the file should then be ready for feature count.
 
-lets look at the bam header to see if the reads are mapped
+Let's look at the BAM header to see if the reads are mapped.
 
 ```{r}
 scanBamHeader(files = "data/ERR12161053.bam")
 ```
 
-The bam header is quite empty, this gives me some concern seeing how this isn't a very common thing but still running them through featurecount will give a more clear overview.
+The BAM header is quite empty, which gives me some concern, seeing how this isn't a very common thing, but still running them through featurecount will give a clearer00 overview.
 
-To use feature count the following is done. A refrence genome is chosen in this case the hg38 version because this is also the genome used in the paper @thorne2023
+To use feature count, the following is done. A reference genome is chosen in this case, the hg38 version, because this is also the genome used in the paper @thorne2023
 
-Then we want to specify that feature count only should look for nucleotides that are based on an exon so they will forsure get expressed and that the data is paired end.
+Then we want to specify that the feature count only should look for nucleotides that are based on an exon, so they will for sure get expressed and that the data is paired end.
 
 ```{r}
 featureCounts("data/ERR12161053.bam", annot.inbuilt = "hg38", GTF.featureType = "exon",isPairedEnd = TRUE, )
@@ -154,21 +154,21 @@ featureCounts("data/ERR12161053.bam", annot.inbuilt = "hg38", GTF.featureType = 
 
 ![](images/clipboard-2063658451.png)
 
-There seems to be a big problem with the bam files, it is not at all aligned. Therefore we have to download the fasta files and start from the beginning.
+There seems to be a big problem with the BAM files, it is not at all aligned. Therefore, we have to download the FASTA files and start from the beginning.
 
-First for the indexing i will need to index the refrence genome.
+First, for the indexing, I will need to index the reference genome.
 
-**Important note -** The commands will be commented out due to these being run on the assemblix server (our study's private server network that has bio informatic tools) and can not be run on my personal laptop.
+**Important note -** The commands will be commented out due to these being run on the assemblix server (our study's private server network that has bioinformatic tools) and can not be run on my laptop.
 
-Using hisat2 i indexed the refrence genome. Due to the article not saying what ref genome they used we will be using the most recent GRC38 human genome. The following bash code was used to index the genome
+Using hisat2, I indexed the reference genome. Due to the article not saying what ref genome they used, we will be using the most recent GRC38 human genome. The following bash code was used to index the genome.
 
 ```{bash}
 #hisat2-build GCF_000001405.40_GRCh38.p14_genomic.fna h38_index
 ```
 
-This command is used to build an index for the refrence genome, this is quite important pre read allignment due to it being requered by hisat2 and also making the whole process faster.
+This command is used to build an index for the reference genome, which is quite important pre-read alignment due to it being requered by hisat2 and also making the whole process faster.
 
-After the index with refrence genome 38 (the most recent humane refrence genome released that is used widely) hisat gave me an about 20% mapping result. This resulted in me also indexing and mapping with an old refrence genome the 37 human refrence genome. This gave me a 38% mapping rate with an unpaired fastq sample.
+After the index with reference genome 38 (the most recent human reference genome released which is used widely), hisat gave me about 20% mapping result. This resulted in me also indexing and mapping with an old reference genome, the 37 human reference genome. This gave me a 38% mapping rate with an unpaired fastq sample.
 
 ```{bash}
 #!/bin/bash
@@ -183,7 +183,7 @@ hisat2-build hg19.fa.gz h19_index
 
 ```
 
-(This is using slurm) Slurm uses multiple nodes (computes) in combination to perform a task, in this case the task was to index a refrence genome.
+(This is using Slurm) Slurm uses multiple nodes (computes) in combination to perform a task; in this case, the task was to index a reference genome.
 
 Here is the file that gave me the highest mapping, this being \~38%
 
@@ -191,7 +191,7 @@ Here is the file that gave me the highest mapping, this being \~38%
 #hisat2 -x h19_index -U R10_1.fastq -S R10_h19_unpaired.sam --phred33                                                             
 ```
 
-Now i will try using feature count again,
+Now I will try using feature count again,
 
 ```{r}
 # The same as before only look for exon and because im using a non inbuild ref genome i have to say its an anotated GTF file.
@@ -215,9 +215,9 @@ counts_results
 
 ## MDA TOOLS
 
-To practice with MDA tools and our data not yet being usable i decided to use the iris data and perform pls-da on it.
+To practice with MDA tools and our data not yet being usable, I decided to use the iris data and perform PLS-DA on it.
 
-PLS-DA wants to look at groups and see what seperates them based on variance importantce. To do this we give
+PLS-DA wants to look at groups and see what separates them based on variance importance. To do this, we give
 
 ```{r}
 # calibration set from iris data (3 classes)
@@ -237,7 +237,7 @@ plot(model)
 
 ```
 
-The model generates an output that shows the 3 classes. for each class it shows the true positive, false positive, true negative and false negatives. This then can give us a calculation on how accurate the model is and how good it will perform on the new data.
+The model generates an output that shows the 3 classes. For each class, it shows the true positive, false positive, true negative and false negatives. This can then give us a calculation on how accurate the model is and how good it will perform on the new data.
 
 ```{r}
 # a specific look at the 2nd component
@@ -312,7 +312,7 @@ par(mfrow = c(1, 1))
 -   Foute voorspellingen zijn bijvoorbeeld een rood puntje op de "versicolor"-rij (dan is een virginica als versicolor geclassificeerd).
 -   In de eerste figuur zijn bijna alle voorspellingen correct, vooral voor *setosa*.
 
-1.  **Figuur 1 (Setosa):**
+1.  **Figure 1 (Setosa):**
 
     -   Perfecte classificatie.
     -   Predictor 3 speelt een grote negatieve rol.
@@ -331,7 +331,7 @@ par(mfrow = c(1, 1))
     -   Positieve bijdrage van Predictors 2-4.
     -   Iets lagere fouten dan in de versicolor-figuur.
 
-## PLS-DA our data data
+## PLS-DA our data
 
 PLS Discriminant Analysis (PLS-DA) is a discrimination method based on PLS regression. The used R library t
 
@@ -386,7 +386,7 @@ This shows the results of the models for each class
 
 Here is a small snippet of the first results.
 
-Now it is possible to tweak the model settings. Right now all the different samples are used but what if we devide them between HIGH_NMP and LOW_NMP subsets.
+Now it is possible to tweak the model settings. Right now all the different samples are used, but what if we divide them between HIGH_NMP and LOW_NMP subsets?
 
 ```{r}
 sample_identifiers <- rownames(data_for_plsda) 
@@ -426,7 +426,7 @@ Class #1 (High_NMP) X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy Cal
 
 Class #2 (Low_NMP) X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy Cal 36.75 89 15 0 28 0 1.000 1.0 1.000 Cv NA NA 9 3 25 6 0.893 0.6 0.791
 
-This is the outcome and the model seems to have a bit of overfitting but lets look at the results anyways.
+This is the outcome, and the model seems to have a bit of overfitting, but let's look at the results anyway.
 
 ### Results - plots
 
@@ -436,13 +436,13 @@ plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, nc
 
 ![](images/clipboard-2517190296.png)
 
-A VIP plot also known as variable importance plot tells us the importance from each variable. In this model there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, CPA3 these proteins should be looked at in the main dataset. Some of these proteins were also called important in our paper
+A VIP plot, also known as a variable importance plot, tells us the importance of each variable. In this model, there are a few really important variables seen by the height of their bar. The most important proteins in this model are PRPSAP1, ACTBL2, CDH23, MUC5B, MUC1, and CPA3; these proteins should be looked at in the main dataset. Some of these proteins were also called important in our paper.
 
 ```{r}
 plotPredictions(model_plsda_corrected, show.legend = FALSE, ncomp = 3)
 ```
 
-![The model seems to be good at differntaiting between the two classes, there are some mis qualifications seen by the red dots in the high nmp field.](images/clipboard-4104918162.png)
+![The model seems to be good at differentiating between the two classes, there are some misqualifications seen by the red dots in the high NMP field.](images/clipboard-4104918162.png)
 
 ```{r}
 plotXLoadings(model_plsda_corrected, show.labels = T)
@@ -451,14 +451,14 @@ plotXLoadings(model_plsda_corrected, show.labels = T)
 
 ![](images/clipboard-1623296035.png)
 
-Loading plot identifies the orignial variables that are most impactful for the 2 main components, it helps understand what variables work together and if there are any patterns. Vav2 slc39A7 and HRNR have a high loading for component 2 and SMCR8 PRSS3 LUZP1 have a high loading for the component 1.
+Loading plot identifies the original variables that are most impactful for the 2 main components, it helps understand what variables work together and if there are any patterns. Vav2, slc39A7 and HRNR have a high loading for component 2, and SMCR8, PRSS3, and LUZP1 have a high loading for the component 1.
 
 ```{r}
 plotXVariance(model_plsda_corrected, show.labels = T)
 
 ```
 
-![It seems that component 1 is the most important so we should analyse this for the most significant proteins.](images/clipboard-1079986677.png)
+![It seems that component 1 is the most important, so we should analyse this for the most significant proteins.](images/clipboard-1079986677.png)
 
 ```{r}
 plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, ncomp = 1)
@@ -466,16 +466,16 @@ plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, nc
 
 ![](images/clipboard-293168836.png)
 
-It seems that our ncomp 1 that was shown in the previous Variance graph was shown to contain the most info has different important variables then the ncomp 3. The most important proteins in this component are the MAP1S, PRPSAP1, CDH23, PUF60 and CPA3. These are protein to look at in a subset of the total data.
+It seems that our ncomp 1, which was shown in the previous Variance graph, was shown to contain the most information and has different important variables than ncomp 3. The most important proteins in this component are the MAP1S, PRPSAP1, CDH23, PUF60 and CPA3. These are proteins to look at in a subset of the total data.
 
 ```{r}
 # Scatter plot of Component 1 vs. Component 3
 plot(model_plsda_corrected, ncomp = 1)
 ```
 
-![**X-distances** - This plot shows us how good the object can be moddeled in the X space. Our model shows most of the dots are under the line meaning there are no big outliers in the X space and they are described well](images/clipboard-2985439270.png)
+![**X-distances** - This plot shows us how good the object can be moddeled in the X space. Our model shows that most of the dots are under the line, meaning there are no big outliers in the X space, and they are described well.](images/clipboard-2985439270.png)
 
-**Regression coefficients** - predictions with positive coëfficiënts say it does belong to the High_nmp class and the ones with a negative prediction value say they don't belong to this class. The line is the point 0 so this is used as the refrence point.
+**Regression coefficients** - predictions with positive coëfficiënts say it belongs to the High_nmp class, and the ones with a negative prediction value say they don't belong to this class. The line is the point 0, so this is used as the reference point.
 
 ```{r}
 
@@ -554,7 +554,7 @@ If we look at this Component score plot, we are comparing component 3 with compo
 
 ### Variance calculation
 
-Concept, Take xeigenval from the model. Calculate per collumn the variance for the normal data and add this all up. Dived the xeigen val from each component with the orignal data variance and multiply by a 100%
+Concept: Take xeigenval from the model. Calculate per column the variance for the normal data and add this all up. Divided the eigenvalue from each component by the original data variance and multiply by 100%
 
 ### Variance first try
 
@@ -577,7 +577,7 @@ variance_pc1 <- pc_1_eigenvalue / sum(test_variance) * 100
 
 ```
 
-### Variance second try.
+### Variance, second try.
 
 ```{r}
 
@@ -592,7 +592,7 @@ variance_pc1_test <- round(pc_1_eigenvalue / total_variance * 100, 2)
 variance_pc3_test <- round(pc_3_eigenvalue / total_variance * 100, 2)
 ```
 
-** PLot with variance added **
+\*\* Plot with variance added \*\*
 
 ```{r}
 as.character(variance_pc3_test)
@@ -637,17 +637,17 @@ ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
 
 ![](images/clipboard-3720311845.png)
 
-Without making it too complicated i am using canva to draw the line that i see
+Without making it too complicated, I am using Canva to draw the line that I see.
 
 ## Biological background for the PLS-DA
 
 **COPZ1** 
 
-Our PLS-DA analysis identified COPZ1 as an important variable differentiating between the biliary viability groups. COPZ1 was also found to be downregulated in high biliary viability livers. COPZ1 encodes for a subunit that makes up the cytoplasmic coatomer protein, complex. The coatomer protein complex is involved in autophagy and intracellular protein trafficking (NCBI, n.d.). The primary transport it facilitates is from the Golgi complex to the endoplasmic reticulum, also known as retrograde transport. This is important to maintain homeostasis by removing aging proteins and organelles for degradation and recycling of components. (Kucheryavskiy, 2020) This protein is a prognostic marker in liver hepatocellular carcinoma. Other info about this protein is the essential role it plays in maintaining the survival of some types of tumors (Hong et al., 2023). 
+Our PLS-DA analysis identified COPZ1 as an important variable differentiating between the biliary viability groups. COPZ1 was also found to be downregulated in high biliary viability livers. COPZ1 encodes for a subunit that makes up the cytoplasmic coatomer protein complex. The coatomer protein complex is involved in autophagy and intracellular protein trafficking (NCBI, n.d.). The primary transport it facilitates is from the Golgi complex to the endoplasmic reticulum, also known as retrograde transport. This is important to maintain homeostasis by removing ageing proteins and organelles for degradation and recycling of components. (Kucheryavskiy, 2020) This protein is a prognostic marker in liver hepatocellular carcinoma. Other info about this protein is the essential role it plays in maintaining the survival of some types of tumours (Hong et al., 2023). 
 
 **MMP7** 
 
-The matrix metalloproteinase MMP7 was highlighted in our PLS-DA. MMP7 is part of a family of enzymes responsible for the breakdown of extracellular matrix expressed, the blood flow through the liver could be messed up and the blood vessels could be worn down, causing a lower biliary viability (Lambert et al., 2005).  
+The matrix metalloproteinase MMP7 was highlighted in our PLS-DA. MMP7 is part of a family of enzymes responsible for the breakdown of the extracellular matrix. The blood flow through the liver could be messed up, and the blood vessels could be worn down, causing a lower biliary viability (Lambert et al., 2005).  
 
 **SLC6A19** 
 
@@ -655,16 +655,130 @@ SLC6A19, encoding for the system B transmembrane protein, was also identified in
 
 **MUC1**
 
-MUC1 was also found in our PLS-DA analysis, here it was found to be an significant variable that allows for differentiating between biliary viability groups. MUC1, the transmembrane glycoprotein mucin 1, is a mucin family member that has different functions in normal and cancer cells. This is caused by its structure and biochemical properties. Mucin1 can act as a lubricant, moisturizer, and physical barrier in normal cells. In cancer cells, mucin 1 gets overexpressed and often faces aberrant glycosylation (Chen et al., 2021). MUC1 is also expressed in the liver and is key for maintaining cellular functions, specifically for the epithelial surfaces (Kasprzak & Adamek, 2019). This gene could help in the regeneration of liver cells and thereby increase liver viability.  
+MUC1 was also found in our PLS-DA analysis, where it was found to be a significant variable that allows for differentiating between biliary viability groups. MUC1, the transmembrane glycoprotein mucin 1, is a mucin family member that has different functions in normal and cancer cells. This is caused by its structure and biochemical properties. Mucin1 can act as a lubricant, moisturiser, and physical barrier in normal cells. In cancer cells, mucin 1 gets overexpressed and often faces aberrant glycosylation (Chen et al., 2021). MUC1 is also expressed in the liver and is key for maintaining cellular functions, specifically for the epithelial surfaces (Kasprzak & Adamek, 2019). This gene could help in the regeneration of liver cells and thereby increase liver viability.  
 
 ![](images/clipboard-1315979708.png)
 
 **PLS-DA Score plot component 1 – component 3** \
-PLS-DA score plot performed on proteomic samples from 150 min after starting NMP. \
+PLS-DA score plot performed on proteomic samples from 150 min after starting NMP.  \
 Showing how the samples are laid out over components 1 & 3. Viability is shown with colour. There is a clear divide visible in the middle. 
 
-PLS-DA was performed on the normalized, imputed proteomics data. This data was then split into two groups, high biliary viability and low biliary viability. Figure 8 shows a comparison between the 3rd component, which contains 4.62% of the info, and Component 1, which contains 21.9% of the info. The mentioned info is the amount of each component that relates to the original data file. The reason for this comparison is that component 1 - component 2 & component 2 - component 3 showed nothing significant and no groups; therefore, there were no clear results from these comparisons.
+PLS-DA was performed on the normalised, imputed proteomics data. This data was then split into two groups: high biliary viability and low biliary viability. Figure 8 shows a comparison between the 3rd component, which contains 4.62% of the info, and Component 1, which contains 21.9% of the info. The mentioned info is the amount of each component that relates to the original data file. The reason for this comparison is that component 1, component 2 & component 2 component 3 showed nothing significant and no groups; therefore, there were no clear results from these comparisons.
 
 ### Final PLS-DA score plot
 
-![](images/Ontwerp zonder titel (2).png)
+![](images/Ontwerp%20zonder%20titel%20(2).png)
+
+## Loadings barplot component 1
+
+```{r}
+# take the loadings from the model
+weight_data <- model_plsda_corrected$xloadings
+
+# transform from a matrix to a workable datagrame
+weight_data <- as.data.frame(weight_data)
+```
+
+```{r}
+#select all weights from component 1
+important_weights <- weight_data %>%
+  select(`Comp 1`)
+```
+
+```{r}
+# filter for the loadings that have atleast and importance above 8 because this shows only the most important proteins
+filtered_weights <- important_weights %>% 
+  filter(important_weights$`Comp 1` > 8)
+```
+
+```{r}
+# filter for the loadings that work against the component
+negative_weights <- important_weights %>% 
+  filter(important_weights$`Comp 1` < -8)
+```
+
+```{r}
+# combine both groups to plot
+filtered_weights <- rbind(filtered_weights, negative_weights)
+```
+
+```{r}
+# using ggplot to make a barplot that shows the loadings
+ggplot(filtered_weights, aes(x=`Comp 1`, y=rownames(filtered_weights))) + 
+  labs(
+    title = "PLS-DA loadings Plot - Component 1", 
+    x = "Contribution to Component 1", 
+    y = "Protein Name"
+  ) +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+# using some styling to make the ggplot more clear
+ggplot(filtered_weights, aes(x = `Comp 1`, y = reorder(rownames(filtered_weights), `Comp 1`))) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  labs(
+    x = "Contribution to Component 1", 
+    y = "Protein Name"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7),   # Smaller y axis text to fit more names
+  ) +
+  geom_text(aes(label = round(`Comp 1`, 2)), # Add contribution labels on bars
+            hjust = -0.1, size = 2)
+```
+
+### Loadings for component 3
+
+```{r}
+# Now subsetting component 3 to make the loadings plot
+important_weights_comp_3 <- weight_data %>%
+  select(`Comp 3`)
+```
+
+```{r}
+# filter for the loadings that have atleast and importance above 8 because this shows only the most important proteins
+filtered_weights_comp_3 <- important_weights_comp_3 %>% 
+  filter(important_weights_comp_3$`Comp 3` > 8)
+```
+
+```{r}
+# filter for the loadings that work against the component using also the 8 as minimum
+negative_weights_comp_3 <- important_weights_comp_3 %>% 
+  filter(important_weights_comp_3$`Comp 3` < -8)
+```
+
+```{r}
+filtered_weights_comp_3 <- rbind(filtered_weights_comp_3, negative_weights_comp_3)
+```
+
+```{r}
+# using ggplot to make a barplot that shows the loadings for comp 3
+
+ggplot(filtered_weights_comp_3, aes(x=`Comp 3`, y=rownames(filtered_weights_comp_3))) + 
+  labs(
+    x = "Contribution to Component 1", 
+    y = "Protein Name"
+  ) +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+# using some styling to make the ggplot more clear and easier to read.
+ggplot(filtered_weights_comp_3, aes(x = `Comp 3`, y = reorder(rownames(filtered_weights_comp_3), `Comp 3`))) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  labs(
+    x = "Contribution to Component 3", 
+    y = "Protein Name"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 7)) +         # Smaller y axis text to fit more names
+  geom_text(aes(label = round(`Comp 3`, 2)),      # Add contribution labels on bars
+            hjust = -0.1, size = 2)
+```
+
+# Biological background PLS-DA loadings
+
+PLS-DA loadings revealed two important liver proteins. The ABCC2, also known as the Multidrug Resistance Protein 2, is involved in the transport of substances out of cells. It plays a crucial role in drug disposition by mediating ATP-dependent efflux of a wide range of compounds, including drug metabolites, from cells into bile or urine. (@medlineplus_abcc2). ABCC2's transport of bilirubin out of the liver cells and into the bile is particularly relevant. Bilirubin is a substance that is produced during the breakdown of old red blood cells and is frequently used to check the health of a patient's liver; therefore, the identification of ABCC2 as an important potential biomarker for biliary viability. (@medlineplus_bilirubin_test). Another crucial protein identified was ABCB11, also known as the Bile Salt Export Pump (BSEP). BSEP is responsible for the ATP-dependent transport of primary hydrophobic bile salts, such as taurine and glycine-conjugated cholic acid, from hepatocytes into the bile (@uniprot_O95342). This process is fundamental for hepatic bile acid homeostasis and, consequently, for lipid homeostasis through the regulation of biliary lipid secretion. Dysregulation or dysfunction of BSEP can lead to severe cholestatic liver injury (@byrne2002_bsep), as observed in conditions like Progressive Familial Intrahepatic Cholestasis Type 2 (PFIC2), where biallelic mutations in ABCB11 cause an accumulation of hepatic bile acids and subsequent hepatotoxicity, ultimately leading to liver failure (@gruget2025bsep). Given BSEP's critical role in bile acid transport, it's an important protein for evaluating biliary viability and, therefore, a significant biomarker.
