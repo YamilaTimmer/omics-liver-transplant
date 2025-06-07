@@ -184,28 +184,73 @@ data_se_150min <- make_se(samples_150min_data, sample_columns_150min, experiment
 
 
 # Removing Samples/Proteins with high missing values
-```{r}
-mean_missing_percentage_samples_30min <- colMeans(is.na(assay(data_se_30min))) * 100
 
+Some samples and proteins have a high percentage of missing values, this can cause noise or skew the data, as these rows/columns will heavily depend on the imputed data (and not necessarily be a good reflection of reality), thus I will remove these rows/columns. Any samples with over 70% of missing data will be removed.
+
+```{r}
+# Missing percentages per sample (column)
+mean_missing_percentage_samples_30min <- colMeans(is.na(assay(data_se_30min))) * 100
 mean_missing_percentage_samples_150min <- colMeans(is.na(assay(data_se_150min))) * 100
 
-bad_samples_30min <- names(mean_missing_percentage_samples_30min[mean_missing_percentage_samples_30min > 70])
+# Print mean missingness across samples
+print(paste0("Mean percentage of 'missingness' across samples at 30 min: ", round(mean(mean_missing_percentage_samples_30min)), "%"),2)
 
+print(paste0("Mean percentage of 'missingness' across samples at 150 min: ", round(mean(mean_missing_percentage_samples_150min)), "%"),2)
+```
+
+**Conclusion**: The missingness is higher for the 150 minute samples than for the 30 minute samples. 
+
+```{r}
+# Define "bad" samples, with >70% missing values
+bad_samples_30min <- names(mean_missing_percentage_samples_30min[mean_missing_percentage_samples_30min > 70])
 
 bad_samples_150min <- names(mean_missing_percentage_samples_150min[mean_missing_percentage_samples_150min > 70])
 
+# Remove bad samples
 data_se_30min <- data_se_30min[, !colnames(data_se_30min) %in% bad_samples_30min]
+print(paste("Removed sample", bad_samples_30min, "from 30 min samples"))
+
 
 data_se_150min <- data_se_150min[, !colnames(data_se_150min) %in% bad_samples_150min]
+print(paste("Removed sample", bad_samples_150min, "from 150 min samples"))
 
 ```
 
+Below the new missingness percentages are calculated, it seems removing the 'bad' samples did not have a big impact on the overall missingness across samples. The missingness in both 30 min and 150 min only went down by 1%.
+```{r}
+mean_missing_percentage_samples_30min_new <- colMeans(is.na(assay(data_se_30min))) * 100
+mean_missing_percentage_samples_150min_new <- colMeans(is.na(assay(data_se_150min))) * 100
+
+print(paste0("Mean percentage of 'missingness' across samples at 30 min: ", round(mean(mean_missing_percentage_samples_30min_new)), "%"),2)
+
+print(paste0("Mean percentage of 'missingness' across samples at 150 min: ", round(mean(mean_missing_percentage_samples_150min_new)), "%"),2)
+```
+
+Filtering proteins with high missingness, here all proteins that have more than 4 missing values in either of the conditions (high/low biliary viability) are removed.
+
+```{r}
+# Keep all proteins with < 4 missing values total in each condition 
+data_se_30min <- filter_proteins(data_se_30min, type = "condition", thr = 4)
+data_se_150min <- filter_proteins(data_se_150min, type = "condition", thr = 4)
+```
+
+```{r}
+# Calculate the median average presence of proteins per sample, in the article this was 41.5%
+mean_protein_presence_30min <-  mean(rowMeans(!is.na(assay(data_se_30min)))) * 100
+mean_protein_presence_30min
+
+mean_protein_presence_150min <- mean(rowMeans(!is.na(assay(data_se_150min)))) * 100
+mean_protein_presence_150min
+```
+
+
+# Normalizing data
 Median centering to normalize across samples (columns)
 
 ```{r}
 # Sample medians visibly differ from eachother, so median centering will have to be performed to remove noise between samples
-plot_normalization(data_se_30min)
-plot_normalization(data_se_150min)
+plot_normalization(data_se_30min) + theme(axis.text.y = element_text(size = 6))
+plot_normalization(data_se_150min) + theme(axis.text.y = element_text(size = 6))
 
 ```
 ```{r}
@@ -221,7 +266,7 @@ median_centering <- function(data){
   assay(data) <- med_normalized_samples
   
   # Visualize data after sample normalizing
-  plot_normalization(data)
+  plot_normalization(data) + theme(axis.text.y = element_text(size = 6))
 }
 
 median_centering(data_se_30min)
@@ -229,33 +274,21 @@ median_centering(data_se_150min)
 
 ```
 
-
-
-
+Normalizing across proteins
 ```{r}
-# Keep all proteins with at least 30% presence across all samples (based on mean_protein_presence)
-data_se_30min_filter <- filter_proteins(data_se_30min, type = "condition", thr = 4)
-
-data_se_150min_filter <- filter_proteins(data_se_150min, type = "condition", thr = 4)
+# Visualizing row sd's versus row means, before normalizing across proteins
+meanSdPlot(data_se_30min)
+meanSdPlot(data_se_150min)
 ```
 
 ```{r}
-# Calculate the median average presence of proteins per sample, in the article this was 41.5%
-mean_protein_presence_30min <-  mean(rowMeans(!is.na(assay(data_se_30min)))) * 100
-mean_protein_presence_30min
-
-mean_protein_presence_150min <- mean(rowMeans(!is.na(assay(data_se_150min)))) * 100
-mean_protein_presence_150min
-```
-
-# Normalisation
-
-```{r}
-data_norm_30min <- normalize_vsn(data_se_30min_filter)
-data_norm_150min <- normalize_vsn(data_se_150min_filter)
+# Normalize across proteins using variance stabilizing transformation
+data_norm_30min <- normalize_vsn(data_se_30min)
+data_norm_150min <- normalize_vsn(data_se_150min)
 ```
 
 ```{r}
+# Visualizing again, after normalizing
 meanSdPlot(data_norm_30min)
 meanSdPlot(data_norm_150min)
 ```
@@ -264,26 +297,27 @@ meanSdPlot(data_norm_150min)
 plot_frequency(data_norm_30min)
 plot_frequency(data_norm_150min)
 ```
+**Conclusion**: most of the proteins are identified in all of the samples
+
 ```{r}
 plot_detect(data_norm_30min)
 plot_detect(data_norm_150min)
 ```
+**Conclusion**:
+On average the missing values come from proteins with low intensities, this points to "missing not at random" (MNAR) values, imputation methods that are suited for this are: 
+- quantile regression-based left-censored function (QRILC)
+- MinDet
+- MinProb
 
-On average the missing values come from proteins with low intensities (points to MNAR), an imputation method that is suited for this is (“QRILC”) quantile regression-based left-censored function
+I have decided to choose MinDet, as this is a deterministic way of imputation, meaning the results are always the same, thus having high reproducibility. QRILC and MinProb are both stochastic and will vary slightly on each iteration. MinDet replaces all missing values with the lowest observed value in that sample.
 
-After imputation with QRILC, a second "top" exists, with low intensity, this is because it fills NA values with low intensity values that were failed to be measured in the first place (MNAR)
 
 # Imputation
 ```{r}
+# Impute using MinDet, replace all missing values with lowest value per sample
 data_imp_30min <- DEP::impute(data_norm_30min, fun="MinDet")
 data_imp_150min <- DEP::impute(data_norm_150min, fun="MinDet")
 
-```
-plsda als histogram of componenten weergeven met scatterplot
-
-```{r}
-plot_pca(data_imp_150min, indicate = "condition")
-plot_pca(data_imp_30min, indicate = "condition")
 ```
 
 
@@ -291,8 +325,18 @@ plot_pca(data_imp_30min, indicate = "condition")
 plot_imputation(data_norm_150min, data_imp_150min)
 plot_imputation(data_norm_30min, data_imp_30min)
 ```
+**Conclusion**:
+- The effects of imputing are visible, after imputing, the missing values are filled with a "peak" on the left side of the x-axis, with replacement values
+
+# Differential expression analysis
+
+Now I will compare 2x2 groups to eachother:
+- High-biliary-viability-30min vs Low-biliary-viability-30min
+- High-biliary-viability-150min vs Low-biliary-viability-150min
+
 
 ```{r}
+# Make a design using the conditions
 design <- model.matrix(~ condition, data = colData(data_imp_150min))
 
 # Function for differential expression analysis (DEA) with limma
@@ -302,45 +346,73 @@ limma_fit <- function(data){
   
   # Fit linear model to each protein
   fit <- lmFit(assay(data), design)
+  
   # Empirical Bayes smoothing
   fit <- eBayes(fit)
+  
   # Apply false fiscovery rate correction
   limma_results <- topTable(fit, adjust.method = "fdr", number = Inf)
 }
 
-# Run on both time datasets
+# Run on both timepoint datasets
 limma_results_150min <- limma_fit(data_imp_150min)
 limma_results_30min <- limma_fit(data_imp_30min)
 
 ```
 
+Adding extra columns to data, for determining what proteins are down/upregulated (with log2FC > 1.0 or < -1.0) and an adjusted p-value of <= 0.05.
 ```{r}
-# add a column of NAs
+# Add a column of NAs
+limma_results_30min$diffexpressed <- "NO"
+
+# If log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
+limma_results_30min$diffexpressed[limma_results_30min$logFC > 1.0 & limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value <
+                                    limma_results_30min$adj.P.Val] <- "UP"
+
+# If log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
+limma_results_30min$diffexpressed[limma_results_30min$logFC < -1.0 &limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value <
+                                    limma_results_30min$adj.P.Val] <- "DOWN"
+
+# Add protein label for volcanoplot if g
+limma_results_30min$difflabel <- NA
+limma_results_30min$difflabel[limma_results_30min$diffexpressed != "NO"] <-
+  rownames(limma_results_30min)[limma_results_30min$diffexpressed != "NO"]
+
+
+# Add a column of NAs
 limma_results_150min$diffexpressed <- "NO"
-# if log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
-limma_results_150min$diffexpressed[limma_results_150min$logFC > 1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "DOWN"
-# if log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
-limma_results_150min$diffexpressed[limma_results_150min$logFC < -1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value < limma_results_150min$adj.P.Val] <- "UP"
+
+# If log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
+limma_results_150min$diffexpressed[limma_results_150min$logFC > 1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value <
+                                     limma_results_150min$adj.P.Val] <- "DOWN"
+
+# If log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
+limma_results_150min$diffexpressed[limma_results_150min$logFC < -1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value <
+                                     limma_results_150min$adj.P.Val] <- "UP"
 
 limma_results_150min$difflabel <- NA
-limma_results_150min$difflabel[limma_results_150min$diffexpressed != "NO"] <- rownames(limma_results_150min)[limma_results_150min$diffexpressed != "NO"]
-
-
-# add a column of NAs
-limma_results_30min$diffexpressed <- "NO"
-# if log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
-limma_results_30min$diffexpressed[limma_results_30min$logFC > 1.0 & limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value < limma_results_30min$adj.P.Val] <- "UP"
-# if log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
-limma_results_30min$diffexpressed[limma_results_30min$logFC < -1.0 & limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value < limma_results_30min$adj.P.Val] <- "DOWN"
-
-
-limma_results_30min$difflabel <- NA
-limma_results_30min$difflabel[limma_results_30min$diffexpressed != "NO"] <- rownames(limma_results_30min)[limma_results_30min$diffexpressed != "NO"]
-
+limma_results_150min$difflabel[limma_results_150min$diffexpressed != "NO"] <-
+  rownames(limma_results_150min)[limma_results_150min$diffexpressed != "NO"]
 ```
 
+# Visualisation
+Below the results from the DEA are made visible in a volcanoplot. The plot shows logFC/p-value for proteins, comparing high biliary vibility to low biliary viability, so if a protein is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biliary viability.
 ```{r, warning=FALSE}
-# Volcanoplot showing logFC/p-value for genes, comparing high(intercept) to low, so if a gene is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biloiary viability
+# Generate volcanoplot for 30 min results
+ggplot(data = limma_results_30min, 
+       aes(x = logFC, 
+           y = - log10(adj.P.Val), 
+           col = diffexpressed, 
+           label = difflabel)) +
+  
+  geom_point() + 
+  theme_minimal() +
+  geom_text_repel() +
+  scale_color_manual(values = c("blue", "black", "red")) +
+  geom_vline(xintercept=c(-1.0, 1.0), col="black") +
+  geom_hline(yintercept=-log10(0.05), col="black")
+
+# Generate volcanoplot for 150 min results
 ggplot(data = limma_results_150min, 
        aes(x = logFC, 
            y = - log10(adj.P.Val), 
@@ -355,21 +427,6 @@ ggplot(data = limma_results_150min,
   geom_hline(yintercept=-log10(0.05), col="black") +
   scale_x_reverse()
 
-
-
-ggplot(data = limma_results_30min, 
-       aes(x = logFC, 
-           y = - log10(adj.P.Val), 
-           col = diffexpressed, 
-           label = difflabel)) +
-  
-  geom_point() + 
-  theme_minimal() +
-  geom_text_repel() +
-  scale_color_manual(values = c("blue", "black", "red")) +
-  geom_vline(xintercept=c(-1.0, 1.0), col="black") +
-  geom_hline(yintercept=-log10(0.05), col="black")
-
 ```
 
 ```{r}
@@ -380,6 +437,8 @@ downregulated_150min <- limma_results_150min %>% filter(diffexpressed =="DOWN")
 downregulated_150min
 
 ```
+
+
 # Pathway Analysis
 ## Subset on significant DEG's
 ```{r}
