@@ -3,8 +3,12 @@ title: "logbook"
 format:
   html:
     toc: true
-    toc-location: left
+    toc-location: right
     smooth-scroll: true
+    df-print: tibble
+    other-links:
+      - text: Multiqc rapport transcriptomics data
+        href: https://bioinf.nl/rstudio/file_show?path=%2Fstudents%2F2024-2025%2FThema08%2Fliver-transplant%2Ftranscriptomics%2Fmultiqc%2Fmultiqc_report.html
 theme:
   light: flatly
   dark: darkly
@@ -12,15 +16,29 @@ code-overflow: wrap
 engine: knitr
 execute: 
   cache: true
+  
+  
 ---
 ## Intro
-This logbooks contains PC-analyses on multiple proteomics datasets, DESEQ2 analysis on transcriptomics datasets, and plots. All of these
+This logbooks contains PC-analyses on multiple proteomics datasets, DESEQ2 analysis on transcriptomics datasets, and plots. All of the following chunks for proteomics were performed on many many version of our imputed data. This logbook only contains the most recent version of this data. Since the other data is no longer in use.
 
 ## Meta stuff
+
+```{r setup, include=FALSE}
+head <- function(x, n = 6, ...) {
+  if (is.data.frame(x)) {
+    tibble::as_tibble(utils::head(x, n, ...))
+  } else {
+    utils::head(x, n, ...)
+  }
+}
+```
+
 
 Download and load the packages needed to run chunks.
 
 ```{r}
+# Install packages
 list.of.packages <- c("ggplot2", "tidyverse", "mdatools")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -40,14 +58,14 @@ library(tidyverse)
 The data loaded here is not imputed yet, i will be using this data to test PCA on. Yamila is working on normalizing and imputing the data.
 
 ```{r}
-
+# Load count en metadata
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/count_data.Rdata")
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/meta_data.Rdata")
 ```
 
 First i will make all of the NA values 0, so i can perform PCA on this.
-
 ```{r}
+# Find all NA's and set those to 0
 na_mask <- is.na(data_filtered)
 data_filtered[na_mask] <- 0
 head(data_filtered)
@@ -57,7 +75,6 @@ The data contains alot of NA values, Yamila will fix this with imputation.
 
 ```{r}
 head(meta_data_liver)
-
 ```
 
 This is the metadata, containing information about the different samples.
@@ -65,7 +82,8 @@ This is the metadata, containing information about the different samples.
 I will delete the samples with a variance of 0, this samples won't contribute to the PCA, and removing them will speed the analysis up.
 
 ```{r}
-
+# Transpose data, and calculate the variance samples for every gene
+# Then remove genes with a variance of 0.
 X_t <- t(data_filtered)
 variances <- apply(X_t, 2, var)
 X_t <- X_t[, which(variances > 0)]
@@ -75,21 +93,26 @@ dim(X_t)
 Transform and scale the data with log2 and scaling
 
 ```{r}
+# Log2 transform the data
 transformed <- log2(X_t + 1)
+# Scale it
 scaled <- scale(transformed, center = T, scale = T)
 ```
 
 Using the `cov` function i will calculate a covariance matrix, this will contain the linear correlations between 2 samples for every sample in the df.
 
 ```{r}
+# Calculate covariance matrix
 covmat <- cov(t(scaled))
 ```
 
 From there i will calulate the eigenvectors with `eigen`, and the loadings.
 
 ```{r}
+# calculate eigen
 eig <- eigen(covmat)
 
+# Turn into loadings
 loadings <- t(scaled) %*% eig$vectors
 loadings <- t(t(loadings) / sqrt(colSums(loadings^2)))
 ```
@@ -97,8 +120,11 @@ loadings <- t(t(loadings) / sqrt(colSums(loadings^2)))
 With these loadings i can project these loadings on our data, and get the scores. I can label the different components here and these scores can then be plotted.
 
 ```{r}
+# Project loadings on data.
 scores <- scaled %*% loadings
 scores_df <- as.data.frame(scores)
+
+# Label scores with PC 1-n
 col_n <- seq(ncol(scores))
 col_names <- paste0("PC", col_n)
 names(scores_df) <- col_names
@@ -128,45 +154,59 @@ Interesting:
 This could be explained by the amount of samples or genes with NA values.
 :::
 
-Explained variances
+I will now calculate, by hand, the explained variances for all of the components.
 
 ```{r}
+# Divide the eigen values by the sum of the eigen values for a percent.
 explained_var <- as.data.frame(eig$values / sum(eig$values)) * 100
+# Label these again
 explained_var$PC <- paste0("PC", col_n)
 names(explained_var) <- c("ex_var","PC")
 head(explained_var)
 ```
+Conclusion:
+- We see that PC1 has the highest explained variance with 13.1%.
 
-```{r}
-ggplot(explained_var[1:20,],
-       aes(x = PC,
-           y = ex_var)) +
-  geom_col()
-
-```
+::: {.callout-note title="Note"}
+This fairly low, explained by the high amount of missing data.
+:::
 
 ## 18-05-2025
 
-### PCA met mdatools
+### PCA with mdatools
 
-Om te vergelijken of MDA tools een ander resultaat geeft wil ik de PCA uitvoeren met deze tool en vergelijken met mijn eigen uitgevoerde PCA.
-
+I want to compare the MDAtools library to my own PCA, to check if the results are the same. This will make it faster for me to perform PCA on the imputed data. Since i will not have to do this by hand.
 ```{r}
 library(mdatools)
 
 ```
 
+Performing PCA with this library can be done with the `mdatools::pca` function. I do not have imputed data, so i will use the data i used before.
 ```{r}
 model <- pca(transformed, center = T, scale = T, info ="Test PCA model")
 model$ncomp
 ```
+This `model` object holds all of the information that i would want to use.
+it holds the resulting scores `model$res$cal$scores`. Also the `model$loadings`. I can use these values to generate plots, altho mdatools also comes with a couple of plot functions.
 
+I can use the `plotScores` function from mdatools to... plot the scores. 
 ```{r}
-
+#| fig-cap: "Scatterplot showing the scores of PC1 and PC2. This plot was generated by mdatools"
 plotScores(model, )
 ```
+Conclusion:
+- We see that the structure of the plotted scores is the same as the PCA done earlier. Only flipped, which does not matter.
+- There is a difference in the explained variance, this plot shows 18.2% while my calculations show 13.1%. This can be explained by the fact that they use less ncomps (20 compared to my 114)
+- This plot is ugly, i cant add colors, or shapes to it. So i will use ggplot2 to plot the scores myself.
+
+::: {.callout-note title="take-away"}
+The library gives me the same results as doing it by hand. i will have to plot the scores via ggplot2
+:::
+
 
 ```{r}
+#| fig-cap: "Scatterplot showing the scores of PC1 and PC2. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not. Generated scores via mdatools::pca"
+
 ggplot(
   model$res$cal$scores,
   aes(x = `Comp 1`,
@@ -176,35 +216,40 @@ ggplot(
   geom_point() +
   labs(color = "Billiary viability score")
 ```
+So i can use the `model$res$calc$scores` to plot in GGplot2. The resulting plot is basically indentical to the one i did by hand, but flipped. This confirms that i can use this library on the imputed data.
 
-Naast dat de plot geflipped is ziet deze er hetzelfde uit als mijn eigen gegenereerde PCA plot, dit houd in dat ik deze tool kan gaan gebruiken om de data te verwerken
+### PCA imputed data
 
-### Echte data PCA
+I performed PCA on data without any imputation. Yamila performed imputation on our data, which we can now load in.
 
-Voorheen was er data gebruikt waar nog geen imputatie op gebruikt was. Yamila heeft een nieuwe dataset gedeeld waarbij alle NA-waarden geimputeerd zijn. Hier zal ik opnieuw een PCA op uitvoeren.
-
-#### Laden data 30 minuten
+#### Loading 30 minute data
+This loads the imputed data for all of the readings 30 minutes after starting the NMP.
 
 ```{r}
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_30min.Rdata")
 ```
 
-Omdat deze data niet meer past bij de metadata ga ik zelf high en low values uit de naam halen.
+```{r}
+head(data_imp_30min)
 
+```
+The names of the samples no longer align with my metadata, "High_NMP_Bile_Proteomics_108" != "NMP_Bile_Proteomics_108"
+i will remove the "High_/Low_" part from the names.
 ```{r}
 library(stringr)
 ```
 
 ```{r}
-
+# Matrix to dataframe
 df_data <- as.data.frame(data_imp_30min)
-
+# Remove the High or Low part
 bil_via <- str_extract(names(df_data), "[^_]+")
 sample_names <- str_extract(names(df_data), "_(.*)") %>%
   str_replace("^_", "")
 head(sample_names)
 ```
-
+I can use these sample names on our metadata to create a filtered metadata df.
+This metadata will only contain the samples that are also present in our dataframe.
 ```{r}
 meta_data_liver_filtered <- meta_data_liver %>%
   dplyr::filter((Sample %in% sample_names) & (Timepoint == '30min'))
@@ -212,23 +257,25 @@ meta_data_liver_filtered <- meta_data_liver %>%
 head(meta_data_liver_filtered)
 
 ```
-
-Nu komt de metadata overeen met de nieuwe gefilterde data. Deze kan nu gebruikt worden om kleuren te geven in plots, en zo kan er beter groepen weergegeven worden.
+This metadata df only contains the samples present in the imputed data. This can now be used in plots (color and shapes for example).
 
 ```{r}
+# Turn the protein rownames to a column
 df_data <- df_data %>%
   tibble::rownames_to_column("protein")
-
 
 ```
 
 #### PCA 30 minuten
-
+i will now perform a PC-analysis on the imputed data. This data contains samples and data 30 minutes after starting NPM. I will perform this analysis using the mdatools library. Yamila already normalised and scaled this data.
 ```{r}
 model <- pca(t(data_imp_30min), center = T, scale = T)
 ```
+This `model` object contains all of the information of the principal component analysis. I can use this data to plot, and visualise the analysis.
 
 ```{r}
+#| fig-cap: "Scatterplot showing the scores of PC1 and PC2 of samples 30 minutes after starting NPM. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not."
+
 ggplot(
   model$res$cal$scores,
   aes(x = `Comp 1`,
@@ -244,89 +291,91 @@ ggplot(
        x = paste("Comp 1: ", signif(model$res$cal$expvar[1], digits = 3), "%", sep = ""),
        y = paste("Comp 2: ", signif(model$res$cal$expvar[2], digits = 3), "%", sep = ""))
 ```
+Conclusion:
 
-In deze plot zijn een aantal dingen zichtbaar:
+- We see 4 clear outliers on Comp 1, 1 low viability and 3 samples with a high viability
+- The scores do not show a clear seperating line between the 2 groups
+- High viability is a bit more spread over comp 2, most low viablity samples appear to be a bit more clustered near and above the 0 on the second component.
 
--   Een hogere viability houd vaak in dat de lever getransplanteerd is.
--   De PCA geeft niet een duidelijke seperatie weer tussen de 2 groepen.
--   Hoge viability is iets meer verspreid dan laag
--   1 lage viability ligt ver weg van alle andere punten.
--   De meeste punten liggen bij elkaar rond de origin
--   PLS-DA kan aangeraden worden om hier beter naar te kijken.
+::: {.callout-note title="key-note"}
+Our starting data had lots of NA's, we used imputation to fill these missing values. This makes these results, like PCA, less reliable. The findings from the figure above display no real seperation between the groups, this can absolutely be caused by imputation.
+:::
 
-Imputatie kan verklaren waarom de meeste punten gewoon bij elkaar liggen. Ik wil graag noteren welke sample die blauwe is aan de rechterkant. Later tijdens de DEP analyse kunnen we die mogelijk ook bekijken.
+I would like to find the 4 outliers on the left, so we can keep an eye on those and possibly look at why they are outliers.
 
 ```{r}
 scores_df <- as.data.frame(model$res$cal$scores)
 
-low_bil_value <- meta_data_liver_filtered %>%
-  dplyr::filter(`Biliary viability score group` == "Low")
-
-standout_low_sample <- scores_df %>%
+# Find the samples that have a score of 30 or higher for component 1
+outlier_samples <- scores_df %>%
   tibble::rownames_to_column("Sample") %>%
   mutate(Sample = sub("^[^_]+_", "", Sample)) %>%
-  dplyr::filter(Sample %in% low_bil_value$Sample) %>%
-  dplyr::filter(`Comp 1` == max(`Comp 1`))
+  dplyr::filter(`Comp 1` > 30)
 
-standout_low_sample
+outlier_samples
 ```
+Here we see the 4 outliers from the PCA, we will possibly keep an eye on those when performing other analyses.
 
-Hieruit zien we dat NMP_Bile_Proteomics_212 de grote outlier is, deze kunnen we bij volgende stappen in de gaten houden.
-
-Nu wil ik zien hoeveel van de variantie verklaard wordt door de 1e 20 prinipale componenten.
+I would like to see the explained variances for the first 20 components. The mdatools gives us a function for this, so this can be easily plotted.
 
 ```{r}
 plotVariance(model)
 ```
+Conclusion:
 
-Dit geeft weer dat component 1 ongeveer 21% van de variantie verklaard PC-2 rond de 9, en vanaf PC-5 is het \< 5%.
+- They used a line-graph which implies a connection between the different components which is not the case. Cannot be used for a paper, but works fine for the logbook.
+- comp 1 has an explained variance of about 16%, The explained variance quickly lowers to < 5% after the 5th component, there is no use in checking out the other components. 
 
-Ik wil nu de top 20 proteins weergeven van PC-1
+I would like to see the what the genes are with the highest loading, since these genes are the most important ones to look at. Yamila was having issues with the adjusted p-values of her tests being too high, caused by the high amount of genes we use. We discussed a possible solution for this and ended up with using the gene list, generated in the following code, to filter the data and only perform the statistical tests on that data. This will make the adjusted p-values lower, giving us more results. We did this for PC1 and PC2, but i just rewrote the code for PC2. So it is only shown once here.
 
 ```{r}
+# Grab the loadings for pc1
 loadings <- model$loadings
 loadings$pc1 <- loadings[,2]
-
+# Plot the loadings
 plot(loadings$pc1)
 ```
-
+We see a higher density closer to loadings near 0.
 ```{r}
+# Order the square of these loadings to get the order of genes
 argsort <- order(loadings$pc1^2, decreasing = T)
 plot(loadings$pc1[argsort])
 ```
-
+We see the loadings go from absolute values of .045 to 0.
 ```{r}
 top_x_genes <- df_data[argsort, 1]
 head(top_x_genes)
 
 ```
+This `top_x_genes` list contains the genes with the order of loadings, which can be used by yamila to filter her dataset.
 
-Dit zijn de top 100 genen
-
+this code saves the list to our school server, where yamila can load it from.
 ```{r}
 #| eval: false
-save(top_x_genes, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_30_final_pc2.Rdata")
+save(top_x_genes, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_30_final_pc1.Rdata")
 ```
 
 ### Mapping transcriptomics data
 
-Jarno loopt tegen een probleem dat maar 35% van onze data gemapped kan worden, ik zal bepalen hoe dit kan. Eerst ga ik de kwaliteit van de fastq data bepalen. Dit ga ik doen met Falco en multiqc
+Jarno was having trouble with the mapping of our transcriptomics data, there was a mapping rate of 35%, way to low. I want to check the quality of our data first, before we try anything else. I will do this using Falco and multiqc.
 
+This will create a falco rapport for all of our transcriptomics data.
 ```{bash}
 #| eval: false
 ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ | \
 parallel "/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"
 ```
-
+And this will create one usable multiqc file. The results of this can be found on the right-side of this page.
 ```{bash}
 #| eval: false
 multiqc /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/* -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/
 ```
+The results of this were weird to say the least, either the reverse or the forward version of the sample was weird. The entire file only contained reads with a basepair length of 6. These same files also had a duplicate rate of 100%. This was unusable for our mapping. We ended up not using these files for mapping after seeking guidance from multiple teachers. 
 
 ## 19-05-2025
-
+I will now map these files again, and we will have to work with that for now, no matter the quality. 
 ### Mapping transcriptomics
-
+This maps the data to the human reference genome. Using STAR.
 ```{bash}
 #| eval: false
 cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt | \
@@ -341,21 +390,18 @@ cat /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt |
 
 ```
 
-```{bash}
-#| eval: false
-STAR --runThreadN 6 --genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ --readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts --genomeLoad LoadAndRemove --limitBAMsortRAM 2000000000 --outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_
-
-```
+This will take a while to run. I will start working on the 150 minute proteomics data, that yamila shared with us.
 
 ### Pca 150 minute data
 
+Loading the data
 ```{r}
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_150min.Rdata")
 ```
-
+These have the same naming convention, which i will remove just like i did with the 30 minute data.
 ```{r}
 df_data_150 <- as.data.frame(data_imp_150min)
-
+# Once again remove the high and low parts of the names
 bil_via_150 <- str_extract(names(df_data_150), "[^_]+")
 sample_names_150 <- str_extract(names(df_data_150), "_(.*)") %>%
   str_replace("^_", "")
@@ -363,7 +409,7 @@ sample_names_150
 
 head(df_data_150)
 ```
-
+I will also generate a new metadata frame, which will contain the same samples as the 150 minute data has.
 ```{r}
 meta_data_liver_filtered_150 <- meta_data_liver %>%
   dplyr::filter((Sample %in% sample_names_150) & (Timepoint == '150min'))
@@ -372,20 +418,21 @@ head(meta_data_liver_filtered_150)
 
 ```
 
-Nu komt de metadata overeen met de nieuwe gefilterde data. Deze kan nu gebruikt worden om kleuren te geven in plots, en zo kan er beter groepen weergegeven worden.
+The samples in the metadata now align with the input data, so this file can be used in plots as color and or shapes.
 
 ```{r}
 df_data_150 <- df_data_150 %>%
   tibble::rownames_to_column("protein")
 
 ```
-
+I will perform the pca function from mdatools on this data. 
 ```{r}
 model_150 <- pca(t(df_data_150[,2:ncol(df_data_150)]), center = T, scale = T)
 
 ```
-
+And plot the scores
 ```{r}
+#| fig-cap: "Scatterplot showing the scores of PC1 and PC2 of samples 150 minutes after starting NPM. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not."
 ggplot(
   model_150$res$cal$scores,
   aes(x = `Comp 1`,
@@ -401,39 +448,46 @@ ggplot(
        x = paste("Comp 1: ", signif(model_150$res$cal$expvar[1], digits = 3), "%", sep = ""),
        y = paste("Comp 2: ", signif(model_150$res$cal$expvar[2], digits = 3), "%", sep = ""))
 ```
+Conclusion:
 
-Conclusie
+- We see no clear seperation between the 2 groups.
+- A couple of low viability scores are "clustered" on the top left site, there are no high samples in that "cluster" but this does not appear concrete.
 
-```{r}
-#| eval: false
-ggsave("../../plots/pca_150_min.png", last_plot(), bg='transparent')
-```
+I want to see the explained variances and see how they fall off. I will use the same function as before.
 
 ```{r}
 plotVariance(model_150)
 ```
+We see that component 1 has the highest explained variance of 21%. We also see that it falls off quickly, with PC4 being around 5%. I see no reason to look at the other components.
 
-Conclusie Top 100 genes
+Im going to create a gene list for PC1 and 2 again for yamila to use, just like i did with the 30 minute data.
 
 ```{r}
+# Get loadings and order these
 loadings_150 <- model_150$loadings
 
-pc1_150 <- loadings_150[,2]
+pc1_150 <- loadings_150[,1]
 argsort_150 <- order(pc1_150^2, decreasing = T)
 ```
 
 ```{r}
+# Get the genes
 top_x_genes_150 <- df_data_150[argsort_150, 1]
 head(top_x_genes_150)
 ```
 
 ```{r}
 #| eval: false
-save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_150_final_pc2.Rdata")
+# Save it
+save(top_x_genes_150, file = "/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_150_final_pc1.Rdata")
 ```
+This will make it so yamila can filter based on these genes, and maybe get more significant results. Jasper and i also tried to use the loadings for pathview, which in theory works but since the loadings are too small (max = 0.04) they did not show up in the actual image, i assume a dataset with higher loadings would actually work. This concludes my proteomics research. I will focus on the transcriptomics data now
 
+::: {.callout-note title="Conclusion proteomics"}
+The principal component analyses revealed that there is no real seperation between the groups for both 30 and 150 minute samples. This can be blamed on the high amounts of NA's and thus the imputation we had to perform on many samples. We used the loadings to send an ordered gene list over to the statistical testing to hopefully fish some results from there.
+:::
 ## 20-05-2025
-
+Mapping with star ended up giving us an even lower mapping rate, so we are going back to hisat.
 ### Mapping hisat
 
 ```{bash}
@@ -446,44 +500,38 @@ sbatch --partition=assemblix \
   --time=12:00:00 \
   --wrap="ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/*.filtered | parallel -j 8 'hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/genome_tran -U {} -S /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/{/.}.sam --phred33 --mm'"
 ```
-
-```{bash}
-#| eval: false
-hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/genome_tran  -U /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161065_1.fastq.filtered -S file_name_unpaired.sam --phred33   
-
-```
+This will map the transcriptomics data to the human reference genome.
 
 ## 21-05-2025
 
 ### Featurecounts
 
-count data halen uit de sam files.
+I will use featurecounts to extract the count data from the mapped files. 
 
 ```{bash}
 #| eval: false
 featureCounts -T 5 -t exon -g gene_id -a /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/Homo_sapiens.GRCh38.84.gtf -o counts.txt /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/*.sam
 ```
-
+I can load this data into R, giving us transcriptomics count data.
 ```{r}
 transcriptomics_data <- read.table("/students/2024-2025/Thema08/liver-transplant/transcriptomics/featurecounts/counts.txt", skip = 1, header = T)
 head(transcriptomics_data)
 ```
-
-```{r}
-head(meta_data_liver)
-```
+We also have meta data for these samples, we sadly cannot perform multiomics since the metadata is impossible to align.
 
 ```{r}
 transcriptomics_metadata <- read.table("/students/2024-2025/Thema08/liver-transplant/data/E-MTAB-13501.sdrf.txt", header = T, sep = "\t")
 head(transcriptomics_metadata)
 ```
 
-Adding gene symbol to dataframe
-
+Our current count file contains GeneIDs which is ugly. So im going to use annotationDdi to create a new column that contains the matching gene symbol.
 ```{r}
 library(AnnotationDbi)
 library(org.Hs.eg.db)
+# Get gene ids
 genes <- transcriptomics_data$Geneid
+
+# Select the genesymbols from the human genome and add these to our dataframe
 ann <- select(org.Hs.eg.db, keys = genes, keytype = 'ENSEMBL', columns = 'SYMBOL')
 transcriptomics_data <- merge(transcriptomics_data, ann, by.x = "Geneid", by.y = "ENSEMBL", all.x = TRUE)
 transcriptomics_data <- transcriptomics_data %>%
@@ -491,71 +539,77 @@ transcriptomics_data <- transcriptomics_data %>%
 
 head(transcriptomics_data)
 ```
-
+This gives us a new SYMBOL column that contains the gene symbols.
 ## 22-05-2025
 
 ### PCA and transcriptomics processing
-
-Nu moeten de juiste sample namen gebruikt worden in de dataframe, zodat deze gelinkt kunnen worden aan de meta data.
+I will transform the names again so these can be linked to our metadata sice they do not align right now.
 
 ```{r}
 names_transcript <- names(transcriptomics_data)
+# extract the real sample name
 sample_name <- sub(".*(ERR[0-9]+).*", "\\1", names_transcript)
 sample_name
-
+# and use these as the names
 names(transcriptomics_data) <- sample_name
 head(transcriptomics_data)
 
 ```
 
-Removing dupes
+The DESEQ2 analysis downstream complained of duplicates, so i am removing these here. There are multiple types of duplicated. Duplicate geneID's have duplicate counts aswell, so i will remove all of the duplicates but make sure that 1 remains. Some symbols also have duplicated, but with different counts so i add these up. Not the best solution but works.
 
 ```{r}
 #| warning: false
 
-# Remove duplicate geneID's
+# remove duplicate geneID's
 transcriptomics_data <- transcriptomics_data %>%
   distinct(Geneid, .keep_all = TRUE)
 
-# Addup symbols that are duplicated
+# addup symbols that are duplicated
 transcriptomics_data <- transcriptomics_data %>%
   group_by(SYMBOL) %>%
   mutate(across(starts_with("ERR"), sum, na.rm = TRUE)) %>%
   distinct(SYMBOL, .keep_all = TRUE)
 
+# remove all of the NA values.
 sum(is.na(transcriptomics_data$SYMBOL)) # == 1
 transcriptomics_data <- transcriptomics_data %>%
   filter(!is.na(SYMBOL))
 ```
+Now the count data is deduplicated (even tho it already should have been according to the paper.)
 
+I am seperating the count data from some of the other data in the dataframe like the symbols and ids
 ```{r}
 count_data_transcript <- transcriptomics_data[,8:ncol(transcriptomics_data)]
 
 head(count_data_transcript)
 ```
 
-Deze bevat alleen de samples met de juiste sample namen. Deze data kan nu geschaald en genormaliseerd worden.
+I can now normalise and scale this data
 
-De metadata bevat elke sample 2x, deze haal ik er uit.
-
+the metadata contains every sample twice (reverse and forward) i will remove these.
 ```{r}
 
 transcriptomics_metadata_dups_rem <- transcriptomics_metadata[!duplicated(transcriptomics_metadata[c('Comment.ENA_SAMPLE.')]),]
 ```
 
 ```{r}
+# Transpose data
 count_transcript_t <- t(count_data_transcript)
+
+# Remove genes with variance of 0
 variances_transcript <- apply(count_transcript_t, 2, var)
 count_transcript_t <- count_transcript_t[, which(variances_transcript > 0)]
 dim(count_transcript_t)
+
+# Normalize and scale it
 transformed_trans <- log2(count_transcript_t + 1)
 
 scaled_trans <- scale(transformed_trans, center = T, scale = T)
 
 ```
 
-Hier kan ik nu een PCA op uitvoeren
-
+Performing PCa on this scaled and normalized data
 ```{r}
 model_transcriptomics <- pca(scaled_trans, center = T, scale = T, info = "Transcriptomics",ncomp = ncol(count_data_transcript))
 ```
@@ -566,40 +620,41 @@ ggplot(
   model_transcriptomics$res$cal$scores,
   aes(x = `Comp 1`,
       y = `Comp 2`,
-      color = transcriptomics_metadata_dups_rem$Factor.Value.biliary.viability.score.group.,
-      shape = transcriptomics_metadata_dups_rem$Characteristics.transplant.suitability.),) +
+      color = transcriptomics_metadata_dups_rem$Factor.Value.biliary.viability.score.group.),) +
   geom_point() +
   labs(color = "Billiary viability score",
        shape = "Transplanted")
 
 
 ```
+Conclusion:
 
-TODO conclusie
+- No real seperation between low and high viability
+This can be caused by the garbage input data and the extreme low amount of counts we managed to get out of it.
 
 ```{r}
 plotVariance(model_transcriptomics)
 ```
-
-TODO conclusie
+Most of the variance is explained by the first component, it quickly falls off after that too. I want to see if we can see anything interesting in the loadings of the first component.
 
 ```{r}
 loadings_transcriptomics <- model_transcriptomics$loadings
 plot(loadings_transcriptomics[,1])
 ```
 
+A lower density of loadings above 0 appears for all genes until a bit above 15000. After that the loadings appear to be flipped.
 ```{r}
 argsort_transscript <- order(loadings_transcriptomics[,1]^2, decreasing = T)
 plot(loadings_transcriptomics[,1][argsort_transscript])
 ```
-
+We see loadings going from (aboslute values) 0.010 to 0.
 ```{r}
 genes_pca1_transcript <- transcriptomics_data[argsort_transscript,2]
 head(genes_pca1_transcript)
 ```
-
+Genes ordered based on loading, done in advanced if it is needed for deseq2.
 ### DESEQ2
-
+I will now perform a differential gene expression analysis on our transcriptomics data.
 ```{r}
 #| warning: false
 library(DESeq2)
@@ -610,52 +665,63 @@ library(DESeq2)
 
 ### DESEQ2
 
-Creating coldata
-
+I have to create coldata for deseq, so it knows what groups i want to focus on
 ```{r}
 coldata <- transcriptomics_metadata_dups_rem %>%
   dplyr::filter(Comment.ENA_RUN. %in% names(count_data_transcript)) %>%
   dplyr::select(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) %>%
   tibble::column_to_rownames("Comment.ENA_RUN.")
-coldata
+head(coldata)
 ```
-
+This contains the sample name and if it has a low or high viability.
+I will now transform the gene symbols to the rownames so it can be used in plots and figures.
 ```{r}
 row.names(transcriptomics_data) <- NULL
 count_data_dds <- transcriptomics_data[,c(2,8:ncol(transcriptomics_data))] %>%
   tibble::column_to_rownames("SYMBOL")
 
 ```
-
+I will now run deseq2 on this. with the count data, and coldata.
 ```{r}
 dds <- DESeqDataSetFromMatrix(countData = count_data_dds,
                               colData = coldata,
                               design = ~ Characteristics.biliary.viability.score.group.)
 dds <- DESeq(dds)
 ```
-
+We can now look into these results and summarise them.
 ```{r}
 resultsNames(dds)
 res <- results(dds, name = "Characteristics.biliary.viability.score.group._low_vs_high")
-res
+head(res)
 ```
 
-Nu hebben we de resultaten voor alle genen en de verschillen tussen de hoge en lage viability. Hier kan met een lfcShrink de log fold change geschaald worden
+
+These results contain genes and the differences betweeen low and high viability. These can be scaled with the `lfcShrink` function.
 
 ```{r}
 #| warning: false
 resLFC <- lfcShrink(dds, coef = "Characteristics.biliary.viability.score.group._low_vs_high")
-resLFC
+head(resLFC)
 ```
 
 ```{r}
 summary(res)
 ```
+Not suprising, the data contain 0 significant up or down regulated genes between the 2 groups. This can be explained by the quality of the input data.
 
-```{r}
-plotCounts(dds, gene=which.min(res$padj), intgroup="Characteristics.biliary.viability.score.group.")
-```
+I will, to be sure, use plotMA to check if there is nothing interesting.
 
 ```{r}
 plotMA(res)
 ```
+There are 0 significant genes to be found here, which will cause me to conclude the research on transcriptomics data. I will do a quick conclusion under here.
+
+::: {.callout-note title="Final Thoughts"}
+
+This concludes my logbook, in which i have done multiple principal component analyses and DGE's on proteomics and transcriptomics data.
+
+- We did not see any seperation between high and low viability in the PCA's for transcriptomics and proteomics. This can be explained by the lack of data/imputation of the proteomics data. We assumed that the transcriptomics data we obtained was possibly corrupted during the sequencing. This made it so the data was garbage.
+- Genes lists were made from the loadings of the proteomics data, to help us further downstream to get more significant genes.
+- DESEQ2 found no up or down regulated genes in the transcriptomics data.
+
+:::
