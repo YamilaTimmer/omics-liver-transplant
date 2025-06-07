@@ -3,13 +3,17 @@ title: "Logbook 2.4.1 Omics (DEA with limma)"
 author: "Yamila Timmer"
 date: "`r Sys.Date()`"
 output:
-
+  word_document:
+    toc: true
+    toc_depth: '3'
   html_document:
     toc: true
     toc_depth: '3'
     df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: '3'
 lang: eng
-#bibliography: logbook_yamila.bib
 ---
 
 # Load libraries
@@ -66,7 +70,7 @@ sup_data2 <- read_excel("../../../supp_data.xlsx", sheet = "Figure 4a", col_name
 ```
 
 
-# Creating Metadata Dataframe
+## Creating metadata dataframe
 ```{r}
 # Retain only the columns containing metadata
 sample_id1 <- sup_data1[c("Sample", "Liver number", "Timepoint")]
@@ -88,43 +92,67 @@ print(paste("Amount of samples in merged dataframe:", length(rownames(merged_sam
 **Conclusion**: The resulting dataframe indeed contains as many rows as sample_id2, some samples have been lost due to their absence in sample_id2 and cannot be used as there is no biliary viability label for them, however 114 samples should be enough to proceed with our research.
 
 
-# Pre-processing steps
+## Pre-processing steps
 
-Change colnames to NMP_Bile_Proteomics_X, in order to be able to filter on samples later
+The colnames of the count data are very long (e.g."X.2..NMP_Bile_Proteomics_171.raw.PG.Quantity") and can be shortened using some regex, to make the names easier to work with, this is also needed because the sample names have to be the same as the format in the metadata (NMP_Bile_Proteomics_171), in order to filter on samples later on.
+
 ```{r}
 colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", colnames(data)[4:ncol(data)]) # regex that removes everthing, but the "NMP_Bile_Proteomics_X" identifier and replaces colnames of data with this, we need that to match it to the metadata
 ```
 
-
+In order to convert the data to a SummarizedExperiment-object (which is needed for imputation and comparing across groups), the data needs two columns: one with the gene names and one with a unique identifier that gets made with `make_unique`.
 ```{r}
-# adds unique identifier columns based on name/id columns, new columns are added to 'data_unique' as 'name' and
-
+# adds unique identifier columns based on name/id columns
 data_unique <- make_unique(data, 
                            names = "PG.Genes", 
                            ids = "PG.ProteinAccessions", 
                            delim = ";")
 ```
 
+### Filtering samples
+
+We will only be using 30/150min samples and these will be filtered in seperate dataframes as we will be comparing low vs high biliary viability in the 30 minute samples and in the 150 minute samples. "End" samples are removed.
+
+Filter 30 min samples
 ```{r}
-# Filter only the 30 min samples
+# Filter only the 30 min samples from metadata
 samples_30min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "30min"]
+
+# Columns to keep in count data
 cols_30min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_30min)
 
-# Filter only the 30 min samples
-samples_150min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "150min"]
-cols_150min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_150min)
-
+# Subset on count data/metadata
 samples_30min_data <- data_unique[, colnames(data_unique) %in% cols_30min]
 samples_30min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_30min, ]
+```
 
+Now repeat for 150 min samples
+```{r}
+# Filter only the 150 min samples from metadata
+samples_150min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "150min"]
+
+# Columns to keep in count data
+cols_150min <- c("ID", "name", "PG.ProteinGroups", "PG.Genes","PG.ProteinAccessions", samples_150min)
+
+# Subset on count data/metadata
 samples_150min_data <- data_unique[, colnames(data_unique) %in% cols_150min]
 samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_150min, ]
 ```
 
-
-# Creating Summarized Experiment Object
-
+Replacing NaN values with NA, which is needed for further analysis
 ```{r}
+# Convert NaN to NA, which is neccessary to create SE object and for normalisation
+samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
+samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
+```
+
+# Creating Summarized Experiment
+
+A lot of R-packages for normalisation/imputation and differential expression analysis work with SummarizedExperiment objects, so I will be converting the data to that format. First an 'experimental design' has to be made, containing information on sample ID, condition and replicate info. With the condition being the biliary viability. In our research there are no replicates.
+
+Making experimental design for 30 min
+```{r}
+# Vector with sample column numbers
 sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
 
 experimental_design_30min <- data.frame(
@@ -132,7 +160,11 @@ experimental_design_30min <- data.frame(
   condition = samples_30min_metadata$`Biliary viability score group`,
   replicate = colnames(samples_30min_data[, sample_columns_30min]) # there are no replicates in this case, but they still need a unique identifier because duplicate rownames are not allowed
 )
+```
 
+Making experimental design for 150 min
+```{r}
+# Vector with sample column numbers
 sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
 
 experimental_design_150min <- data.frame(
@@ -143,33 +175,7 @@ experimental_design_150min <- data.frame(
 
 ```
 
-```{r}
-# Convert NaN to NA, which is neccessary to create SE object and for normalisation
-samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
-samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
-
-# Load genes with highest loadings for principal component 1
-load("../../top_x_genes_30_new_new.Rdata")
-load("../../top_x_genes_150_new_new.Rdata")
-
-# Load genes with highest loadings for principal component 2, not used as principal component 1 gives more results
-#load("../../top_x_genes_30_pca2.Rdata")
-#load("../../top_x_genes_150_pca2.Rdata")
-
-
-# Select only rows with 200 genes with highest loadings
-# top_genes_150min <- top_x_genes_150[1:200]
-# 
-# samples_150min_data <- samples_150min_data%>%
-#   filter(samples_150min_data$PG.Genes %in% top_genes_150min)
-# 
-# top_genes_30min <- top_x_genes[1:200]
-# 
-# samples_30min_data <- samples_30min_data%>%
-#   filter(samples_30min_data$PG.Genes %in% top_genes_30min)
-
-```
-
+Create summarized experiment
 ```{r}
 data_se_30min <- make_se(samples_30min_data, sample_columns_30min, experimental_design_30min)
 
@@ -287,7 +293,7 @@ plot_imputation(data_norm_30min, data_imp_30min)
 ```
 
 ```{r}
-  design <- model.matrix(~ condition, data = colData(data_imp_150min))
+design <- model.matrix(~ condition, data = colData(data_imp_150min))
 
 # Function for differential expression analysis (DEA) with limma
 limma_fit <- function(data){
@@ -411,32 +417,29 @@ names(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
 ```
 
 
-```{r}
-# Create visualisations for each pathway with at least 1 DEG
+```{r, eval=FALSE}
+# Create visualisations for each pathway with at least 1 DEG, eval=FALSE because this can generate a lot of visualisations, depending on the amount of pathways
 dir.create("pathview_output")
 setwd("pathview_output")
 
-pathview_visualise <- function(pathway_id){
-  for (pathway_id in pathways$ID){
-    pathview(gene.data = low_vs_high_150min_FC, # chosen comparison
-             pathway.id = pathway_id, # hsa ID
-             species = "hsa", # human sapiens
-             
-             low = list(gene="magenta"), # underexpressed = purple (colorblind friendly)
-             high = list(gene="green")) # overexpressed = green (colorblind friendly)
-  }
-}
-
-
-
-# Generate all pathway visualisations per comparison
-comparisons = low_vs_high_150min_FC 
-
+# All pathways containing 1 or more DEP
 pathways <- pathway_low_vs_high_150min@result
 
-significant_pathways <- pathways[pathways$p.adjust <=0.05]
-pathview_visualise(pathway_id=pathway_id)
-significant_pathways
+# All significantly pathways with 1 or more DEP's
+significant_pathways <- pathways[pathways$p.adjust <= 0.05]
+
+# Generate pathview visualisation for each significant pathway
+for (pathway_id in rownames(significant_pathways)){
+  print(paste("Processing pathway:", pathway_id))
+  
+  pathview(gene.data = low_vs_high_150min_FC, # chosen comparison
+           pathway.id = pathway_id, # hsa ID
+           species = "hsa", # human sapiens
+           kegg.native = TRUE,
+           low = list(gene="magenta"), # underexpressed = purple (colorblind friendly)
+           high = list(gene="green"))  # overexpressed = green (colorblind friendly)
+}
+
 ```
 
 ```{r}
