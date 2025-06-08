@@ -110,6 +110,27 @@ All genes with a variance of 0 were removed from the data, this is done to speed
 The data was log2 transformed and scaled using R for a PCA.
 A differential gene expression analysis was performed on the raw count data using the R-package DESeq2 (v.1.38.3) (@love2014deseq2).
 
+## Statistical methods
+
+### Partial Least Squares Discriminant Analysis (PLS-DA)
+
+**Partial Least Squares Discriminant Analysis (PLS-DA)** is a **supervised multivariate dimensionality-reduction tool** employed to identify complex relationships within high-dimensional datasets.
+As a variant of Partial Least Squares (PLS) regression, PLS-DA directly utilizes class information to derive components that optimally discriminate between predefined groups.
+This method was used to identify **biomarkers** in the present study.
+
+For model validation, **cross-validation** is crucial to assess the generalization ability of the model and to prevent overfitting.
+Model quality is quantified by metrics such as R2Y (explained variance in Y ) and Q2 (predictive variance).
+A **permutation test** is performed to confirm statistical significance and check for overfitting.
+**Variable Importance in Projection (VIP) scores** identify the X-variables most influential in group discrimination, typically with a threshold of VIP \> 1.0.
+
+In this study, PLS-DA was applied to the imputed proteomics data to find crucial biomarkers that determine biliary viability.
+The analysis was conducted using the **`mdatools` R package (version 0.14.2)** (Kucheryavskiy, 2020).
+Normalized, imputed proteomics data served as input, with samples classified into "high biliary viability" and "low biliary viability" classes.
+Model generalization ability and prevention of overfitting were ensured through **cross-validation** (Encyclopedia of Bioinformatics and Computational Biology, 2019), specifically using the **Leave-One-Out (LOO) method**.
+This method uses each sample once as a test set, while the remaining samples form the training dataset (Scikit-learn, n.d.).
+The generated model was subsequently analyzed using plots that visualized parameters important for the model based on weights and Variable Importance in Projection (VIP) scores.
+The components derived from this model were also analyzed and presented via scatter plots.
+
 # Results
 
 ## DEA
