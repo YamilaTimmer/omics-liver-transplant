@@ -18,7 +18,7 @@ This logbook shows the process of exploring data and processing this, applying d
 
 ## Load libraries
 
-```{r, eval=FALSE}
+```{r}
 library(tidyverse) # For data manipulation and visualization
 library(ggplot2) # For data visualization
 library(ggfortify) # For PCA visualization
@@ -45,7 +45,7 @@ PCA, Principal component analysis, was used in this paper and will be used in ou
 
 **Here is an example of a scatter plot**
 
-```{r, eval=FALSE}
+```{r}
 # take only the collums with ints
 df <- iris[, -5]
 
@@ -210,7 +210,7 @@ write.table(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 counts_results
 ```
 
@@ -802,3 +802,6 @@ ggplot(filtered_weights_comp_3, aes(x = `Comp 3`, y = reorder(rownames(filtered_
 # Biological background PLS-DA loadings
 
 PLS-DA loadings revealed two important liver proteins. The ABCC2, also known as the Multidrug Resistance Protein 2, is involved in the transport of substances out of cells. It plays a crucial role in drug disposition by mediating ATP-dependent efflux of a wide range of compounds, including drug metabolites, from cells into bile or urine. (@medlineplus_abcc2). ABCC2's transport of bilirubin out of the liver cells and into the bile is particularly relevant. Bilirubin is a substance that is produced during the breakdown of old red blood cells and is frequently used to check the health of a patient's liver; therefore, the identification of ABCC2 as an important potential biomarker for biliary viability. (@medlineplus_bilirubin_test). Another crucial protein identified was ABCB11, also known as the Bile Salt Export Pump (BSEP). BSEP is responsible for the ATP-dependent transport of primary hydrophobic bile salts, such as taurine and glycine-conjugated cholic acid, from hepatocytes into the bile (@uniprot_O95342). This process is fundamental for hepatic bile acid homeostasis and, consequently, for lipid homeostasis through the regulation of biliary lipid secretion. Dysregulation or dysfunction of BSEP can lead to severe cholestatic liver injury (@byrne2002_bsep), as observed in conditions like Progressive Familial Intrahepatic Cholestasis Type 2 (PFIC2), where biallelic mutations in ABCB11 cause an accumulation of hepatic bile acids and subsequent hepatotoxicity, ultimately leading to liver failure (@gruget2025bsep). Given BSEP's critical role in bile acid transport, it's an important protein for evaluating biliary viability and, therefore, a significant biomarker.
+
+# Used refrences
+
