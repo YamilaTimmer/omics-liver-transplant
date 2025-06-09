@@ -5,11 +5,11 @@ author: "| Jarno Duiker $^1$, Ramon Reilman $^1$, Tai Vo $^1$, Yamila Timmer $^1
   $^1$Bio-infromatics, Hanze Groningen\n"
 date: "`r Sys.Date()`"
 output:
-  word_document: default
-  html_document:
-    df_print: paged
   pdf_document:
     number_sections: false
+  html_document:
+    df_print: paged
+  word_document: default
 bibliography: library.bib
 lang: en
 header-includes: \usepackage{float}
@@ -21,7 +21,7 @@ suppressWarnings(library(knitr))
 
 # Abstract
 
-Liver transplantation is a critical treatment for liver failure, but donor shortages have led to the use of expanded criteria donor (ECD) livers, which carry higher risks of complications. Assessing biliary viability, with the purpose of assesing donor liver quality remains challenging. This article explores bile- and liver-based biomarkers associated with biliary viability using a multi-omics approach. Proteomic analysis of samples collected during normothermic machine perfusion (NMP) identified 44 differentially expressed proteins between high- and low-viability groups. Key proteins, including MMP7, MUC1, and COPZ1, showed significant abundance changes, suggesting roles in bile duct function and liver health. Machine learning analysis highlighted SND1 and SNRPD1 as strong classifiers (AUROC > 0.9), indicating their potential as biomarkers. Transcriptomic data did not reveal significant differences, possibly due to technical limitations. These findings contribute to a better understanding of biliary viability and propose candidate biomarkers for improving donor liver evaluation. Further validation could enhance transplant outcomes by refining organ selection.
+Liver transplantation is a critical treatment for liver failure, but donor shortages have led to the use of expanded criteria donor (ECD) livers, which carry higher risks of complications. Assessing biliary viability, with the purpose of assessing donor liver quality remains challenging. This article explores bile- and liver-based biomarkers associated with biliary viability using a multi-omics approach. Proteomic analysis of samples collected during normothermic machine perfusion (NMP) identified 44 differentially expressed proteins between high- and low-viability groups. Key proteins, including MMP7, MUC1, and COPZ1, showed significant abundance changes, suggesting roles in bile duct function and liver health. Machine learning analysis highlighted SND1 and SNRPD1 as strong classifiers (AUROC > 0.9), indicating their potential as biomarkers. Transcriptomic data did not reveal significant differences, possibly due to technical limitations. These findings contribute to a better understanding of biliary viability and propose candidate biomarkers for improving donor liver evaluation. Further validation could enhance transplant outcomes by refining organ selection.
 
 # Introduction
 
