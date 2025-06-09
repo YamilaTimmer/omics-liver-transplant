@@ -1,11 +1,11 @@
 ---
 title: "Using multi-omics to identify bile- and liver- biomarkers that correlate with
   biliary viability of ECD livers"
-author: |
-  | Jarno Duiker $^1$, Ramon Reilman $^1$, Tai Vo $^1$, Yamila Timmer $^1$
-  | $^1$Bio-infromatics, Hanze Groningen
+author: "| Jarno Duiker $^1$, Ramon Reilman $^1$, Tai Vo $^1$, Yamila Timmer $^1$\n|
+  $^1$Bio-infromatics, Hanze Groningen\n"
 date: "`r Sys.Date()`"
 output:
+  word_document: default
   html_document:
     df_print: paged
   pdf_document:
@@ -78,9 +78,9 @@ knitr::include_graphics("img/DEG_150min.png")
 
 ## PCA
 
-Figure 2 shows that the group with low biliary viability is a bit less spread throughout the second component. Samples with a high biliary viability show to have a bit higher spread over the second component compared to the samples with low viability. 3 samples with a high biliary viability and 1 sample with a low biliary viability cause a high variance in the first component. A perfect linear separation of the 2 groups is not possible.
+Figure 2 shows that the group with low biliary viability is less spread throughout the second component. Samples with a high biliary viability show to have a higher spread over the second component compared to the samples with low viability. 3 samples with a high biliary viability and 1 sample with a low biliary viability cause a high variance in the first component. A perfect linear separation of the 2 groups is not possible. The first and second component explain 16.4% and 10.5% of the total variance, respectively.
 
-From the PCA that was performed on the 150-minute samples (Figure 3) it becomes clear that there appears to be more of a separation between the 2 groups, compared to Figure 2. Still, there does not appear to be any clear clustering between the groups, only with a couple of samples.
+From the PCA that was performed on the 150-minute samples (Figure 3) it becomes clear that there appears to be more of a separation between the 2 groups, compared to Figure 2. Still, there does not appear to be any clear clustering between the groups, only with a couple of samples. The first and second component explain 20.8% and 11.6% of the total variance, respectively.
 
 ```{r, fig.pos='H', out.width='75%', fig.cap="PCA performed on proteomic samples 30 minutes after starting NMP.  Shows how the samples are spread over component 1 and component 2. Biliary viability is displayed with color.", echo=FALSE}
 knitr::include_graphics("img/pca30.png")
