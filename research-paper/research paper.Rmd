@@ -21,7 +21,7 @@ suppressWarnings(library(knitr))
 
 # Abstract
 
-Liver transplantation is a critical treatment for liver failure, but donor shortages have led to the use of expanded criteria donor (ECD) livers, which carry higher risks of complications. Assessing biliary viability, with the purpose of assessing donor liver quality remains challenging. This article explores bile- and liver-based biomarkers associated with biliary viability using a multi-omics approach. Proteomic analysis of samples collected during normothermic machine perfusion (NMP) identified 44 differentially expressed proteins between high- and low-viability groups. Key proteins, including MMP7, MUC1, and COPZ1, showed significant changes in abundance, suggesting roles in bile duct function and liver health. Machine learning analysis highlighted SND1 and SNRPD1 as strong classifiers (AUROC > 0.9), indicating their potential as biomarkers. Transcriptomic data did not reveal significant differences, possibly due to technical limitations. These findings contribute to a better understanding of biliary viability and propose candidate biomarkers for improving donor liver evaluation. Further validation could enhance transplant outcomes by refining organ selection.
+Liver transplantation is a critical treatment for liver failure, but donor shortages have led to the use of expanded criteria donor (ECD) livers, which carry higher risks of complications. Assessing biliary viability, with the purpose of assessing donor liver quality remains challenging. This article explores bile- and liver-based biomarkers associated with biliary viability using a multi-omics approach. Proteomic analysis of samples collected during normothermic machine perfusion (NMP) identified 44 differentially expressed proteins between high- and low-viability groups. Key proteins, including MMP7, MUC1, and COPZ1, showed significant changes in abundance, suggesting roles in bile duct function and liver health. Machine learning analysis highlighted SND1 and SNRPD1 as strong classifiers (AUROC \> 0.9), indicating their potential as biomarkers. Transcriptomic data did not reveal significant differences, possibly due to technical limitations. These findings contribute to a better understanding of biliary viability and propose candidate biomarkers for improving donor liver evaluation. Further validation could enhance transplant outcomes by refining organ selection.
 
 # Introduction
 
@@ -98,7 +98,7 @@ PLS-DA was performed on the normalized, imputed proteomics data. This data was t
 knitr::include_graphics("img/weights_comp_1.png")
 ```
 
-```{r, fig.pos='H', out.width='75%', fig.cap="PLS-DA Score plot showing component 1 – component 3, performed on the proteomic samples at 150 min after starting NMP. Showing how the samples are laid out over components 1 and 3. Viability is shown with colour. A Dotted line has been drawn to show the 2 groups that were formed.", echo=FALSE}
+```{r, fig.pos='H', out.width='75%', fig.cap="PLS-DA Score plot showing component 1 – component 3, performed on the proteomic samples at 150 min after starting NMP. Showing how the samples are laid out over components 1 and 3. Viability is shown with colour. A line has been drawn to show the 2 groups that were formed.", echo=FALSE}
 knitr::include_graphics("img/PLS-DA_new.png")
 ```
 
