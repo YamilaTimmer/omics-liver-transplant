@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>logbook</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="logbook_files/libs/clipboard/clipboard.min.js"></script>
+<script src="logbook_files/libs/quarto-html/quarto.js"></script>
+<script src="logbook_files/libs/quarto-html/popper.min.js"></script>
+<script src="logbook_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="logbook_files/libs/quarto-html/anchor.min.js"></script>
+<link href="logbook_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="logbook_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="logbook_files/libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="logbook_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="logbook_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="logbook_files/libs/bootstrap/bootstrap-00f4850a16171517be3c770084ca4fb9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="logbook_files/libs/bootstrap/bootstrap-dark-161b7baed0aca5695f75eaac7928b8f1.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a></li>
+  <li><a href="#meta-stuff" id="toc-meta-stuff" class="nav-link" data-scroll-target="#meta-stuff">Meta stuff</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">14-05-2025</a>
+  <ul class="collapse">
+  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading data</a></li>
+  </ul></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">18-05-2025</a>
+  <ul class="collapse">
+  <li><a href="#pca-with-mdatools" id="toc-pca-with-mdatools" class="nav-link" data-scroll-target="#pca-with-mdatools">PCA with mdatools</a></li>
+  <li><a href="#pca-imputed-data" id="toc-pca-imputed-data" class="nav-link" data-scroll-target="#pca-imputed-data">PCA imputed data</a></li>
+  <li><a href="#mapping-transcriptomics-data" id="toc-mapping-transcriptomics-data" class="nav-link" data-scroll-target="#mapping-transcriptomics-data">Mapping transcriptomics data</a></li>
+  </ul></li>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">19-05-2025</a>
+  <ul class="collapse">
+  <li><a href="#pca-150-minute-data" id="toc-pca-150-minute-data" class="nav-link" data-scroll-target="#pca-150-minute-data">Pca 150 minute data</a></li>
+  </ul></li>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">20-05-2025</a></li>
+  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">21-05-2025</a>
+  <ul class="collapse">
+  <li><a href="#featurecounts" id="toc-featurecounts" class="nav-link" data-scroll-target="#featurecounts">Featurecounts</a></li>
+  <li><a href="#pca-and-transcriptomics-processing" id="toc-pca-and-transcriptomics-processing" class="nav-link" data-scroll-target="#pca-and-transcriptomics-processing">PCA and transcriptomics processing</a></li>
+  </ul></li>
+  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">25-05-2025</a>
+  <ul class="collapse">
+  <li><a href="#deseq2" id="toc-deseq2" class="nav-link" data-scroll-target="#deseq2">DESEQ2</a></li>
+  </ul></li>
+  </ul>
+<div class="quarto-other-links"><h2>Other Links</h2><ul><li><a href="https://bioinf.nl/rstudio/file_show?path=%2Fstudents%2F2024-2025%2FThema08%2Fliver-transplant%2Ftranscriptomics%2Fmultiqc%2Fmultiqc_report.html"><i class="bi bi-link-45deg"></i>Multiqc rapport transcriptomics data</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">logbook</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="intro" class="level2">
+<h2 class="anchored" data-anchor-id="intro">Intro</h2>
+<p>This logbooks contains PC-analyses on multiple proteomics datasets, DESEQ2 analysis on transcriptomics datasets, and plots. All of the following chunks for proteomics were performed on many many version of our imputed data. This logbook only contains the most recent version of this data. Since the other data is no longer in use.</p>
+</section>
+<section id="meta-stuff" class="level2">
+<h2 class="anchored" data-anchor-id="meta-stuff">Meta stuff</h2>
+<p>Download and load the packages needed to run chunks.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>list.of.packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ggplot2"</span>, <span class="st">"tidyverse"</span>, <span class="st">"mdatools"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>new.packages <span class="ot">&lt;-</span> list.of.packages[<span class="sc">!</span>(list.of.packages <span class="sc">%in%</span> <span class="fu">installed.packages</span>()[,<span class="st">"Package"</span>])]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">length</span>(new.packages)) <span class="fu">install.packages</span>(new.packages)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section">14-05-2025</h2>
+<section id="loading-data" class="level3">
+<h3 class="anchored" data-anchor-id="loading-data">Loading data</h3>
+<p>The data loaded here is not imputed yet, i will be using this data to test PCA on. Yamila is working on normalizing and imputing the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load count en metadata</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/data/count_data.Rdata"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/data/meta_data.Rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>First i will make all of the NA values 0, so i can perform PCA on this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Find all NA's and set those to 0</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>na_mask <span class="ot">&lt;-</span> <span class="fu">is.na</span>(data_filtered)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>data_filtered[na_mask] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data_filtered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 114
+  NMP_Bile_Proteomics_170 NMP_Bile_Proteomics_172 NMP_Bile_Proteomics_174
+                    &lt;dbl&gt;                   &lt;dbl&gt;                   &lt;dbl&gt;
+1                    54.3                    527.                      0 
+2                     0                        0                       0 
+3                     0                    21355.                  20706.
+4                     0                        0                       0 
+5                  6077.                   28128.                 192424.
+6                     0                     1932.                    493.
+# ℹ 111 more variables: NMP_Bile_Proteomics_177 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_186 &lt;dbl&gt;, NMP_Bile_Proteomics_189 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_192 &lt;dbl&gt;, NMP_Bile_Proteomics_195 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_197 &lt;dbl&gt;, NMP_Bile_Proteomics_200 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_203 &lt;dbl&gt;, NMP_Bile_Proteomics_212 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_214 &lt;dbl&gt;, NMP_Bile_Proteomics_219 &lt;dbl&gt;,
+#   NMP_Bile_Proteomics_222 &lt;dbl&gt;, NMP_Bile_Proteomics_224 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>The data contains alot of NA values, Yamila will fix this with imputation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(meta_data_liver)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  Sample  `Liver number` Timepoint Biliary viability sc…¹ Total BDI score grou…²
+  &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                  &lt;chr&gt;                 
+1 NMP_Bi…             34 30min     Low                    High                  
+2 NMP_Bi…             43 30min     Low                    High                  
+3 NMP_Bi…             38 30min     High                   Low                   
+4 NMP_Bi…             33 30min     High                   High                  
+5 NMP_Bi…             45 30min     High                   High                  
+6 NMP_Bi…             36 30min     High                   High                  
+# ℹ abbreviated names: ¹​`Biliary viability score group`,
+#   ²​`Total BDI score group`
+# ℹ 1 more variable: Transplant &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>This is the metadata, containing information about the different samples.</p>
+<p>I will delete the samples with a variance of 0, this samples won’t contribute to the PCA, and removing them will speed the analysis up.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transpose data, and calculate the variance samples for every gene</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Then remove genes with a variance of 0.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>X_t <span class="ot">&lt;-</span> <span class="fu">t</span>(data_filtered)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>variances <span class="ot">&lt;-</span> <span class="fu">apply</span>(X_t, <span class="dv">2</span>, var)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>X_t <span class="ot">&lt;-</span> X_t[, <span class="fu">which</span>(variances <span class="sc">&gt;</span> <span class="dv">0</span>)]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(X_t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  114 4373</code></pre>
+</div>
+</div>
+<p>Transform and scale the data with log2 and scaling</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Log2 transform the data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>transformed <span class="ot">&lt;-</span> <span class="fu">log2</span>(X_t <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale it</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>scaled <span class="ot">&lt;-</span> <span class="fu">scale</span>(transformed, <span class="at">center =</span> T, <span class="at">scale =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using the <code>cov</code> function i will calculate a covariance matrix, this will contain the linear correlations between 2 samples for every sample in the df.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate covariance matrix</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>covmat <span class="ot">&lt;-</span> <span class="fu">cov</span>(<span class="fu">t</span>(scaled))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>From there i will calulate the eigenvectors with <code>eigen</code>, and the loadings.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate eigen</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>eig <span class="ot">&lt;-</span> <span class="fu">eigen</span>(covmat)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn into loadings</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> <span class="fu">t</span>(scaled) <span class="sc">%*%</span> eig<span class="sc">$</span>vectors</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">t</span>(loadings) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">colSums</span>(loadings<span class="sc">^</span><span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>With these loadings i can project these loadings on our data, and get the scores. I can label the different components here and these scores can then be plotted.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Project loadings on data.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> scaled <span class="sc">%*%</span> loadings</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>scores_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(scores)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Label scores with PC 1-n</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>col_n <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">ncol</span>(scores))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>col_names <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, col_n)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(scores_df) <span class="ot">&lt;-</span> col_names</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(scores_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 114
+     PC1   PC2   PC3     PC4    PC5    PC6    PC7     PC8   PC9   PC10   PC11
+   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 -45.7   8.17 29.9   13.2   -10.4  -12.9  -17.1  -15.2   -6.66   9.49 -2.23 
+2 -32.0   7.69 27.7    3.35   -8.93  -6.24  -5.79  -2.05  -3.08   5.26  7.65 
+3  -7.00  1.85 21.9  -12.1    -2.72 -14.5   10.1   -1.19   1.18  -1.48  1.38 
+4  20.5   9.16  6.87   0.222 -15.6    3.66  -2.73  -3.38   3.60 -10.3   2.47 
+5 -16.7  -3.68 27.2   -9.14   -6.52 -13.6    3.02 -11.8   -6.46  -3.90 -0.707
+6  -3.41 -2.00 23.4  -11.1    -3.33  -4.67   3.05  -0.728  3.09  -8.13 -1.57 
+# ℹ 103 more variables: PC12 &lt;dbl&gt;, PC13 &lt;dbl&gt;, PC14 &lt;dbl&gt;, PC15 &lt;dbl&gt;,
+#   PC16 &lt;dbl&gt;, PC17 &lt;dbl&gt;, PC18 &lt;dbl&gt;, PC19 &lt;dbl&gt;, PC20 &lt;dbl&gt;, PC21 &lt;dbl&gt;,
+#   PC22 &lt;dbl&gt;, PC23 &lt;dbl&gt;, PC24 &lt;dbl&gt;, PC25 &lt;dbl&gt;, PC26 &lt;dbl&gt;, PC27 &lt;dbl&gt;,
+#   PC28 &lt;dbl&gt;, PC29 &lt;dbl&gt;, PC30 &lt;dbl&gt;, PC31 &lt;dbl&gt;, PC32 &lt;dbl&gt;, PC33 &lt;dbl&gt;,
+#   PC34 &lt;dbl&gt;, PC35 &lt;dbl&gt;, PC36 &lt;dbl&gt;, PC37 &lt;dbl&gt;, PC38 &lt;dbl&gt;, PC39 &lt;dbl&gt;,
+#   PC40 &lt;dbl&gt;, PC41 &lt;dbl&gt;, PC42 &lt;dbl&gt;, PC43 &lt;dbl&gt;, PC44 &lt;dbl&gt;, PC45 &lt;dbl&gt;,
+#   PC46 &lt;dbl&gt;, PC47 &lt;dbl&gt;, PC48 &lt;dbl&gt;, PC49 &lt;dbl&gt;, PC50 &lt;dbl&gt;, PC51 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  scores_df,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> PC1,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> PC2,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> meta_data_liver<span class="sc">$</span><span class="st">`</span><span class="at">Biliary viability score group</span><span class="st">`</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> meta_data_liver<span class="sc">$</span>Transplant),) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">"Dark2"</span>) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Scatterplot showing the scores of PC1 and PC2. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Interesting:</p>
+<ul>
+<li>We see that most of the samples with a high biliary viability score appear more on the right of PC1, where ass the lower scores appear more left.</li>
+<li>There appears no real clustering on the PC2 between the 2 groups.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Key Insight">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key Insight
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This could be explained by the amount of samples or genes with NA values.</p>
+</div>
+</div>
+<p>I will now calculate, by hand, the explained variances for all of the components.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide the eigen values by the sum of the eigen values for a percent.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>explained_var <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(eig<span class="sc">$</span>values <span class="sc">/</span> <span class="fu">sum</span>(eig<span class="sc">$</span>values)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Label these again</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>explained_var<span class="sc">$</span>PC <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, col_n)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(explained_var) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ex_var"</span>,<span class="st">"PC"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(explained_var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  ex_var PC   
+   &lt;dbl&gt; &lt;chr&gt;
+1  13.1  PC1  
+2   6.89 PC2  
+3   5.61 PC3  
+4   4.11 PC4  
+5   2.59 PC5  
+6   2.23 PC6  </code></pre>
+</div>
+</div>
+<p>Conclusion: - We see that PC1 has the highest explained variance with 13.1%.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Note">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This fairly low, explained by the high amount of missing data.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1">18-05-2025</h2>
+<section id="pca-with-mdatools" class="level3">
+<h3 class="anchored" data-anchor-id="pca-with-mdatools">PCA with mdatools</h3>
+<p>I want to compare the MDAtools library to my own PCA, to check if the results are the same. This will make it faster for me to perform PCA on the imputed data. Since i will not have to do this by hand.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mdatools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Performing PCA with this library can be done with the <code>mdatools::pca</code> function. I do not have imputed data, so i will use the data i used before.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">pca</span>(transformed, <span class="at">center =</span> T, <span class="at">scale =</span> T, <span class="at">info =</span><span class="st">"Test PCA model"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model<span class="sc">$</span>ncomp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20</code></pre>
+</div>
+</div>
+<p>This <code>model</code> object holds all of the information that i would want to use. it holds the resulting scores <code>model$res$cal$scores</code>. Also the <code>model$loadings</code>. I can use these values to generate plots, altho mdatools also comes with a couple of plot functions.</p>
+<p>I can use the <code>plotScores</code> function from mdatools to… plot the scores.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotScores</span>(model, )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Scatterplot showing the scores of PC1 and PC2. This plot was generated by mdatools</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Conclusion: - We see that the structure of the plotted scores is the same as the PCA done earlier. Only flipped, which does not matter. - There is a difference in the explained variance, this plot shows 18.2% while my calculations show 13.1%. This can be explained by the fact that they use less ncomps (20 compared to my 114) - This plot is ugly, i cant add colors, or shapes to it. So i will use ggplot2 to plot the scores myself.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="take-away">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+take-away
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The library gives me the same results as doing it by hand. i will have to plot the scores via ggplot2</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>scores,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Comp 1</span><span class="st">`</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">`</span><span class="at">Comp 2</span><span class="st">`</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> meta_data_liver<span class="sc">$</span><span class="st">`</span><span class="at">Biliary viability score group</span><span class="st">`</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> meta_data_liver<span class="sc">$</span>Transplant),) <span class="sc">+</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Scatterplot showing the scores of PC1 and PC2. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not. Generated scores via mdatools::pca</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>So i can use the <code>model$res$calc$scores</code> to plot in GGplot2. The resulting plot is basically indentical to the one i did by hand, but flipped. This confirms that i can use this library on the imputed data.</p>
+</section>
+<section id="pca-imputed-data" class="level3">
+<h3 class="anchored" data-anchor-id="pca-imputed-data">PCA imputed data</h3>
+<p>I performed PCA on data without any imputation. Yamila performed imputation on our data, which we can now load in.</p>
+<section id="loading-30-minute-data" class="level4">
+<h4 class="anchored" data-anchor-id="loading-30-minute-data">Loading 30 minute data</h4>
+<p>This loads the imputed data for all of the readings 30 minutes after starting the NMP.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_30min.Rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data_imp_30min)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Low_NMP_Bile_Proteomics_170 Low_NMP_Bile_Proteomics_172
+A1BG                        15.66018                    16.09418
+A1CF                        12.88906                    11.18222
+A2M                         16.92685                    18.63099
+AARS1                       14.31816                    15.01197
+AASDHPPT                    11.68610                    10.92308
+ABAT                        13.77583                    14.17266
+         High_NMP_Bile_Proteomics_174 High_NMP_Bile_Proteomics_186
+A1BG                        15.964254                    16.015035
+A1CF                        10.885262                    10.496830
+A2M                         18.422913                    19.311802
+AARS1                       14.160481                    13.248159
+AASDHPPT                     8.951435                     9.553974
+ABAT                        16.214409                    12.679050
+         High_NMP_Bile_Proteomics_189 High_NMP_Bile_Proteomics_192
+A1BG                        16.923370                    18.618216
+A1CF                         8.721371                    12.006562
+A2M                         20.233163                    18.294333
+AARS1                       13.703806                    13.880163
+AASDHPPT                     8.727363                     8.238927
+ABAT                        15.549881                    14.477375
+         Low_NMP_Bile_Proteomics_195 High_NMP_Bile_Proteomics_197
+A1BG                       18.598524                    18.630373
+A1CF                       11.868804                     9.513961
+A2M                        18.191391                    17.883349
+AARS1                      14.026935                    13.395252
+AASDHPPT                    8.176094                     9.513961
+ABAT                       14.947408                    16.791080
+         High_NMP_Bile_Proteomics_200 High_NMP_Bile_Proteomics_203
+A1BG                        18.924466                    16.349866
+A1CF                         9.808763                    13.738986
+A2M                         18.482409                    17.351425
+AARS1                       13.410396                    13.714479
+AASDHPPT                     9.808763                     8.451926
+ABAT                        15.099673                    12.149530
+         Low_NMP_Bile_Proteomics_212 High_NMP_Bile_Proteomics_214
+A1BG                       16.867123                     17.43807
+A1CF                       12.054737                     10.14941
+A2M                        15.455603                     18.74250
+AARS1                      16.298197                     14.43579
+AASDHPPT                   13.715541                      8.16185
+ABAT                        8.768289                     16.20995
+         High_NMP_Bile_Proteomics_219 Low_NMP_Bile_Proteomics_222
+A1BG                         16.95180                   18.533535
+A1CF                         10.42230                   15.762718
+A2M                          18.79590                   18.942531
+AARS1                        15.44026                   14.765064
+AASDHPPT                     12.33932                    8.705739
+ABAT                         17.16072                   14.289887
+         High_NMP_Bile_Proteomics_224 Low_NMP_Bile_Proteomics_227
+A1BG                         17.73636                   17.068294
+A1CF                         11.54458                    8.458292
+A2M                          16.74202                   16.947423
+AARS1                        13.23978                   14.302114
+AASDHPPT                     11.24495                    8.458292
+ABAT                         13.11919                   14.454838
+         Low_NMP_Bile_Proteomics_231 High_NMP_Bile_Proteomics_233
+A1BG                        17.57901                    18.054719
+A1CF                        12.03878                    11.991810
+A2M                         16.68185                    18.507930
+AARS1                       15.53370                    14.551248
+AASDHPPT                    11.60242                     9.003946
+ABAT                        14.90540                    17.024798
+         Low_NMP_Bile_Proteomics_02 High_NMP_Bile_Proteomics_07
+A1BG                      17.346512                    16.50826
+A1CF                      11.207419                    12.00696
+A2M                       19.803291                    19.30301
+AARS1                     14.960890                    14.66415
+AASDHPPT                   8.275951                    11.21832
+ABAT                      14.872878                    12.71422
+         High_NMP_Bile_Proteomics_12 High_NMP_Bile_Proteomics_21
+A1BG                        17.99983                   17.968001
+A1CF                        10.95863                    8.992974
+A2M                         18.75882                   19.228941
+AARS1                       14.83137                   14.415034
+AASDHPPT                    11.06400                    8.992974
+ABAT                        14.02323                    9.439294
+         High_NMP_Bile_Proteomics_26 High_NMP_Bile_Proteomics_30
+A1BG                       18.026633                   18.230076
+A1CF                       12.195954                   13.358023
+A2M                        20.493063                   18.595965
+AARS1                      13.968030                   14.438650
+AASDHPPT                    9.263782                    8.718243
+ABAT                       11.744032                   12.955525
+         High_NMP_Bile_Proteomics_33 Low_NMP_Bile_Proteomics_40
+A1BG                       17.624076                   18.05460
+A1CF                       13.061855                   13.03641
+A2M                        17.874874                   20.13188
+AARS1                      14.797514                   15.26832
+AASDHPPT                    8.533948                   11.22232
+ABAT                       11.160679                   14.46329
+         Low_NMP_Bile_Proteomics_42 Low_NMP_Bile_Proteomics_45
+A1BG                       18.27722                   17.46867
+A1CF                       13.50836                   13.07002
+A2M                        19.72697                   18.19473
+AARS1                      14.73418                   15.75915
+AASDHPPT                   11.20550                   10.97379
+ABAT                       11.30328                   12.93007
+         High_NMP_Bile_Proteomics_51 Low_NMP_Bile_Proteomics_54
+A1BG                        18.66986                   17.29569
+A1CF                        11.94468                   13.37777
+A2M                         19.64512                   18.91534
+AARS1                       14.70167                   15.30538
+AASDHPPT                    10.95209                   11.76437
+ABAT                        13.17348                   10.80037
+         High_NMP_Bile_Proteomics_57 High_NMP_Bile_Proteomics_64
+A1BG                       18.477886                    16.37212
+A1CF                       12.291511                    13.63742
+A2M                        20.998362                    18.19127
+AARS1                      14.913374                    14.27339
+AASDHPPT                    9.616241                    11.27215
+ABAT                       12.976023                    11.32442
+         High_NMP_Bile_Proteomics_73 Low_NMP_Bile_Proteomics_76
+A1BG                        17.63713                  18.502705
+A1CF                        13.40478                   9.071309
+A2M                         19.60144                  21.253459
+AARS1                       14.46381                  13.990317
+AASDHPPT                    10.79342                  10.989693
+ABAT                        12.36214                  10.728378
+         High_NMP_Bile_Proteomics_84 High_NMP_Bile_Proteomics_90
+A1BG                        18.61790                    16.47108
+A1CF                        13.62669                    12.87986
+A2M                         19.58247                    17.33647
+AARS1                       14.10235                    14.73803
+AASDHPPT                    10.25688                    11.97989
+ABAT                        11.91482                    15.03158
+         High_NMP_Bile_Proteomics_92 High_NMP_Bile_Proteomics_97
+A1BG                       16.838387                   17.266702
+A1CF                       12.987016                   12.805013
+A2M                        19.284819                   19.499844
+AARS1                      14.733982                   14.978837
+AASDHPPT                    9.622186                    9.959902
+ABAT                       11.944161                   10.729120
+         High_NMP_Bile_Proteomics_101 Low_NMP_Bile_Proteomics_104
+A1BG                         17.85074                   15.754426
+A1CF                         12.97539                   13.370568
+A2M                          20.03995                   18.774196
+AARS1                        15.08014                   14.373368
+AASDHPPT                     10.01035                    9.868485
+ABAT                         13.38986                   13.114448
+         High_NMP_Bile_Proteomics_108
+A1BG                         17.32355
+A1CF                         12.49745
+A2M                          18.42070
+AARS1                        15.02888
+AASDHPPT                     11.51947
+ABAT                         13.51624</code></pre>
+</div>
+</div>
+<p>The names of the samples no longer align with my metadata, “High_NMP_Bile_Proteomics_108” != “NMP_Bile_Proteomics_108” i will remove the “High_/Low_” part from the names.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Matrix to dataframe</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>df_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(data_imp_30min)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the High or Low part</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>bil_via <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(<span class="fu">names</span>(df_data), <span class="st">"[^_]+"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>sample_names <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(<span class="fu">names</span>(df_data), <span class="st">"_(.*)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace</span>(<span class="st">"^_"</span>, <span class="st">""</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sample_names)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "NMP_Bile_Proteomics_170" "NMP_Bile_Proteomics_172"
+[3] "NMP_Bile_Proteomics_174" "NMP_Bile_Proteomics_186"
+[5] "NMP_Bile_Proteomics_189" "NMP_Bile_Proteomics_192"</code></pre>
+</div>
+</div>
+<p>I can use these sample names on our metadata to create a filtered metadata df. This metadata will only contain the samples that are also present in our dataframe.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>meta_data_liver_filtered <span class="ot">&lt;-</span> meta_data_liver <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>((Sample <span class="sc">%in%</span> sample_names) <span class="sc">&amp;</span> (Timepoint <span class="sc">==</span> <span class="st">'30min'</span>))</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(meta_data_liver_filtered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  Sample  `Liver number` Timepoint Biliary viability sc…¹ Total BDI score grou…²
+  &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                  &lt;chr&gt;                 
+1 NMP_Bi…             34 30min     Low                    High                  
+2 NMP_Bi…             43 30min     Low                    High                  
+3 NMP_Bi…             38 30min     High                   Low                   
+4 NMP_Bi…             45 30min     High                   High                  
+5 NMP_Bi…             36 30min     High                   High                  
+6 NMP_Bi…             44 30min     High                   Low                   
+# ℹ abbreviated names: ¹​`Biliary viability score group`,
+#   ²​`Total BDI score group`
+# ℹ 1 more variable: Transplant &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>This metadata df only contains the samples present in the imputed data. This can now be used in plots (color and shapes for example).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Turn the protein rownames to a column</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>df_data <span class="ot">&lt;-</span> df_data <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"protein"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="pca-30-minuten" class="level4">
+<h4 class="anchored" data-anchor-id="pca-30-minuten">PCA 30 minuten</h4>
+<p>i will now perform a PC-analysis on the imputed data. This data contains samples and data 30 minutes after starting NPM. I will perform this analysis using the mdatools library. Yamila already normalised and scaled this data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">pca</span>(<span class="fu">t</span>(data_imp_30min), <span class="at">center =</span> T, <span class="at">scale =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This <code>model</code> object contains all of the information of the principal component analysis. I can use this data to plot, and visualise the analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>scores,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Comp 1</span><span class="st">`</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">`</span><span class="at">Comp 2</span><span class="st">`</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">colour =</span> meta_data_liver_filtered<span class="sc">$</span><span class="st">`</span><span class="at">Biliary viability score group</span><span class="st">`</span>),) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">20</span>, <span class="dv">70</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()   <span class="sc">+</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>,</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">paste</span>(<span class="st">"Comp 1: "</span>, <span class="fu">signif</span>(model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">1</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>),</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste</span>(<span class="st">"Comp 2: "</span>, <span class="fu">signif</span>(model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">2</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Scatterplot showing the scores of PC1 and PC2 of samples 30 minutes after starting NPM. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Conclusion:</p>
+<ul>
+<li>We see 4 clear outliers on Comp 1, 1 low viability and 3 samples with a high viability</li>
+<li>The scores do not show a clear seperating line between the 2 groups</li>
+<li>High viability is a bit more spread over comp 2, most low viablity samples appear to be a bit more clustered near and above the 0 on the second component.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="key-note">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+key-note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Our starting data had lots of NA’s, we used imputation to fill these missing values. This makes these results, like PCA, less reliable. The findings from the figure above display no real seperation between the groups, this can absolutely be caused by imputation.</p>
+</div>
+</div>
+<p>I would like to find the 4 outliers on the left, so we can keep an eye on those and possibly look at why they are outliers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>scores_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>scores)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the samples that have a score of 30 or higher for component 1</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>outlier_samples <span class="ot">&lt;-</span> scores_df <span class="sc">%&gt;%</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"Sample"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Sample =</span> <span class="fu">sub</span>(<span class="st">"^[^_]+_"</span>, <span class="st">""</span>, Sample)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="st">`</span><span class="at">Comp 1</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">30</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>outlier_samples</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 21
+  Sample `Comp 1` `Comp 2` `Comp 3` `Comp 4` `Comp 5` `Comp 6` `Comp 7` `Comp 8`
+  &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 NMP_B…     48.7    -11.9    36.6   36.3      -29.2     15.5      6.91    -5.96
+2 NMP_B…     65.5     11.0    -5.82 -22.9        7.56    -7.24    18.1    -17.4 
+3 NMP_B…     40.1     15.0   -28.2   -0.0367    18.0     13.9     -2.36     4.05
+4 NMP_B…     58.0     11.0    -7.56  -8.04       2.54    -2.46    -2.60    11.4 
+# ℹ 12 more variables: `Comp 9` &lt;dbl&gt;, `Comp 10` &lt;dbl&gt;, `Comp 11` &lt;dbl&gt;,
+#   `Comp 12` &lt;dbl&gt;, `Comp 13` &lt;dbl&gt;, `Comp 14` &lt;dbl&gt;, `Comp 15` &lt;dbl&gt;,
+#   `Comp 16` &lt;dbl&gt;, `Comp 17` &lt;dbl&gt;, `Comp 18` &lt;dbl&gt;, `Comp 19` &lt;dbl&gt;,
+#   `Comp 20` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Here we see the 4 outliers from the PCA, we will possibly keep an eye on those when performing other analyses.</p>
+<p>I would like to see the explained variances for the first 20 components. The mdatools gives us a function for this, so this can be easily plotted.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotVariance</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Conclusion:</p>
+<ul>
+<li>They used a line-graph which implies a connection between the different components which is not the case. Cannot be used for a paper, but works fine for the logbook.</li>
+<li>comp 1 has an explained variance of about 16%, The explained variance quickly lowers to &lt; 5% after the 5th component, there is no use in checking out the other components.</li>
+</ul>
+<p>I would like to see the what the genes are with the highest loading, since these genes are the most important ones to look at. Yamila was having issues with the adjusted p-values of her tests being too high, caused by the high amount of genes we use. We discussed a possible solution for this and ended up with using the gene list, generated in the following code, to filter the data and only perform the statistical tests on that data. This will make the adjusted p-values lower, giving us more results. We did this for PC1 and PC2, but i just rewrote the code for PC2. So it is only shown once here.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Grab the loadings for pc1</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> model<span class="sc">$</span>loadings</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>loadings<span class="sc">$</span>pc1 <span class="ot">&lt;-</span> loadings[,<span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in loadings$pc1 &lt;- loadings[, 2]: Coercing LHS to a list</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the loadings</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings<span class="sc">$</span>pc1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see a higher density closer to loadings near 0.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Order the square of these loadings to get the order of genes</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>argsort <span class="ot">&lt;-</span> <span class="fu">order</span>(loadings<span class="sc">$</span>pc1<span class="sc">^</span><span class="dv">2</span>, <span class="at">decreasing =</span> T)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings<span class="sc">$</span>pc1[argsort])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see the loadings go from absolute values of .045 to 0.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>top_x_genes <span class="ot">&lt;-</span> df_data[argsort, <span class="dv">1</span>]</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(top_x_genes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "PSMD12" "IDH1"   "PSMD11" "SHMT2"  "ACAA1"  "PSMA6" </code></pre>
+</div>
+</div>
+<p>This <code>top_x_genes</code> list contains the genes with the order of loadings, which can be used by yamila to filter her dataset.</p>
+<p>this code saves the list to our school server, where yamila can load it from.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(top_x_genes, <span class="at">file =</span> <span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_30_final_pc1.Rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="mapping-transcriptomics-data" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-transcriptomics-data">Mapping transcriptomics data</h3>
+<p>Jarno was having trouble with the mapping of our transcriptomics data, there was a mapping rate of 35%, way to low. I want to check the quality of our data first, before we try anything else. I will do this using Falco and multiqc.</p>
+<p>This will create a falco rapport for all of our transcriptomics data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">parallel</span> <span class="st">"/students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/bin/falco /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/{} -o /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/{}_fastqc_report"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And this will create one usable multiqc file. The results of this can be found on the right-side of this page.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">multiqc</span> /students/2024-2025/Thema08/liver-transplant/transcriptomics/falco/<span class="pp">*</span> <span class="at">-o</span> /students/2024-2025/Thema08/liver-transplant/transcriptomics/multiqc/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The results of this were weird to say the least, either the reverse or the forward version of the sample was weird. The entire file only contained reads with a basepair length of 6. These same files also had a duplicate rate of 100%. This was unusable for our mapping. We ended up not using these files for mapping after seeking guidance from multiple teachers.</p>
+</section>
+</section>
+<section id="section-2" class="level2">
+<h2 class="anchored" data-anchor-id="section-2">19-05-2025</h2>
+<p>I will now map these files again, and we will have to work with that for now, no matter the quality. ### Mapping transcriptomics This maps the data to the human reference genome. Using STAR.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/mouse_cell_SRR.txt <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">parallel</span> <span class="st">'STAR --runThreadN 6 '</span> <span class="dt">\</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--genomeDir /students/2024-2025/Thema05/BlaasKanker/Transcriptomics/tools/star/index_GRCm39/ '</span> <span class="dt">\</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--readFilesIn /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_1.fastq.gz /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/ERR12161053_2.fastq.gz '</span> <span class="dt">\</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--outSAMtype BAM SortedByCoordinate '</span> <span class="dt">\</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--quantMode GeneCounts '</span> <span class="dt">\</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--genomeLoad LoadAndRemove'</span> <span class="dt">\</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--limitBAMsortRAM 2000000000 '</span> <span class="dt">\</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'--outFileNamePrefix /students/2024-2025/Thema08/liver-transplant/transcriptomics/STAR/test_star_'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will take a while to run. I will start working on the 150 minute proteomics data, that yamila shared with us.</p>
+<section id="pca-150-minute-data" class="level3">
+<h3 class="anchored" data-anchor-id="pca-150-minute-data">Pca 150 minute data</h3>
+<p>Loading the data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_150min.Rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>These have the same naming convention, which i will remove just like i did with the 30 minute data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>df_data_150 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(data_imp_150min)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Once again remove the high and low parts of the names</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>bil_via_150 <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(<span class="fu">names</span>(df_data_150), <span class="st">"[^_]+"</span>)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>sample_names_150 <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(<span class="fu">names</span>(df_data_150), <span class="st">"_(.*)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace</span>(<span class="st">"^_"</span>, <span class="st">""</span>)</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>sample_names_150</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "NMP_Bile_Proteomics_171" "NMP_Bile_Proteomics_173"
+ [3] "NMP_Bile_Proteomics_187" "NMP_Bile_Proteomics_196"
+ [5] "NMP_Bile_Proteomics_204" "NMP_Bile_Proteomics_213"
+ [7] "NMP_Bile_Proteomics_215" "NMP_Bile_Proteomics_225"
+ [9] "NMP_Bile_Proteomics_228" "NMP_Bile_Proteomics_03" 
+[11] "NMP_Bile_Proteomics_09"  "NMP_Bile_Proteomics_14" 
+[13] "NMP_Bile_Proteomics_31"  "NMP_Bile_Proteomics_34" 
+[15] "NMP_Bile_Proteomics_41"  "NMP_Bile_Proteomics_43" 
+[17] "NMP_Bile_Proteomics_46"  "NMP_Bile_Proteomics_50" 
+[19] "NMP_Bile_Proteomics_52"  "NMP_Bile_Proteomics_55" 
+[21] "NMP_Bile_Proteomics_65"  "NMP_Bile_Proteomics_74" 
+[23] "NMP_Bile_Proteomics_85"  "NMP_Bile_Proteomics_91" 
+[25] "NMP_Bile_Proteomics_98"  "NMP_Bile_Proteomics_106"
+[27] "NMP_Bile_Proteomics_109"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df_data_150)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 27
+  Low_NMP_Bile_Proteomics_171 Low_NMP_Bile_Proteomics_173 High_NMP_Bile_Proteo…¹
+                        &lt;dbl&gt;                       &lt;dbl&gt;                  &lt;dbl&gt;
+1                        16.7                        17.1                   16.8
+2                        10.8                        11.9                   12.0
+3                        18.4                        18.5                   20.0
+4                        14.6                        15.3                   13.3
+5                        12.2                        12.3                   13.0
+6                        13.9                        14.8                   16.6
+# ℹ abbreviated name: ¹​High_NMP_Bile_Proteomics_187
+# ℹ 24 more variables: Low_NMP_Bile_Proteomics_196 &lt;dbl&gt;,
+#   High_NMP_Bile_Proteomics_204 &lt;dbl&gt;, Low_NMP_Bile_Proteomics_213 &lt;dbl&gt;,
+#   High_NMP_Bile_Proteomics_215 &lt;dbl&gt;, High_NMP_Bile_Proteomics_225 &lt;dbl&gt;,
+#   Low_NMP_Bile_Proteomics_228 &lt;dbl&gt;, Low_NMP_Bile_Proteomics_03 &lt;dbl&gt;,
+#   High_NMP_Bile_Proteomics_09 &lt;dbl&gt;, High_NMP_Bile_Proteomics_14 &lt;dbl&gt;,
+#   High_NMP_Bile_Proteomics_31 &lt;dbl&gt;, High_NMP_Bile_Proteomics_34 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>I will also generate a new metadata frame, which will contain the same samples as the 150 minute data has.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>meta_data_liver_filtered_150 <span class="ot">&lt;-</span> meta_data_liver <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>((Sample <span class="sc">%in%</span> sample_names_150) <span class="sc">&amp;</span> (Timepoint <span class="sc">==</span> <span class="st">'150min'</span>))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(meta_data_liver_filtered_150)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  Sample  `Liver number` Timepoint Biliary viability sc…¹ Total BDI score grou…²
+  &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                  &lt;chr&gt;                 
+1 NMP_Bi…             34 150min    Low                    High                  
+2 NMP_Bi…             43 150min    Low                    High                  
+3 NMP_Bi…             45 150min    High                   High                  
+4 NMP_Bi…             39 150min    Low                    High                  
+5 NMP_Bi…             32 150min    High                   Low                   
+6 NMP_Bi…             47 150min    Low                    Low                   
+# ℹ abbreviated names: ¹​`Biliary viability score group`,
+#   ²​`Total BDI score group`
+# ℹ 1 more variable: Transplant &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>The samples in the metadata now align with the input data, so this file can be used in plots as color and or shapes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>df_data_150 <span class="ot">&lt;-</span> df_data_150 <span class="sc">%&gt;%</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"protein"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I will perform the pca function from mdatools on this data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>model_150 <span class="ot">&lt;-</span> <span class="fu">pca</span>(<span class="fu">t</span>(df_data_150[,<span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(df_data_150)]), <span class="at">center =</span> T, <span class="at">scale =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And plot the scores</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  model_150<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>scores,</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Comp 1</span><span class="st">`</span>,</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">`</span><span class="at">Comp 2</span><span class="st">`</span>,</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> meta_data_liver_filtered_150<span class="sc">$</span><span class="st">`</span><span class="at">Biliary viability score group</span><span class="st">`</span>,),) <span class="sc">+</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="at">ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>,</span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">paste</span>(<span class="st">"Comp 1: "</span>, <span class="fu">signif</span>(model_150<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">1</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>),</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste</span>(<span class="st">"Comp 2: "</span>, <span class="fu">signif</span>(model_150<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">2</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Scatterplot showing the scores of PC1 and PC2 of samples 150 minutes after starting NPM. The color represents the quality of the liver, while the shape depends on if the liver was transplanted or not.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Conclusion:</p>
+<ul>
+<li>We see no clear seperation between the 2 groups.</li>
+<li>A couple of low viability scores are “clustered” on the top left site, there are no high samples in that “cluster” but this does not appear concrete.</li>
+</ul>
+<p>I want to see the explained variances and see how they fall off. I will use the same function as before.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotVariance</span>(model_150)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that component 1 has the highest explained variance of 21%. We also see that it falls off quickly, with PC4 being around 5%. I see no reason to look at the other components.</p>
+<p>Im going to create a gene list for PC1 and 2 again for yamila to use, just like i did with the 30 minute data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get loadings and order these</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>loadings_150 <span class="ot">&lt;-</span> model_150<span class="sc">$</span>loadings</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>pc1_150 <span class="ot">&lt;-</span> loadings_150[,<span class="dv">1</span>]</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>argsort_150 <span class="ot">&lt;-</span> <span class="fu">order</span>(pc1_150<span class="sc">^</span><span class="dv">2</span>, <span class="at">decreasing =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the genes</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>top_x_genes_150 <span class="ot">&lt;-</span> df_data_150[argsort_150, <span class="dv">1</span>]</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(top_x_genes_150)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "HPN"      "ITIH4"    "ANPEP"    "SLC5A1"   "SERPING1" "ABCB1"   </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save it</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(top_x_genes_150, <span class="at">file =</span> <span class="st">"/students/2024-2025/Thema08/liver-transplant/proteomics/top_x_genes/top_x_genes_150_final_pc1.Rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will make it so yamila can filter based on these genes, and maybe get more significant results. Jasper and i also tried to use the loadings for pathview, which in theory works but since the loadings are too small (max = 0.04) they did not show up in the actual image, i assume a dataset with higher loadings would actually work. This concludes my proteomics research. I will focus on the transcriptomics data now</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Conclusion proteomics">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Conclusion proteomics
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The principal component analyses revealed that there is no real seperation between the groups for both 30 and 150 minute samples. This can be blamed on the high amounts of NA’s and thus the imputation we had to perform on many samples. We used the loadings to send an ordered gene list over to the statistical testing to hopefully fish some results from there.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="section-3" class="level2">
+<h2 class="anchored" data-anchor-id="section-3">20-05-2025</h2>
+<p>Mapping with star ended up giving us an even lower mapping rate, so we are going back to hisat. ### Mapping hisat</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--partition</span><span class="op">=</span>assemblix <span class="dt">\</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--job-name</span><span class="op">=</span>hisat2 <span class="dt">\</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--ntasks</span><span class="op">=</span>1 <span class="dt">\</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--cpus-per-task</span><span class="op">=</span>8 <span class="dt">\</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mem</span><span class="op">=</span>300G <span class="dt">\</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--time</span><span class="op">=</span>12:00:00 <span class="dt">\</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--wrap</span><span class="op">=</span><span class="st">"ls /students/2024-2025/Thema08/liver-transplant/transcriptomics/fastq_data/*.filtered | parallel -j 8 'hisat2 -x /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/genome_tran -U {} -S /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/{/.}.sam --phred33 --mm'"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will map the transcriptomics data to the human reference genome.</p>
+</section>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">21-05-2025</h2>
+<section id="featurecounts" class="level3">
+<h3 class="anchored" data-anchor-id="featurecounts">Featurecounts</h3>
+<p>I will use featurecounts to extract the count data from the mapped files.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="ex">featureCounts</span> <span class="at">-T</span> 5 <span class="at">-t</span> exon <span class="at">-g</span> gene_id <span class="at">-a</span> /students/2024-2025/Thema08/liver-transplant/transcriptomics/ref_hg38/grch38_tran/Homo_sapiens.GRCh38.84.gtf <span class="at">-o</span> counts.txt /students/2024-2025/Thema08/liver-transplant/transcriptomics/hisat2/<span class="pp">*</span>.sam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I can load this data into R, giving us transcriptomics count data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/transcriptomics/featurecounts/counts.txt"</span>, <span class="at">skip =</span> <span class="dv">1</span>, <span class="at">header =</span> T)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(transcriptomics_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 41
+  Geneid          Chr           Start End   Strand Length X.students.2024.2025…¹
+  &lt;chr&gt;           &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;                  &lt;int&gt;
+1 ENSG00000223972 1;1;1;1;1;1;… 1186… 1222… +;+;+…   1735                      0
+2 ENSG00000227232 1;1;1;1;1;1;… 1440… 1450… -;-;-…   1351                      0
+3 ENSG00000278267 1             17369 17436 -          68                      0
+4 ENSG00000243485 1;1;1;1;1     2955… 3003… +;+;+…   1021                      0
+5 ENSG00000274890 1             30366 30503 +         138                      0
+6 ENSG00000237613 1;1;1;1;1     3455… 3517… -;-;-…   1219                      0
+# ℹ abbreviated name:
+#   ¹​X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161053_2.fastq.sam
+# ℹ 34 more variables:
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161054_1.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161055_1.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161056_2.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161057_2.fastq.sam &lt;int&gt;, …</code></pre>
+</div>
+</div>
+<p>We also have meta data for these samples, we sadly cannot perform multiomics since the metadata is impossible to align.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>transcriptomics_metadata <span class="ot">&lt;-</span> <span class="fu">read.table</span>(<span class="st">"/students/2024-2025/Thema08/liver-transplant/data/E-MTAB-13501.sdrf.txt"</span>, <span class="at">header =</span> T, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>)</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(transcriptomics_metadata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 38
+  Source.Name Comment.ENA_SAMPLE. Comment.BioSD_SAMPLE. Characteristics.organi…¹
+  &lt;chr&gt;       &lt;chr&gt;               &lt;chr&gt;                 &lt;chr&gt;                   
+1 R10         ERS16523058         SAMEA114541729        Homo sapiens            
+2 R10         ERS16523058         SAMEA114541729        Homo sapiens            
+3 R100        ERS16523059         SAMEA114541730        Homo sapiens            
+4 R100        ERS16523059         SAMEA114541730        Homo sapiens            
+5 R102        ERS16523060         SAMEA114541731        Homo sapiens            
+6 R102        ERS16523060         SAMEA114541731        Homo sapiens            
+# ℹ abbreviated name: ¹​Characteristics.organism.
+# ℹ 34 more variables: Characteristics.individual. &lt;int&gt;,
+#   Characteristics.age. &lt;int&gt;, Unit.time.unit. &lt;chr&gt;, Term.Source.REF &lt;chr&gt;,
+#   Term.Accession.Number &lt;chr&gt;, Characteristics.developmental.stage. &lt;chr&gt;,
+#   Characteristics.sex. &lt;chr&gt;, Characteristics.organism.part. &lt;chr&gt;,
+#   Characteristics.total.bdi.score.group. &lt;chr&gt;,
+#   Characteristics.biliary.viability.score.group. &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<p>Our current count file contains GeneIDs which is ugly. So im going to use annotationDdi to create a new column that contains the matching gene symbol.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AnnotationDbi)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get gene ids</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>genes <span class="ot">&lt;-</span> transcriptomics_data<span class="sc">$</span>Geneid</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the genesymbols from the human genome and add these to our dataframe</span></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>ann <span class="ot">&lt;-</span> <span class="fu">select</span>(org.Hs.eg.db, <span class="at">keys =</span> genes, <span class="at">keytype =</span> <span class="st">'ENSEMBL'</span>, <span class="at">columns =</span> <span class="st">'SYMBOL'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'select()' returned 1:many mapping between keys and columns</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> <span class="fu">merge</span>(transcriptomics_data, ann, <span class="at">by.x =</span> <span class="st">"Geneid"</span>, <span class="at">by.y =</span> <span class="st">"ENSEMBL"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> transcriptomics_data <span class="sc">%&gt;%</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="fu">c</span>(Geneid, SYMBOL), <span class="fu">everything</span>())</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(transcriptomics_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 42
+  Geneid          SYMBOL  Chr   Start End   Strand Length X.students.2024.2025…¹
+  &lt;chr&gt;           &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;                  &lt;int&gt;
+1 ENSG00000000003 TSPAN6  X;X;… 1006… 1006… -;-;-…   4535                    224
+2 ENSG00000000005 TNMD    X;X;… 1005… 1005… +;+;+…   1610                      0
+3 ENSG00000000419 DPM1    20;2… 5093… 5093… -;-;-…   1207                    113
+4 ENSG00000000457 SCYL3   1;1;… 1698… 1698… -;-;-…   6883                     12
+5 ENSG00000000460 C1orf1… 1;1;… 1696… 1696… +;+;+…   5967                      0
+6 ENSG00000000938 FGR     1;1;… 2761… 2761… -;-;-…   3474                      4
+# ℹ abbreviated name:
+#   ¹​X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161053_2.fastq.sam
+# ℹ 34 more variables:
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161054_1.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161055_1.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161056_2.fastq.sam &lt;int&gt;,
+#   X.students.2024.2025.Thema08.liver.transplant.transcriptomics.hisat2.ERR12161057_2.fastq.sam &lt;int&gt;, …</code></pre>
+</div>
+</div>
+<p>This gives us a new SYMBOL column that contains the gene symbols. ## 22-05-2025</p>
+</section>
+<section id="pca-and-transcriptomics-processing" class="level3">
+<h3 class="anchored" data-anchor-id="pca-and-transcriptomics-processing">PCA and transcriptomics processing</h3>
+<p>I will transform the names again so these can be linked to our metadata sice they do not align right now.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>names_transcript <span class="ot">&lt;-</span> <span class="fu">names</span>(transcriptomics_data)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="co"># extract the real sample name</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>sample_name <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">".*(ERR[0-9]+).*"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, names_transcript)</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>sample_name</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Geneid"      "SYMBOL"      "Chr"         "Start"       "End"        
+ [6] "Strand"      "Length"      "ERR12161053" "ERR12161054" "ERR12161055"
+[11] "ERR12161056" "ERR12161057" "ERR12161058" "ERR12161059" "ERR12161060"
+[16] "ERR12161061" "ERR12161062" "ERR12161063" "ERR12161064" "ERR12161065"
+[21] "ERR12161066" "ERR12161067" "ERR12161068" "ERR12161069" "ERR12161070"
+[26] "ERR12161071" "ERR12161072" "ERR12161073" "ERR12161074" "ERR12161075"
+[31] "ERR12161076" "ERR12161077" "ERR12161078" "ERR12161079" "ERR12161080"
+[36] "ERR12161081" "ERR12161082" "ERR12161083" "ERR12161084" "ERR12161085"
+[41] "ERR12161086" "ERR12161087"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># and use these as the names</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(transcriptomics_data) <span class="ot">&lt;-</span> sample_name</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(transcriptomics_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 42
+  Geneid          SYMBOL Chr   Start End   Strand Length ERR12161053 ERR12161054
+  &lt;chr&gt;           &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;int&gt;       &lt;int&gt;       &lt;int&gt;
+1 ENSG00000000003 TSPAN6 X;X;… 1006… 1006… -;-;-…   4535         224         105
+2 ENSG00000000005 TNMD   X;X;… 1005… 1005… +;+;+…   1610           0           0
+3 ENSG00000000419 DPM1   20;2… 5093… 5093… -;-;-…   1207         113          37
+4 ENSG00000000457 SCYL3  1;1;… 1698… 1698… -;-;-…   6883          12           9
+5 ENSG00000000460 C1orf… 1;1;… 1696… 1696… +;+;+…   5967           0           2
+6 ENSG00000000938 FGR    1;1;… 2761… 2761… -;-;-…   3474           4           4
+# ℹ 33 more variables: ERR12161055 &lt;int&gt;, ERR12161056 &lt;int&gt;, ERR12161057 &lt;int&gt;,
+#   ERR12161058 &lt;int&gt;, ERR12161059 &lt;int&gt;, ERR12161060 &lt;int&gt;, ERR12161061 &lt;int&gt;,
+#   ERR12161062 &lt;int&gt;, ERR12161063 &lt;int&gt;, ERR12161064 &lt;int&gt;, ERR12161065 &lt;int&gt;,
+#   ERR12161066 &lt;int&gt;, ERR12161067 &lt;int&gt;, ERR12161068 &lt;int&gt;, ERR12161069 &lt;int&gt;,
+#   ERR12161070 &lt;int&gt;, ERR12161071 &lt;int&gt;, ERR12161072 &lt;int&gt;, ERR12161073 &lt;int&gt;,
+#   ERR12161074 &lt;int&gt;, ERR12161075 &lt;int&gt;, ERR12161076 &lt;int&gt;, ERR12161077 &lt;int&gt;,
+#   ERR12161078 &lt;int&gt;, ERR12161079 &lt;int&gt;, ERR12161080 &lt;int&gt;, …</code></pre>
+</div>
+</div>
+<p>The DESEQ2 analysis downstream complained of duplicates, so i am removing these here. There are multiple types of duplicated. Duplicate geneID’s have duplicate counts aswell, so i will remove all of the duplicates but make sure that 1 remains. Some symbols also have duplicated, but with different counts so i add these up. Not the best solution but works.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove duplicate geneID</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> transcriptomics_data <span class="sc">%&gt;%</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(Geneid, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a><span class="co"># addup symbols that are duplicated</span></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> transcriptomics_data <span class="sc">%&gt;%</span></span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(SYMBOL) <span class="sc">%&gt;%</span></span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">"ERR"</span>), sum, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(SYMBOL, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a><span class="co"># remove all of the NA values.</span></span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>transcriptomics_data <span class="ot">&lt;-</span> transcriptomics_data <span class="sc">%&gt;%</span></span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(SYMBOL))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>the count data is deduplicated now (even though it already should have been according to the paper.)</p>
+<p>I am seperating the count data from some of the other data in the dataframe like the symbols and ids</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>count_data_transcript <span class="ot">&lt;-</span> transcriptomics_data[,<span class="dv">8</span><span class="sc">:</span><span class="fu">ncol</span>(transcriptomics_data)]</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(count_data_transcript)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 35
+  ERR12161053 ERR12161054 ERR12161055 ERR12161056 ERR12161057 ERR12161058
+        &lt;int&gt;       &lt;int&gt;       &lt;int&gt;       &lt;int&gt;       &lt;int&gt;       &lt;int&gt;
+1         224         105         206         312         280         171
+2           0           0           0           0           0           0
+3         113          37         155          70          67          78
+4          12           9          22          15          11          22
+5           0           2           0           1           0           1
+6           4           4           6           9           2           7
+# ℹ 29 more variables: ERR12161059 &lt;int&gt;, ERR12161060 &lt;int&gt;, ERR12161061 &lt;int&gt;,
+#   ERR12161062 &lt;int&gt;, ERR12161063 &lt;int&gt;, ERR12161064 &lt;int&gt;, ERR12161065 &lt;int&gt;,
+#   ERR12161066 &lt;int&gt;, ERR12161067 &lt;int&gt;, ERR12161068 &lt;int&gt;, ERR12161069 &lt;int&gt;,
+#   ERR12161070 &lt;int&gt;, ERR12161071 &lt;int&gt;, ERR12161072 &lt;int&gt;, ERR12161073 &lt;int&gt;,
+#   ERR12161074 &lt;int&gt;, ERR12161075 &lt;int&gt;, ERR12161076 &lt;int&gt;, ERR12161077 &lt;int&gt;,
+#   ERR12161078 &lt;int&gt;, ERR12161079 &lt;int&gt;, ERR12161080 &lt;int&gt;, ERR12161081 &lt;int&gt;,
+#   ERR12161082 &lt;int&gt;, ERR12161083 &lt;int&gt;, ERR12161084 &lt;int&gt;, …</code></pre>
+</div>
+</div>
+<p>I can now normalise and scale this data</p>
+<p>the metadata contains every sample twice (reverse and forward) i will remove these.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>transcriptomics_metadata_dups_rem <span class="ot">&lt;-</span> transcriptomics_metadata[<span class="sc">!</span><span class="fu">duplicated</span>(transcriptomics_metadata[<span class="fu">c</span>(<span class="st">'Comment.ENA_SAMPLE.'</span>)]),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transpose data</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>count_transcript_t <span class="ot">&lt;-</span> <span class="fu">t</span>(count_data_transcript)</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove genes with variance of 0</span></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>variances_transcript <span class="ot">&lt;-</span> <span class="fu">apply</span>(count_transcript_t, <span class="dv">2</span>, var)</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>count_transcript_t <span class="ot">&lt;-</span> count_transcript_t[, <span class="fu">which</span>(variances_transcript <span class="sc">&gt;</span> <span class="dv">0</span>)]</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(count_transcript_t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]    35 22143</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Normalize and scale it</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>transformed_trans <span class="ot">&lt;-</span> <span class="fu">log2</span>(count_transcript_t <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>scaled_trans <span class="ot">&lt;-</span> <span class="fu">scale</span>(transformed_trans, <span class="at">center =</span> T, <span class="at">scale =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Performing PCa on this scaled and normalized data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>model_transcriptomics <span class="ot">&lt;-</span> <span class="fu">pca</span>(scaled_trans, <span class="at">center =</span> T, <span class="at">scale =</span> T, <span class="at">info =</span> <span class="st">"Transcriptomics"</span>,<span class="at">ncomp =</span> <span class="fu">ncol</span>(count_data_transcript))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  model_transcriptomics<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>scores,</span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Comp 1</span><span class="st">`</span>,</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">`</span><span class="at">Comp 2</span><span class="st">`</span>,</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> transcriptomics_metadata_dups_rem<span class="sc">$</span>Factor.Value.biliary.viability.score.group.),) <span class="sc">+</span></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>PC analyse on transcriptomics data. Color shows biliary viability, Shape shows transplant status</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Conclusion:</p>
+<ul>
+<li>No real seperation between low and high viability This can be caused by the garbage input data and the extreme low amount of counts we managed to get out of it.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotVariance</span>(model_transcriptomics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Most of the variance is explained by the first component, it quickly falls off after that too. I want to see if we can see anything interesting in the loadings of the first component.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>loadings_transcriptomics <span class="ot">&lt;-</span> model_transcriptomics<span class="sc">$</span>loadings</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings_transcriptomics[,<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-57-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A lower density of loadings above 0 appears for all genes until a bit above 15000. After that the loadings appear to be flipped.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the loadings</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>argsort_transscript <span class="ot">&lt;-</span> <span class="fu">order</span>(loadings_transcriptomics[,<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span>, <span class="at">decreasing =</span> T)</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings_transcriptomics[,<span class="dv">1</span>][argsort_transscript])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see loadings going from (aboslute values) 0.010 to 0.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>genes_pca1_transcript <span class="ot">&lt;-</span> transcriptomics_data[argsort_transscript,<span class="dv">2</span>]</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(genes_pca1_transcript)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 1
+# Groups:   SYMBOL [6]
+  SYMBOL
+  &lt;chr&gt; 
+1 OLFML3
+2 NAT2  
+3 SGCE  
+4 ACTG2 
+5 SMCO4 
+6 CHERP </code></pre>
+</div>
+</div>
+<p>Genes ordered based on loading, done in advanced if it is needed for deseq2. ### DESEQ2 I will now perform a differential gene expression analysis on our transcriptomics data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">25-05-2025</h2>
+<section id="deseq2" class="level3">
+<h3 class="anchored" data-anchor-id="deseq2">DESEQ2</h3>
+<p>I have to create coldata for deseq, so it knows what groups i want to focus on</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>coldata <span class="ot">&lt;-</span> transcriptomics_metadata_dups_rem <span class="sc">%&gt;%</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get all the right samples</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Comment.ENA_RUN. <span class="sc">%in%</span> <span class="fu">names</span>(count_data_transcript)) <span class="sc">%&gt;%</span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Only select the viability columns and sample names</span></span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sample names to rownames of df</span></span>
+<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) <span class="sc">%&gt;%</span></span>
+<span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"Comment.ENA_RUN."</span>)</span>
+<span id="cb91-8"><a href="#cb91-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(coldata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 1
+  Characteristics.biliary.viability.score.group.
+  &lt;chr&gt;                                         
+1 low                                           
+2 high                                          
+3 low                                           
+4 high                                          
+5 low                                           
+6 low                                           </code></pre>
+</div>
+</div>
+<p>This contains the sample name and if it has a low or high viability. I will now transform the gene symbols to the rownames so it can be used in plots and figures.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select all of the count data, with gene symbols as rownames.</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(transcriptomics_data) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>count_data_dds <span class="ot">&lt;-</span> transcriptomics_data[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">8</span><span class="sc">:</span><span class="fu">ncol</span>(transcriptomics_data))] <span class="sc">%&gt;%</span></span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"SYMBOL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I will now run deseq2 on this. with the count data, and coldata.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeqDataSetFromMatrix</span>(<span class="at">countData =</span> count_data_dds,</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">colData =</span> coldata,</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">design =</span> <span class="sc">~</span> Characteristics.biliary.viability.score.group.)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in DESeqDataSet(se, design = design, ignoreRank): some variables in
+design formula are characters, converting to factors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>dds <span class="ot">&lt;-</span> <span class="fu">DESeq</span>(dds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>estimating size factors</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>estimating dispersions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>gene-wise dispersion estimates</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>mean-dispersion relationship</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>final dispersion estimates</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>fitting model and testing</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>-- replacing outliers and refitting for 99 genes
+-- DESeq argument 'minReplicatesForReplace' = 7 
+-- original counts are preserved in counts(dds)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>estimating dispersions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>fitting model and testing</code></pre>
+</div>
+</div>
+<p>We can now look into these results and summarise them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">resultsNames</span>(dds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Intercept"                                                 
+[2] "Characteristics.biliary.viability.score.group._low_vs_high"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">results</span>(dds, <span class="at">name =</span> <span class="st">"Characteristics.biliary.viability.score.group._low_vs_high"</span>)</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>log2 fold change (MLE): Characteristics.biliary.viability.score.group. low vs high 
+Wald test p-value: Characteristics.biliary.viability.score.group. low vs high 
+DataFrame with 6 rows and 6 columns
+           baseMean log2FoldChange     lfcSE      stat    pvalue      padj
+          &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
+TSPAN6   221.335722     -0.0365803  0.121265 -0.301657  0.762913  0.998702
+TNMD       0.073575      0.7214463  3.027828  0.238272  0.811670  0.998702
+DPM1      75.493961      0.1064914  0.106454  1.000355  0.317139  0.998702
+SCYL3     16.384121      0.2654426  0.212704  1.247945  0.212051  0.998702
+C1orf112   1.934195     -0.9192006  0.695982 -1.320724  0.186593  0.998702
+FGR        9.695265      0.1292737  0.363188  0.355942  0.721884  0.998702</code></pre>
+</div>
+</div>
+<p>These results contain genes and the differences betweeen low and high viability. These can be scaled with the <code>lfcShrink</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>resLFC <span class="ot">&lt;-</span> <span class="fu">lfcShrink</span>(dds, <span class="at">coef =</span> <span class="st">"Characteristics.biliary.viability.score.group._low_vs_high"</span>)</span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(resLFC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>log2 fold change (MAP): Characteristics.biliary.viability.score.group. low vs high 
+Wald test p-value: Characteristics.biliary.viability.score.group. low vs high 
+DataFrame with 6 rows and 5 columns
+           baseMean log2FoldChange      lfcSE    pvalue      padj
+          &lt;numeric&gt;      &lt;numeric&gt;  &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
+TSPAN6   221.335722   -2.57691e-06 0.00144259  0.762913  0.998702
+TNMD       0.073575    3.11193e-07 0.00144269  0.811670  0.998702
+DPM1      75.493961    1.21373e-05 0.00144259  0.317139  0.998702
+SCYL3     16.384121    6.15541e-06 0.00144267  0.212051  0.998702
+C1orf112   1.934195   -1.88261e-06 0.00144269  0.186593  0.998702
+FGR        9.695265    1.78823e-06 0.00144268  0.721884  0.998702</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+out of 22142 with nonzero total read count
+adjusted p-value &lt; 0.1
+LFC &gt; 0 (up)       : 0, 0%
+LFC &lt; 0 (down)     : 0, 0%
+outliers [1]       : 0, 0%
+low counts [2]     : 1, 0.0045%
+(mean count &lt; 0)
+[1] see 'cooksCutoff' argument of ?results
+[2] see 'independentFiltering' argument of ?results</code></pre>
+</div>
+</div>
+<p>Not suprising, the data contain 0 significant up or down regulated genes between the 2 groups. This can be explained by the quality of the input data.</p>
+<p>I will, to be sure, use plotMA to check if there is nothing interesting.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotMA</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="logbook_files/figure-html/unnamed-chunk-67-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There are 0 significant genes to be found here, which will cause me to conclude the research on transcriptomics data. I will do a quick conclusion under here.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Final Thoughts">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Final Thoughts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This concludes my logbook, in which i have done multiple principal component analyses and DGE’s on proteomics and transcriptomics data.</p>
+<ul>
+<li>We did not see any seperation between high and low viability in the PCA’s for transcriptomics and proteomics. This can be explained by the lack of data/imputation of the proteomics data. We assumed that the transcriptomics data we obtained was possibly corrupted during the sequencing. This made it so the data was garbage.</li>
+<li>Genes lists were made from the loadings of the proteomics data, to help us further downstream to get more significant genes.</li>
+<li>DESEQ2 found no up or down regulated genes in the transcriptomics data.</li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+<script src="logbook_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
