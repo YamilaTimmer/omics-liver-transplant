@@ -1,4 +1,9 @@
 
+
+```{r,}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 # preliminary proteomics tool research
 
 msn base:
@@ -21,7 +26,23 @@ ramon: pca
 
 
 
+# Key Terms
 
+Biliary viability:
+
+A measure of liver health post-transplant, categorized as "High" or "Low" based on clinical outcomes.
+
+Threshold:
+
+Protein expression cutoff to classify samples (e.g., median, mean of means).
+
+Negative expression correlation:
+
+When lower protein expression predicts high viability (reverse threshold logic).
+
+Fisher’s exact test:
+
+Statistical test for contingency tables (e.g., confusion matrices). Provides p-values.
 
 # confusion matrix
 what do i need for a confusion matrix and what is it for?:
@@ -38,19 +59,19 @@ for the threshhol and optimal biomarker performance I can do the following optio
 
 loading in count data
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
+# load("/students/2024-2025/Thema08/liver-transplant/proteomics/count_data.Rdata")
 ```
 
 loading in meta data
 ```{r}
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
+# load("/students/2024-2025/Thema08/liver-transplant/proteomics/meta_data.Rdata")
 
 ```
 
 loading in imputed count data
 ```{r}
 
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
+# load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
 
 ```
 
@@ -110,7 +131,7 @@ so instead of splitting the groups immediatly into low/high viability, I will fi
 rm(list=ls())
 
 # loading in imputed and normalised data
-load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
+# load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data.Rdata")
 
 # choosing potential biomarker protein (current one is random)
 pot_biomarker <- "IGLV7-46"
@@ -352,10 +373,8 @@ print(final_matrix)
 ```
 
 
-basically for efficiency's sake I tried to avoid using complecated data structures like matrices and dataframes. and lessen the amount of casting I used for convenience
+basically for efficiency's sake I tried to avoid using complicated data structures like matrices and dataframes. and lessen the amount of casting I used for convenience
 
-## building a profile
-I'm building a profile based on the proteomics data and every protein's accuracy
 
 loading in the dep library and the biocmanager package
 ```{r}
@@ -383,13 +402,9 @@ get_results(data_diff_30min)
 
 
 
+## looking for a new a new threshold method
 
-
-
-
-
-
-## choosing a new threshold method
+we're looking to find what method for thresholds generation will be best for biliary clasification testing
 
 define potential bio marker protein
 ```{r}
@@ -528,6 +543,9 @@ accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + fa
 
 ## perform it on all of the top 150 genes from ramon
 
+ramon gave me the top ordered genes for the 150 min dataset so we will load that in and check to see their viability
+
+load in the genes from ramon
 ```{r}
 load("~/Documents/git_stuff/omics-liver-transplant/tai_local_data/top_x_genes_150.Rdata")
 ```
@@ -662,10 +680,567 @@ for (index in 1:length(top_500_genes)) {
 after that this will result in a matrix in which the row id's correspond to the potential biomarkers and 3 columns are present to represent what I find the 3 most important metrics of the confusion matrix
 ![top_500_pot_biomarkers_sorted_by_accuracy](./media/Pasted image.png)
 
-## execution ons PLS-DA
-it turns out that the confusion matrix is meant to verify the resulting profile of the PLS-DA so I will do that now
+```{r}
+results_df_150 <- data.frame(
+  protein = character(),
+  threshold = numeric(),
+  precision = numeric(),
+  fpr = numeric(),
+  p_value = numeric(),
+  auroc = numeric(),
+  stringsAsFactors = FALSE
+)
+```
+
+```{r}
+assay_data_50 <- data_imp_150min
+
+assay_names <- row.names(assay_data_50)
+assay_name_len <- length(assay_names)
+
+```
+
+head(assay_data_30, n= 20)
+
+```{r}
+pb <- txtProgressBar(min = 0, max = assay_name_len, style = 3)
+
+for (name_index in 1:length(assay_names)) {
+  pot_biomarker <- assay_names[name_index]
+  
+  marker_expression <- assay_data_50[pot_biomarker, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression))
+  
+  
+  # getting min and max for expression
+  pot_bio_min <- min(marker_expression)
+  pot_bio_max <- max(marker_expression)
+  # def interval
+  interval_size <- 0.1
+  
+  # calc thresholds
+  thresholds <- seq(pot_bio_min, pot_bio_max, by = interval_size)
+  thresholds <- c(-Inf, thresholds, Inf)
+  thresholds <- sort(thresholds, decreasing = TRUE)
+  
+  # tru and false positive rate
+  tprs <- c()
+  fprs <- c()
+  
+  # foing it for every threshold
+  for (index in 1:length(thresholds)) {
+    expression_threshold <- thresholds[index]
+    true_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    
+    # fisher's exact test for p value
+    confusion_matrix <- matrix(c(true_positive, false_positive,
+                            false_negative, true_negative), nrow = 2)
+    pval <- fisher.test(confusion_matrix)$p.value
+    
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    specificity <- true_negative/ (true_negative + false_positive)
+    
+    
+    accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + false_negative + false_positive)
+    
+    tprs[index] <-tpr
+    fprs[index] <-fpr
+    
+    new_row <- data.frame(
+      protein = pot_biomarker,
+      threshold = expression_threshold,
+      precision = tpr,
+      accuracy = accuracy,
+      specificity = specificity,
+      fpr = fpr,
+      p_value = pval,
+      auroc = NA_real_,  # will update after
+      stringsAsFactors = FALSE)
+    
+    results_df_150 <- rbind(results_df_150, new_row)
+      
+  }
+  
+  
+  auroc <- sum(diff(fprs) * (head(tprs, -1) + tail(tprs, -1))) / 2
+  
+  results_df_150$auroc[results_df_150$protein == pot_biomarker] <- auroc
+  setTxtProgressBar(pb, name_index)
+}
+
+```
+
+```{r}
+sig_results_df_150 <- results_df_150[results_df_150$p_value <= 0.05, ]
+```
+
+
+```{r}
+nrow(sig_results_df_150)
+```
+
+some of the significant results are under 0.5 auroc which suggests that the threshhold should be reversed so we will do that with a subset
+```{r}
+reversable_sig_results_df_150 <- sig_results_df_150[sig_results_df_150$auroc < 0.5,]
+```
+
+get the protein's and thresholds from the reversable to test again
+```{r}
+reversable_sig_proteins <- reversable_sig_results_df_150$protein
+reversable_sig_thresholds <- reversable_sig_results_df_150$threshold
+```
+
+make new df for results of reverse sigs
+```{r}
+reverse_sig_results_df_150 <- data.frame(
+  protein = character(),
+  threshold = numeric(),
+  precision = numeric(),
+  fpr = numeric(),
+  p_value = numeric(),
+  auroc = numeric(),
+  stringsAsFactors = FALSE
+)
+```
+
+
+reverse the threshholds by swapping viability levels in binary categorisatoin
+```{r}
+pb <- txtProgressBar(min = 0, max = assay_name_len, style = 3)
+
+for (index in 1:nrow(reversable_sig_results_df_150)) {
+  protein <- reversable_sig_proteins[index]
+  expression_threshold <- reversable_sig_thresholds[index]
+  cat(index,":",protein, expression_threshold)
+  
+  marker_expression <- assay_data_50[protein, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression))
+  low_viability <- !high_viability
+
+
+    
+    true_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    
+    # fisher's exact test for p value
+    confusion_matrix <- matrix(c(true_positive, false_positive,
+                            false_negative, true_negative), nrow = 2)
+    pval <- fisher.test(confusion_matrix)$p.value
+    
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    specificity <- true_negative/ (true_negative + false_positive)
+    
+    
+    accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + false_negative + false_positive)
+    
+    
+    new_row <- data.frame(
+      protein = protein,
+      threshold = expression_threshold,
+      precision = tpr,
+      accuracy = accuracy,
+      specificity = specificity,
+      fpr = fpr,
+      p_value = pval,
+      auroc = NA_real_,  # will update after
+      stringsAsFactors = FALSE)
+    
+    reverse_sig_results_df_150 <- rbind(reverse_sig_results_df_150, new_row)
+}
+
+```
+
+
+so if we merge reverse_sig_results_df_150 with the sig_results_df_150 that have an auroc over 0.5 we get the following
+```{r}
+significant_150_min_results <- rbind(reverse_sig_results_df_150,sig_results_df_150[sig_results_df_150$auroc > 0.5,])
+
+```
+
+and add the auroc values
+```{r}
+
+reverse_names <- reversable_sig_results_df_150$protein
+
+for (name_index in 1:length(reverse_names)) {
+  pot_biomarker <- reverse_names[name_index]
+  
+  marker_expression <- assay_data_50[pot_biomarker, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression))
+  low_viability <- !high_viability
+
+  
+  # getting min and max for expression
+  pot_bio_min <- min(marker_expression)
+  pot_bio_max <- max(marker_expression)
+  # def interval
+  interval_size <- 0.1
+  
+  # calc thresholds
+  thresholds <- seq(pot_bio_min, pot_bio_max, by = interval_size)
+  thresholds <- c(-Inf, thresholds, Inf)
+  thresholds <- sort(thresholds, decreasing = TRUE)
+  
+  # tru and false positive rate
+  tprs <- c()
+  fprs <- c()
+  
+  # foing it for every threshold
+  for (index in 1:length(thresholds)) {
+    expression_threshold <- thresholds[index]
+    true_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    
+    tprs[index] <-tpr
+    fprs[index] <-fpr
+    
+
+  }
+  
+  
+  auroc <- sum(diff(fprs) * (head(tprs, -1) + tail(tprs, -1))) / 2
+  
+  significant_150_min_results$auroc[significant_150_min_results$protein == pot_biomarker] <- auroc
+}
+
+```
+
+add a last column to seperate those who have been reversed
+```{r}
+significant_150_min_results$negative_expression_threshold <- 
+  significant_150_min_results$protein %in% reverse_sig_results_df_150$protein
+```
+
+only pic threshholds with an auroc over 0.7
+```{r}
+auroc_filtered_sigs <- significant_150_min_results[significant_150_min_results$auroc>0.7, ]
+```
 
 
 
+## final script for the generatiing of the table and filtration
+
+loading in new imp data from yamila
+```{r}
+load("/students/2024-2025/Thema08/liver-transplant/proteomics/data/data_double_normalized_imputed_150min.Rdata")
+
+assay_data_50 <- data_imp_150min # assign it to an easier variable name
+
+assay_names <- row.names(assay_data_50)
+assay_name_len <- length(assay_names)
+
+```
+
+get auroc and other relavant performance stats from the new imputed data
+```{r}
+# adding a progress bar to see progress because this takes way too long
+pb <- txtProgressBar(min = 0, max = assay_name_len, style = 3)
+
+# cycle over all the protein names
+for (name_index in 1:length(assay_names)) {
+  pot_biomarker <- assay_names[name_index]
+  
+  # getting the expression for the protein
+  marker_expression <- assay_data_50[pot_biomarker, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression)) # seperating the groups
+  low_viability <- !high_viability
+  
+  
+  # getting min and max value of expression
+  pot_bio_min <- min(marker_expression)
+  pot_bio_max <- max(marker_expression)
+  
+  # defube threshold interval
+  interval_size <- 0.1
+  
+  # calc thresholds
+  thresholds <- seq(pot_bio_min, pot_bio_max, by = interval_size)
+  thresholds <- c(-Inf, thresholds, Inf)
+  thresholds <- sort(thresholds, decreasing = TRUE)
+  
+  # true and false positive rate lists made
+  tprs <- c()
+  fprs <- c()
+  
+  # doing it for every threshold
+  for (index in 1:length(thresholds)) {
+    expression_threshold <- thresholds[index]
+    true_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    
+    # fisher's exact test for p value
+    confusion_matrix <- matrix(c(true_positive, false_positive,
+                            false_negative, true_negative), nrow = 2)
+    pval <- fisher.test(confusion_matrix)$p.value
+    
+    # definde false positive rate
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    # find true positive rate
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    # get specificity
+    specificity <- true_negative/ (true_negative + false_positive)
+    
+    # get accuracy
+    accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + false_negative + false_positive)
+    
+    # add tpr and fpr for every threshold
+    tprs[index] <-tpr
+    fprs[index] <-fpr
+    
+    # add dataframe row
+    new_row <- data.frame(
+      protein = pot_biomarker,
+      threshold = expression_threshold,
+      precision = tpr,
+      accuracy = accuracy,
+      specificity = specificity,
+      fpr = fpr,
+      p_value = pval,
+      auroc = NA_real_,  # will update after
+      stringsAsFactors = FALSE)
+    
+    # update dataframe
+    results_df_150 <- rbind(results_df_150, new_row)
+      
+  }
+  
+  # calculate auroc
+  auroc <- sum(diff(fprs) * (head(tprs, -1) + tail(tprs, -1))) / 2
+  
+    # add ayroc afterwards becasue it's the same for a singular protein no matter the threshold
+  results_df_150$auroc[results_df_150$protein == pot_biomarker] <- auroc
+  
+  # update progress bar
+  setTxtProgressBar(pb, name_index)
+}
+
+```
+
+get only the values with a p value under 0.05m we do this to only filter on statistical significance
+```{r}
+sig_results_df_150 <- results_df_150[results_df_150$p_value <= 0.05, ]
+```
+
+some of the significant results are under 0.5 auroc which suggests that the threshhold should be reversed so we will do that with a subset
+```{r}
+reversable_sig_results_df_150 <- sig_results_df_150[sig_results_df_150$auroc < 0.5,]
+```
+
+get the protein's and thresholds from the reversable to test again
+```{r}
+reversable_sig_proteins <- reversable_sig_results_df_150$protein
+reversable_sig_thresholds <- reversable_sig_results_df_150$threshold
+```
+
+make new df for results of reverse sigs
+```{r}
+reverse_sig_results_df_150 <- data.frame(
+  protein = character(),
+  threshold = numeric(),
+  precision = numeric(),
+  fpr = numeric(),
+  p_value = numeric(),
+  auroc = numeric(),
+  stringsAsFactors = FALSE
+)
+```
+
+reverse the threshholds by swapping viability levels in binary categorisatoin
+```{r}
+pb <- txtProgressBar(min = 0, max = assay_name_len, style = 3)
+
+for (index in 1:nrow(reversable_sig_results_df_150)) {
+  protein <- reversable_sig_proteins[index]
+  expression_threshold <- reversable_sig_thresholds[index]
+  cat(index,":",protein, expression_threshold)
+  
+  marker_expression <- assay_data_50[protein, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression))
+  low_viability <- !high_viability
+
+
+    
+    true_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    
+    # fisher's exact test for p value
+    confusion_matrix <- matrix(c(true_positive, false_positive,
+                            false_negative, true_negative), nrow = 2)
+    pval <- fisher.test(confusion_matrix)$p.value
+    
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    specificity <- true_negative/ (true_negative + false_positive)
+    
+    
+    accuracy <- (true_positive + true_negative)/ (true_positive + true_negative + false_negative + false_positive)
+    
+    
+    new_row <- data.frame(
+      protein = protein,
+      threshold = expression_threshold,
+      precision = tpr,
+      accuracy = accuracy,
+      specificity = specificity,
+      fpr = fpr,
+      p_value = pval,
+      auroc = NA_real_,  # will update after
+      stringsAsFactors = FALSE)
+    
+    reverse_sig_results_df_150 <- rbind(reverse_sig_results_df_150, new_row)
+}
+
+```
+
+
+so if we merge reverse_sig_results_df_150 with the sig_results_df_150 that have an auroc over 0.5 we get the following
+```{r}
+significant_150_min_results <- rbind(reverse_sig_results_df_150,sig_results_df_150[sig_results_df_150$auroc > 0.5,])
+```
+
+and add the auroc values
+```{r}
+
+reverse_names <- reversable_sig_results_df_150$protein
+
+for (name_index in 1:length(reverse_names)) {
+  pot_biomarker <- reverse_names[name_index]
+  
+  marker_expression <- assay_data_50[pot_biomarker, ]
+  marker_expression <- sort(marker_expression, decreasing = TRUE)
+  high_viability <- grepl("^High", names(marker_expression))
+  low_viability <- !high_viability
+
+  
+  # getting min and max for expression
+  pot_bio_min <- min(marker_expression)
+  pot_bio_max <- max(marker_expression)
+  # def interval
+  interval_size <- 0.1
+  
+  # calc thresholds
+  thresholds <- seq(pot_bio_min, pot_bio_max, by = interval_size)
+  thresholds <- c(-Inf, thresholds, Inf)
+  thresholds <- sort(thresholds, decreasing = TRUE)
+  
+  # tru and false positive rate
+  tprs <- c()
+  fprs <- c()
+  
+  # foing it for every threshold
+  for (index in 1:length(thresholds)) {
+    expression_threshold <- thresholds[index]
+    true_positive <- sum(marker_expression[low_viability] >= expression_threshold, na.rm = TRUE)
+    false_positive <- sum(marker_expression[high_viability] >= expression_threshold, na.rm = TRUE)
+    true_negative <- sum(marker_expression[high_viability] < expression_threshold, na.rm = TRUE)
+    false_negative <- sum(marker_expression[low_viability] < expression_threshold, na.rm = TRUE)
+    
+    fpr <- false_positive/(false_positive+true_negative)
+    
+    tpr <- true_positive/(true_positive+false_negative)
+    
+    
+    tprs[index] <-tpr
+    fprs[index] <-fpr
+    
+
+  }
+  
+  
+  auroc <- sum(diff(fprs) * (head(tprs, -1) + tail(tprs, -1))) / 2
+  
+  significant_150_min_results$auroc[significant_150_min_results$protein == pot_biomarker] <- auroc
+}
+
+```
+
+add a last column to seperate those who have been reversed
+```{r}
+significant_150_min_results$negative_expression_threshold <- 
+  significant_150_min_results$protein %in% reverse_sig_results_df_150$protein
+```
+
+only pick thresholds with an auroc over 0.7
+```{r}
+auroc_filtered_sigs <- significant_150_min_results[significant_150_min_results$auroc>0.7, ]
+```
+
+save
+```{r}
+save(significant_150_min_results, file = "significant_150_min_result.Rdata")
+
+```
+
+
+## results
+the results table and how to interpret it
+
+![final_table](./media/Pasted image (2).png)
+
+
+#### protein:
+The name of the gene that produces the protein
+
+#### threshold:
+The protein expression threshold value
+
+#### precision:
+Ratio of true correct classifications divided by true and false positives. Or the percentage of positive guesses that are actually true. Most useful in the biomedical context when false positives have very grave consequences, in this case like when a bad liver gets labeled as viable.
+
+#### accuracy:
+Percentage of correct guesses, best for overal performance evaluation of a threshold.
+
+#### specificity:
+Percentage of true positives discovered. Best for when you want to discover as many positives as possible. Like finding as many viable livers as possible.
+
+#### fpr:
+percentage of true negatives discovered, mostly used for auroccalculation.
+
+#### tpr:
+percentage of true positives discovered, mostly used for auroc calculation.
+
+#### auroc:
+General metric to determine a feature's classification prowess. the further away from 0.5, effectively random chance. the better.
+
+#### neg_expr_cor:
+whether the correlation of the expression is negative with biliary viability. so if protein's being expressed in amounts under the thresholds correspond with the positively with the biliary viability.
+
+
+## conclusion
+
+The script works but is suboptimal. I can improve performance by using a list of lists which I could eventually cast into a dataframe but due to time constraints I chose to use the simple method. More optimisation has the potential for adjusting the threshold intervals to be smaller to get more accurate auroc values and maybe discover better performing thresholds
+
+General discussion about the results themselves is available in the discussion section of the article within this repository. 
 
 
