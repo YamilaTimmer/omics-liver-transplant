@@ -561,7 +561,7 @@ The DESEQ2 analysis downstream complained of duplicates, so i am removing these 
 ```{r}
 #| warning: false
 
-# remove duplicate geneID's
+# remove duplicate geneID
 transcriptomics_data <- transcriptomics_data %>%
   distinct(Geneid, .keep_all = TRUE)
 
@@ -572,11 +572,10 @@ transcriptomics_data <- transcriptomics_data %>%
   distinct(SYMBOL, .keep_all = TRUE)
 
 # remove all of the NA values.
-sum(is.na(transcriptomics_data$SYMBOL)) # == 1
 transcriptomics_data <- transcriptomics_data %>%
   filter(!is.na(SYMBOL))
 ```
-Now the count data is deduplicated (even tho it already should have been according to the paper.)
+the count data is deduplicated now (even though it already should have been according to the paper.)
 
 I am seperating the count data from some of the other data in the dataframe like the symbols and ids
 ```{r}
