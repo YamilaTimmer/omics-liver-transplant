@@ -3,18 +3,23 @@ title: "Logbook 2.4.1 Omics"
 author: "Yamila Timmer"
 date: "`r Sys.Date()`"
 output:
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
-  word_document:
-    toc: true
-    toc_depth: '3'
-  pdf_document:
-    toc: true
-    toc_depth: '3'
-lang: eng
+  rmdformats::downcute:
+    fig_caption: false
+    lightbox: true
+    thumbnails: true
+    gallery: true
+    toc_depth: 2
+    embed_fonts: true
+    use_bookdown: true
+    mathjax: "rmdformats"
+    highlight: "tango"
+    default_style: "light"
+    downcute_theme: "default"
+  
 ---
+
+
+> *Please click on the images for a bigger view!*
 
 # Load libraries
 ```{r, warning = FALSE, message = FALSE}
@@ -31,32 +36,29 @@ library(ggrepel)
 library(ggplot2)
 ```
 
-meta_data <- read.delim("../../../E-MTAB-13501.sdrf.txt")
-
-File below contains metadata from transcriptomics. Source name refers to the FASTA ID's (transcriptomics), characteristics individual refers to liver number (I think?), possible interesting metadata to keep: age, sex,
-
 
 # Introduction
-The article we have been assigned is "Bile proteome reveals biliary regeneration during normothermic preservation of human donor livers" (@thorne2023bile). Individually we have read the article and divided the tasks. My tasks include:
+The article we have been assigned is "[Bile proteome reveals biliary regeneration during normothermic preservation of human donor livers](https://www.nature.com/articles/s41467-023-43368-y)" (@thorne2023bile). Individually we have read the article and divided the tasks. My tasks include:
 
 - Primary analysis of data
 - Normalisation & imputation of data
 - Differential expression analysis
+- Pathway analysis
 
-I ended up only working with the proteomics data, as the transcriptomics data proved to be of insufficient quality. The proteomics data consists of bile samples taken from extended criteria donors (ECD), taken at three different time points after starting normothermic machine perfusion (NMP), at 30 and 150 minutes for the livers that end up not being transplanted (due to insufficient quality) and at 30, 150 minutes and before transplantation (timepoint: "end") for livers that did end up being transplanted. We will only work with the 30/150 minute samples as the 'end' timepoints consist of less samples and could skew the data as presumably only livers with higher quality get transplanted.
+I ended up only working with the `proteomics data`, as the transcriptomics data proved to be of insufficient quality. The proteomics data consists of bile samples taken from **extended criteria donors** (ECD), taken at three different time points after starting **normothermic machine perfusion** (NMP), at 30 and 150 minutes for the livers that end up not being transplanted (due to insufficient quality) and at 30, 150 minutes and before transplantation (timepoint: "end") for livers that did end up being transplanted. We will only work with the 30/150 minute samples as the 'end' timepoints consist of less samples and could skew the data as presumably only livers with higher quality get transplanted.
 
-One of the traits that can be used to determine whether an ECD liver is suited for transplantation, is the "biliary viability". This tells something on the quality of 'cholangiocytes', which are epethilial cells of the bile ducts. Higher biliary viability meaning the ECD liver is less likely to develop post-transplantation conditions such as cholangiopathy. A problem with this approach is that there are no set measurements for biliary viability, the way it gets measured varies per institute and consists of mostly physiological factors such as bile pH. 
+One of the traits that can be used to determine whether an ECD liver is suited for transplantation, is the "`biliary viability`". This tells something on the quality of '**cholangiocytes**', which are epethilial cells of the bile ducts. Higher biliary viability meaning the ECD liver is less likely to develop post-transplantation conditions such as cholangiopathy. A problem with this approach is that there are no set measurements for biliary viability, the way it gets measured varies per institute and consists of mostly physiological factors such as bile pH. 
 
-Our goal is to get a better understanding of biomarker profiles in low/high biliary ECD livers and we hope to achieve this through a variety of methods including a differential expression analysis (DEA), principal component analysis (PCA), Partial Least Squares Discriminant Analysis (PLS-DA) and a confusion matrix.
+Our goal is to get a better understanding of biomarker profiles in low/high biliary ECD livers and we hope to achieve this through a variety of methods including a **differential expression analysis (DEA), principal component analysis (PCA), Partial Least Squares Discriminant Analysis (PLS-DA) and a confusion matrix**.
 
-Our research question is: "What bile- and liver- biomarkers correlate with biliary viability of ECD livers"
+Our research question is: "`What bile- and liver- biomarkers correlate with biliary viability of ECD livers?`"
 
 # Loading data
 For proteomics, we have various data files, including:
 
-- *NMP_Bile_Proteomics_Report.txt* (.tsv): contains identified + quantified protein counts, rows = proteins, columns = sample ID.
-- *supp_data.xlsx*, figure 3a: contains metadata, including sample ID, liver number and time point the sample was taken at.
-- *supp_data.xlsx*, figure 4a: contains metadata, including sample ID, liver number and biliary viability.
+- `NMP_Bile_Proteomics_Report.txt` (.tsv): contains identified + quantified protein counts, rows = proteins, columns = sample ID.
+- `supp_data.xlsx`, figure 3a: contains metadata, including sample ID, liver number and time point the sample was taken at.
+- `supp_data.xlsx`, figure 4a: contains metadata, including sample ID, liver number and biliary viability.
 
 By joining figure 3a/4a together from *supp_data.xlsx*, the required metadata for our research question can be retrieved.
 
@@ -79,7 +81,7 @@ sample_id1 <- sup_data1[c("Sample", "Liver number", "Timepoint")]
 sample_id2 <- sup_data2[c("Sample", "Biliary viability score group", "Total BDI score group", "Transplant")]
 ```
 
-Next both dataframes are merged by the common 'Sample'-column, only the samples are kept that are in both dataframes (by using inner_join). sample_id1 seems to contain more samples than sample_id2, so it is expected the resulting merged dataframe will contain as many rows as sample_id2, assuming all of the samples of sample_id2 are also in sample_id1.
+Next both dataframes are merged by the common 'Sample'-column, only the samples are kept that are in both dataframes (by using `inner_join`). sample_id1 seems to contain more samples than sample_id2, so it is expected the resulting merged dataframe will contain as many rows as sample_id2, assuming all of the samples of sample_id2 are also in sample_id1.
 
 ```{r}
 print(paste("Amount of samples in sample_id1:", length(rownames(sample_id1))))
@@ -90,12 +92,14 @@ merged_sample_id <- inner_join(sample_id1, sample_id2, by = "Sample")
 
 print(paste("Amount of samples in merged dataframe:", length(rownames(merged_sample_id))))
 ```
-**Conclusion**: The resulting dataframe indeed contains as many rows as sample_id2, some samples have been lost due to their absence in sample_id2 and cannot be used as there is no biliary viability label for them, however 114 samples should be enough to proceed with our research.
+**Conclusion**: 
+
+- The resulting dataframe indeed contains as many rows as sample_id2, some samples have been lost due to their absence in sample_id2 and cannot be used as there is no biliary viability label for them, however 114 samples should be enough to proceed with our research.
 
 
 ## Data pre-processing
 
-The colnames of the count data are very long (e.g."X.2..NMP_Bile_Proteomics_171.raw.PG.Quantity") and can be shortened using some regex, to make the names easier to work with, this is also needed because the sample names have to be the same as the format in the metadata (NMP_Bile_Proteomics_171), in order to filter on samples later on.
+The colnames of the count data are very long (e.g."`X.2..NMP_Bile_Proteomics_171.raw.PG.Quantity`") and can be shortened using some regex, to make the names easier to work with, this is also needed because the sample names have to be the same as the format in the metadata (`NMP_Bile_Proteomics_171`), in order to filter on samples later on.
 
 ```{r}
 colnames(data)[4:ncol(data)] <- sub(".*?(NMP_Bile_Proteomics_[0-9]+).*", "\\1", colnames(data)[4:ncol(data)]) # regex that removes everthing, but the "NMP_Bile_Proteomics_X" identifier and replaces colnames of data with this, we need that to match it to the metadata
@@ -112,9 +116,9 @@ data_unique <- make_unique(data,
 
 ### Filtering samples on timepoint
 
-We will only be using 30/150min samples and these will be filtered in seperate dataframes as we will be comparing low vs high biliary viability in the 30 minute samples and in the 150 minute samples. "End" samples are removed.
+We will **only** be using 30/150min samples and these will be filtered in seperate dataframes as we will be comparing low vs high biliary viability in the 30 minute samples and in the 150 minute samples. **"End" samples are removed**.
 
-Filter 30 min samples
+**Filter 30 min samples**
 ```{r}
 # Filter only the 30 min samples from metadata
 samples_30min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "30min"]
@@ -127,7 +131,7 @@ samples_30min_data <- data_unique[, colnames(data_unique) %in% cols_30min]
 samples_30min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_30min, ]
 ```
 
-Now repeat for 150 min samples
+**Now repeat for 150 min samples**
 ```{r}
 # Filter only the 150 min samples from metadata
 samples_150min <- merged_sample_id$Sample[merged_sample_id$Timepoint == "150min"]
@@ -140,7 +144,7 @@ samples_150min_data <- data_unique[, colnames(data_unique) %in% cols_150min]
 samples_150min_metadata <- merged_sample_id[merged_sample_id$Sample %in% samples_150min, ]
 ```
 
-Replacing NaN values with NA, which is needed for further analysis
+Replacing `NaN` values with `NA`, which is needed for further analysis
 ```{r}
 # Convert NaN to NA, which is neccessary to create SE object and for normalisation
 samples_30min_data <- samples_30min_data %>% mutate_all(~ifelse(is.nan(.), NA, .))
@@ -149,9 +153,9 @@ samples_150min_data <- samples_150min_data %>% mutate_all(~ifelse(is.nan(.), NA,
 
 # Creating Summarized Experiment
 
-A lot of R-packages for normalisation/imputation and differential expression analysis work with SummarizedExperiment objects, so I will be converting the data to that format. First an 'experimental design' has to be made, containing information on sample ID, condition and replicate info. With the condition being the biliary viability. In our research there are no replicates.
+A lot of R-packages for normalisation/imputation and differential expression analysis work with `SummarizedExperiment` objects, so I will be converting the data to that format. First an '**experimental design**' has to be made, containing information on sample ID, condition and replicate info. With the condition being the biliary viability. In our research there are **no replicates**.
 
-Making experimental design for 30 min
+**Making experimental design for 30 min**
 ```{r}
 # Vector with sample column numbers
 sample_columns_30min <- grep("NMP.", colnames(samples_30min_data))
@@ -163,7 +167,7 @@ experimental_design_30min <- data.frame(
 )
 ```
 
-Making experimental design for 150 min
+**Making experimental design for 150 min**
 ```{r}
 # Vector with sample column numbers
 sample_columns_150min <- grep("NMP.", colnames(samples_150min_data))
@@ -176,7 +180,7 @@ experimental_design_150min <- data.frame(
 
 ```
 
-Create summarized experiment
+**Create summarized experiment**
 ```{r}
 data_se_30min <- make_se(samples_30min_data, sample_columns_30min, experimental_design_30min)
 
@@ -185,9 +189,7 @@ data_se_150min <- make_se(samples_150min_data, sample_columns_150min, experiment
 
 
 # Removing Samples/Proteins with high missing values
-
-Some samples and proteins have a high percentage of missing values, this can cause noise or skew the data, as these rows/columns will heavily depend on the imputed data (and not necessarily be a good reflection of reality), thus I will remove these rows/columns. Any samples with over 70% of missing data will be removed.
-
+## Filtering samples with high missingness
 ```{r}
 # Missing percentages per sample (column)
 mean_missing_percentage_samples_30min <- colMeans(is.na(assay(data_se_30min))) * 100
@@ -199,7 +201,13 @@ print(paste0("Mean percentage of 'missingness' across samples at 30 min: ", roun
 print(paste0("Mean percentage of 'missingness' across samples at 150 min: ", round(mean(mean_missing_percentage_samples_150min)), "%"),2)
 ```
 
-**Conclusion**: The missingness is higher for the 150 minute samples than for the 30 minute samples. 
+**Conclusion**: 
+
+- The percentage of missing values across samples seems relatively high, `42% for 30 min samples` and `56% for 150 min samples`.
+- The missingness is higher for the 150 minute samples than for the 30 minute samples. 
+
+
+Some samples and proteins have a **high percentage of missing values**, this can cause noise or skew the data, as these rows/columns will heavily depend on the imputed data (and not necessarily be a good reflection of reality), thus I will remove these rows/columns. **Any samples with over 70% of missing data will be removed**.
 
 ```{r}
 # Define "bad" samples, with >70% missing values
@@ -217,7 +225,7 @@ print(paste("Removed sample", bad_samples_150min, "from 150 min samples"))
 
 ```
 
-Below the new missingness percentages are calculated, it seems removing the 'bad' samples did not have a big impact on the overall missingness across samples. The missingness in both 30 min and 150 min only went down by 1%.
+Below the new missingness percentages are calculated.
 ```{r}
 mean_missing_percentage_samples_30min_new <- colMeans(is.na(assay(data_se_30min))) * 100
 mean_missing_percentage_samples_150min_new <- colMeans(is.na(assay(data_se_150min))) * 100
@@ -227,7 +235,13 @@ print(paste0("Mean percentage of 'missingness' across samples at 30 min: ", roun
 print(paste0("Mean percentage of 'missingness' across samples at 150 min: ", round(mean(mean_missing_percentage_samples_150min_new)), "%"),2)
 ```
 
-Filtering proteins with high missingness, here all proteins that have more than 4 missing values in either of the conditions (high/low biliary viability) are removed.
+**Conclusion:**
+
+-  It seems removing the 'bad' samples did **not** have a big impact on the overall missingness across samples. **The missingness in both 30 min and 150 min only went down by 1%**.
+
+## Filtering proteins with high missingness
+
+Here all proteins that have **more than 4 missing values in either of the conditions** (high/low biliary viability) are removed.
 
 ```{r}
 # Keep all proteins with < 4 missing values total in each condition 
@@ -248,7 +262,7 @@ mean_protein_presence_150min
 # Normalizing data
 ## Normalizing across samples
 
-For normalizing across samples, median centering is used.
+For normalizing across samples, `median centering` is used.
 
 ```{r}
 # Sample medians visibly differ from eachother, so median centering will have to be performed to remove noise between samples
@@ -256,13 +270,13 @@ plot_normalization(data_se_30min) + theme(axis.text.y = element_text(size = 6))
 plot_normalization(data_se_150min) + theme(axis.text.y = element_text(size = 6))
 
 ```
+
 **Conclusion:**
 
-- The medians per sample across the 150 min and 30 min groups are not aligned, with all of them being skewed towards left or right in comparison to the adjecent samples.
-- This points towards high variance across samples.
+- The medians per sample across the 150 min and 30 min groups are **not** aligned, with all of them being skewed towards left or right in comparison to the adjecent samples.
+- This points towards `high variance` across samples.
 
 ```{r}
-
 median_centering <- function(data){
   # Calculate median per column
   colmed <- apply(assay(data), 2, median, na.rm = TRUE)
@@ -281,21 +295,26 @@ median_centering(data_se_30min)
 median_centering(data_se_150min)
 
 ```
+
 **Conclusion:**
 
-- All of the medians are now aligned across all samples in both the 30 min aswell as the 150 min groups, thus median centering was succesfully performed.
+- All of the medians are now aligned across all samples in both the 30 min aswell as the 150 min groups, thus **median centering was succesfully performed**.
 - Any noise present across the samples should now be minimized and downstream analysis will now lead to more accurate results.
 
 ## Normalizing across proteins
+
+Normalisation across proteins will be done using `variance stabilizing transformation`, which uses a robust variant of the `maximum-likelihood estimator`. 
+
 ```{r}
 # Visualizing row sd's versus row means, before normalizing across proteins
 meanSdPlot(data_se_30min)
 meanSdPlot(data_se_150min)
 ```
+
 **Conclusion:**
 
-- The red trend line shows the correlation between the standard deviation and the row means, the line follows a downward slope for both the 30min and 150min samples. Indicating that the standard deviation is lower, the higher the row means are and vice versa.
-- The standard deviation seems to have higher variance for the 150 min samples than for the 30 min samples, with the red trend line starting at ~3.2 and ending at ~1.4 (and the 30 min sample line starting at ~2.2 and ending at ~1.3)
+- The red trend line shows the correlation between the standard deviation and the row means, the line follows a **downward slope** for both the 30min and 150min samples. Indicating that the standard deviation is lower, the higher the row means are and vice versa.
+- The standard deviation seems to have **higher variance** for the 150 min samples than for the 30 min samples, with the red trend line starting at ~3.2 and ending at ~1.4 (and the 30 min sample line starting at ~2.2 and ending at ~1.3)
 
 
 ```{r}
@@ -309,27 +328,31 @@ data_norm_150min <- normalize_vsn(data_se_150min)
 meanSdPlot(data_norm_30min)
 meanSdPlot(data_norm_150min)
 ```
+
 **Conclusion:**
 
-- The red trend line became more horizontal (as opposed to before normalization across proteins), showing a more straight correlation between standard deviation and row means.
-- Variance stabilizing transformation was succesfully performed and any noise present across the proteins should now be minimized and downstream analysis will now lead to more accurate results.
+- The red trend line became more horizontal (as opposed to before normalization across proteins), showing a `more straight correlation` between standard deviation and row means.
+- **Variance stabilizing transformation was succesfully performed** and any noise present across the proteins should now be minimized and downstream analysis will now lead to more accurate results.
 
 ```{r}
 plot_frequency(data_norm_30min)
 plot_frequency(data_norm_150min)
 ```
+
 **Conclusion:** 
 
-- Most of the proteins are identified in all of the samples, for 150 min samples this is n=41 and for 30 min samples this is n=43. 
+- **Most of the proteins are identified in all of the samples**, for 150 min samples this is n=41 and for 30 min samples this is n=43. 
 - That proteins are identified in most samples means the results will be more reliable, as that means that for most proteins barely any imputation will have to take place (or none at all, in cases where proteins are identified in every sample). This means that there is less room for imputation to greatly alter/skew outcomes and offers an insight into results that strongly align with reality.
 
 ```{r}
 plot_detect(data_norm_30min)
 plot_detect(data_norm_150min)
 ```
+
 **Conclusion**:
-- Most missing values (blue line, or line that is left in the top graph) appear around low log2 intensities, in both the 30min samples and the 150min samples, this means that the signals of certain proteins are possibly too low for the device to be measured.
-- These kind of missing values are called "*missing not at random*" (MNAR) and will have to be imputed for our further downstream analysis.
+
+- Most missing values (blue line, or line that is left in the top graph) appear around `low log2 intensities`, in both the 30min samples and the 150min samples, this means that the signals of certain proteins are possibly too low for the device to be measured.
+- These kind of missing values are called "**missing not at random**" (MNAR) and will have to be imputed for our further downstream analysis.
 
 Imputation methods that seem to be most suited for imputation of MNAR values are: 
 
@@ -337,7 +360,7 @@ Imputation methods that seem to be most suited for imputation of MNAR values are
 - MinDet
 - MinProb
 
-I have decided to choose *MinDet*, as this is a deterministic way of imputation, meaning the results are always the same, thus having high reproducibility. QRILC and MinProb are both stochastic and will vary slightly on each iteration. MinDet replaces all missing values with the lowest observed value in that sample.
+I have decided to choose `MinDet`, as this is a deterministic way of imputation, meaning the results are always the same, thus having high reproducibility. QRILC and MinProb are both stochastic and will vary slightly on each iteration. MinDet replaces all missing values with the lowest observed value in that sample.
 
 
 # Imputation
@@ -345,7 +368,6 @@ I have decided to choose *MinDet*, as this is a deterministic way of imputation,
 # Impute using MinDet, replace all missing values with lowest value per sample
 data_imp_30min <- DEP::impute(data_norm_30min, fun="MinDet")
 data_imp_150min <- DEP::impute(data_norm_150min, fun="MinDet")
-
 ```
 
 
@@ -353,9 +375,11 @@ data_imp_150min <- DEP::impute(data_norm_150min, fun="MinDet")
 plot_imputation(data_norm_150min, data_imp_150min)
 plot_imputation(data_norm_30min, data_imp_30min)
 ```
+
 **Conclusion**:
-- The effects of imputing are visible, after imputing, the missing values are filled with one or more "peaks" on the left side of the x-axis, containing the lowest-found values in that sample which have been used for imputation.
-- Imputation using MinDet has been succesfully performed, the data now contains no NA values and attempts to accurately portray what those missing values should have been, using the minimal found values in the samples.
+
+- The effects of imputation are visible, after imputing, the missing values are filled with one or more "`peaks`" on the left side of the x-axis, containing the lowest-found values in that sample which have been used for imputation.
+- **Imputation using MinDet has been succesfully performed**, the data now contains no NA values and attempts to accurately portray what those missing values should have been, using the minimal found values in the samples.
 
 > **Keep in mind**: As opposed to **MNAR** values, "missing at random" or **MAR** values also exist, here the missing values are not caused by measurement device thresholds but occur at random. I have confirmed that our data consists mostly of MNAR missing values, but there are also MAR values (to a lesser extent). The chosen imputation method does not differentiate MAR values from MNAR values and also replaces them with the minimal found value, even though MAR values often occur at higher values. This is a choice I made based on the data being so left-centered that any "wrong" imputed MAR values will not have a significant impact on the end result, but still this should be kept in mind!
 
@@ -363,8 +387,8 @@ plot_imputation(data_norm_30min, data_imp_30min)
 
 Now I will compare 2x2 groups to eachother:
 
-- *High-biliary-viability-30min* vs *Low-biliary-viability-30min*
-- *High-biliary-viability-150min* vs *Low-biliary-viability-150min*
+- `High-biliary-viability-30min` vs `Low-biliary-viability-30min`
+- `High-biliary-viability-150min` vs `Low-biliary-viability-150min`
 
 
 ```{r}
@@ -389,21 +413,20 @@ limma_fit <- function(data){
 # Run on both timepoint datasets
 limma_results_150min <- limma_fit(data_imp_150min)
 limma_results_30min <- limma_fit(data_imp_30min)
-
 ```
 
-Adding extra columns to data, for determining what proteins are down/upregulated (with log2FC > 1.0 or < -1.0) and an adjusted p-value of <= 0.05.
+Adding extra columns to data, for determining what proteins are down/upregulated (with `log2FC => 1.0 or =< -1.0`) and an `adjusted p-value of <= 0.05`.
 
 ```{r}
 # Add a column of NAs
 limma_results_30min$diffexpressed <- "NO"
 
 # If log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
-limma_results_30min$diffexpressed[limma_results_30min$logFC > 1.0 & limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value <
+limma_results_30min$diffexpressed[limma_results_30min$logFC >= 1.0 & limma_results_30min$adj.P.Val <= 0.05 & limma_results_30min$P.Value <
                                     limma_results_30min$adj.P.Val] <- "UP"
 
 # If log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
-limma_results_30min$diffexpressed[limma_results_30min$logFC < -1.0 &limma_results_30min$adj.P.Val < 0.05 & limma_results_30min$P.Value <
+limma_results_30min$diffexpressed[limma_results_30min$logFC <= -1.0 &limma_results_30min$adj.P.Val <= 0.05 & limma_results_30min$P.Value <
                                     limma_results_30min$adj.P.Val] <- "DOWN"
 
 # Add protein label for volcanoplot if g
@@ -416,11 +439,11 @@ limma_results_30min$difflabel[limma_results_30min$diffexpressed != "NO"] <-
 limma_results_150min$diffexpressed <- "NO"
 
 # If log2Foldchange > 1.0 and pvalue < 0.05, set as "UP" 
-limma_results_150min$diffexpressed[limma_results_150min$logFC > 1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value <
+limma_results_150min$diffexpressed[limma_results_150min$logFC >= 1.0 & limma_results_150min$adj.P.Val <= 0.05 & limma_results_150min$P.Value <
                                      limma_results_150min$adj.P.Val] <- "DOWN"
 
 # If log2Foldchange < -1.0 and pvalue < 0.05, set as "DOWN"
-limma_results_150min$diffexpressed[limma_results_150min$logFC < -1.0 & limma_results_150min$adj.P.Val < 0.05 & limma_results_150min$P.Value <
+limma_results_150min$diffexpressed[limma_results_150min$logFC <= -1.0 & limma_results_150min$adj.P.Val <= 0.05 & limma_results_150min$P.Value <
                                      limma_results_150min$adj.P.Val] <- "UP"
 
 limma_results_150min$difflabel <- NA
@@ -429,7 +452,8 @@ limma_results_150min$difflabel[limma_results_150min$diffexpressed != "NO"] <-
 ```
 
 ## Visualisation
-Below the results from the DEA are made visible in a volcanoplot. The plot shows logFC/p-value for proteins, comparing high biliary vibility to low biliary viability, so if a protein is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biliary viability.
+
+Below the results from the DEA are made visible in a **volcanoplot**. The plot shows `logFC/p-value` for proteins, comparing high biliary vibility to low biliary viability, so if a protein is upregulated in the volcano plot, its upregulated in high biliary viability compared to low biliary viability.
 
 ```{r, warning=FALSE}
 # Generate volcanoplot for 30 min results
@@ -460,16 +484,16 @@ ggplot(data = limma_results_150min,
   geom_vline(xintercept=c(-1.0, 1.0), col="black") +
   geom_hline(yintercept=-log10(0.05), col="black") +
   scale_x_reverse()
-
 ```
 
 ```{r}
+# Make tables containing only downregulated or only upregulated genes
 upregulated_150min <- limma_results_150min %>% filter(diffexpressed =="UP")
-upregulated_150min
+knitr::kable(upregulated_150min, format = "html")
+
 
 downregulated_150min <- limma_results_150min %>% filter(diffexpressed =="DOWN")
-downregulated_150min
-
+knitr::kable(downregulated_150min, format = "html")
 ```
 
 
@@ -483,7 +507,7 @@ Next I will proceed with a pathway analysis of the found differentially enriched
 diff_expressed_genes_150min <- limma_results_150min[!is.na (limma_results_150min$difflabel), ]
 ```
 
-Next a dataframe has to be made that converts the gene symbols (abbreviations) to the entrez ID's (number), in order to continue with the pathway analysis.
+Next a dataframe has to be made that converts the `gene symbols` (abbreviations) to the `entrez ID's` (number), in order to continue with the pathway analysis.
 
 ```{r, message=FALSE}
 # Create dataframe with corresponding entrez ID's for gene symbols
@@ -495,7 +519,9 @@ entrez_ID <- function(sig_df) {
 
 low_vs_high_150min_entrez <- entrez_ID(sig_df = diff_expressed_genes_150min)
 
-head(low_vs_high_150min_entrez)
+
+knitr::kable(head(low_vs_high_150min_entrez), format = "html")
+
 ```
 
 ```{r, message=FALSE}
@@ -510,11 +536,13 @@ pathways <- pathway_low_vs_high_150min@result
 significant_pathways <- pathways %>% filter(p.adjust <= 0.05)
 
 
-print(significant_pathways)
+knitr::kable(significant_pathways, format = "html")
+
 ```
+
 **Conclusion:**
 
-- One significant pathway was found, `hsa00500`, which is a pathway that involves starch and sucrose metabolism. 
+- One significant pathway was found, [hsa00500](https://www.kegg.jp/pathway/hsa00500), which is a pathway that involves starch and sucrose metabolism. 
 - The `Count` is 4, meaning 4 genes in this pathway are annotated and correspond with the found DEP's, EntrezID's are: 2632/5836/178/2998, which are the following genes: GBE1, PYGL, AGL and GYS2.
 - The `RichFactor` is 0.1, which means that the found DEP's come from 10% of all genes in the pathway, meaning 10% of the genes are differentially regulated.
 - The `FoldEnrichment` is 26.82, meaning that the frequency of all the annotated genes is 26.82x higher in the high biliary viability group than in the low biliary viability group.
@@ -527,11 +555,12 @@ low_vs_high_150min_FC <- diff_expressed_genes_150min$logFC
 # Add entrez ids as rownames to dataframe
 names(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
 
-print(as.data.frame(head(low_vs_high_150min_FC)))
+knitr::kable(as.data.frame(head(low_vs_high_150min_FC)), format = "html")
 ```
+
 **Conclusion:**
 
-- We now have a table that displays entrezID + logfoldchange, this will be used as data input for the pathview function.
+- We now have a table that displays `entrezID + logfoldchange`, this will be used as data input for the pathview function.
 
 ## Visualisation using pathview
 ```{r, eval=FALSE}
@@ -552,14 +581,18 @@ for (pathway_id in rownames(significant_pathways)){
 }
 
 ```
-```{r, fig.pos='H', out.width='75%', fig.cap="Volcano plot showing all significantly upregulated- and downregulated proteins in the comparison of high biliary viability against low biliary viability in the samples taken during NMP after 150 minutes. Proteins were deemed as significantly upregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\geq 1.0 \\). Proteins were deemed as significantly downregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\leq -1.0 \\).", echo=FALSE}
 
+```{r, echo=FALSE}
 knitr::include_graphics("pathview_output/hsa00500.pathview.png")
 ```
 
 **Conclusion:**
 
-- The code above generates a pathview visualisation for each significant pathway (based on p-adj <= 0.05) that contains one or more significant DEP's (also based on based on p-adj <= 0.05). In this case that is only hsa00500, as all other pathways in this research are not significant.
+- The code above generates a pathview visualisation for each significant pathway (based on p-adj <= 0.05) that contains one or more significant DEP's (also based on based on p-adj <= 0.05). In this case that is only [hsa00500](https://www.kegg.jp/pathway/hsa00500), as all other pathways in this research are not significant.
+- Three enzymes are highlighted green (upregulated) in the pathway:
+  - 2.4.1.1: glycogen phosphorylase (PYGL) + glycogen debranching enzyme (AGL)
+  - 2.4.1.11: glycogen synthase (GYS2)
+  - 2.4.1.18:	1,4-alpha-glucan branching enzyme (GBE1)
 
 # Generating table for research article
 
@@ -589,7 +622,8 @@ diff_expressed_genes_150min <- subset(diff_expressed_genes_150min, select = -dif
 
 colnames(diff_expressed_genes_150min) <- c("logFC", "Average Expression", "t", "p-value", "adjusted p-value", "B", "up/down regulated")
 
-diff_expressed_genes_150min
+knitr::kable(diff_expressed_genes_150min, format = "html")
+
 save(diff_expressed_genes_150min, file = "diff_expressed_genes_table_150min.Rdata")
 
 ```
