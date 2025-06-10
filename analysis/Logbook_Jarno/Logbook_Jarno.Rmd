@@ -131,7 +131,7 @@ Look at this by comparing the samples from the 2 'biliary viability' groups (hig
 
 ***Note -** After giving the mid-term presentation, it has been decided that besides the DGE, also a PCA and PLS-DA will be performed on the data.*
 
-## Transcriptomics experimentation
+# Transcriptomics experimentation
 
 First, it is important to check whether our data is usable before starting the pipeline. The paper where we are using the data from referenced a document that contained the links for each transcriptomics file used. There were two files with links to the transcriptomics data, one sent me to a website that had BAM files available. Bam, meaning Binary alignment map, this means the file should then be ready for feature count.
 
@@ -168,7 +168,7 @@ Using hisat2, I indexed the reference genome. Due to the article not saying what
 
 This command is used to build an index for the reference genome, which is quite important pre-read alignment due to it being requered by hisat2 and also making the whole process faster.
 
-After the index with reference genome 38 (the most recent human reference genome released which is used widely), hisat gave me about 20% mapping result. This resulted in me also indexing and mapping with an old reference genome, the 37 human reference genome. This gave me a 38% mapping rate with an unpaired fastq sample.
+After the index with reference genome 38 (the most recent human reference genome released which is used widely), hisat gave me about 20% mapping result. This resulted in me also indexing and mapping with an old reference genome, the 37 human reference genome. This gave me a 38% mapping rate with an unpaired fastq sample. This is ofcourse incredibely low and shows there were problems when the sample was read to a fastq.
 
 ```{bash, eval=FALSE}
 #!/bin/bash
@@ -183,7 +183,7 @@ hisat2-build hg19.fa.gz h19_index
 
 ```
 
-(This is using Slurm) Slurm uses multiple nodes (computes) in combination to perform a task; in this case, the task was to index a reference genome.
+(This is using Slurm) Slurm uses multiple nodes (computes) in combination to perform a task; in this case, the task was to index a reference genome. i Used slurm to make an indexed h19 genome this is because sometimes researches use old genomes instead of the newest one because it was more widely used so better to compare with when looking at old studies.
 
 Here is the file that gave me the highest mapping, this being \~38%
 
@@ -199,6 +199,8 @@ counts_results <- featureCounts("data/R10.sam", annot.ext = "data/Homo_sapiens.G
 
 ```
 
+We got a mapping percentage around \~22% this is incredibly low agian because this is \~22% of the earlier 38% resulting in a feature count of 8.36% of the orignal data. Simply said that is way too low and we cannot use that.
+
 ```{r, eval=FALSE}
 # write the results from feature counts to a file
 write.table(
@@ -210,11 +212,15 @@ write.table(
 )
 ```
 
+To look at the count results more clearly i wrote them to a file called counts_results. This way i could load it and plot it. But in the end the feature count was also very low and didn't show anything significant really. Because this was a test on one file after this find i communicated it back to my teammates to see what the propper action was now.
+
 ```{r, eval=FALSE}
 counts_results
 ```
 
-## MDA TOOLS
+The feature count results show that the number of reads mapped to each gene is very low, with most genes having 0 counts. This indicates that the data is not usable for further analysis.
+
+# MDA TOOLS - practice
 
 To practice with MDA tools and our data not yet being usable, I decided to use the iris data and perform PLS-DA on it.
 
@@ -246,20 +252,25 @@ summary(model, nc = 2)
 plot(model, nc = 2)
 ```
 
+Here the component 2 is shown, and it shows low accuracy for the versicolor class, which is expected because the versicolor class is the most difficult to separate from the other two classes.
+
 ```{r, eval=FALSE}
 # a specific look at the 3rd component
 summary(model, nc = 3, ncomp = 3)
 plot(model, nc = 3, ncomp = 3)
 ```
 
+This shows the 3rd component, which is not very useful because it does not separate the classes well. The versicolor class is still the most difficult to separate from the other two classes.
+
 ```{r, eval=FALSE}
 par(mfrow = c(2, 2))
 plotSpecificity(model)
 plotSensitivity(model)
 plotMisclassified(model)
-plotMisclassified(model, nc = 2)
 par(mfrow = c(1, 1))
 ```
+
+This code plots the specificity, sensitivity, and misclassified points for the model. The specificity and sensitivity plots show how well the model performs for each class, while the misclassified plot shows which points were misclassified by the model. It seems like all components have low missclassification rate, which is expected because the iris dataset is a well-known dataset with clear separations between the classes. the specificty and sensitivity seem the same no weird output.
 
 ```{r, eval=FALSE}
 par(mfrow = c(2, 2))
@@ -269,6 +280,8 @@ plotPredictions(structure(model, class = "regmodel"))
 plotPredictions(structure(model, class = "regmodel"), ncomp = 2, ny = 2)
 par(mfrow = c(1, 1))
 ```
+
+This code plots the predictions of the model for each class. The first plot shows the predictions for all components, while the second plot shows the predictions for the calibration set with 2 components. The third and fourth plots show the predictions for the regression model with 2 components and 2 classes. The predictions seem to be quite accurate, with most points being correctly classified.
 
 ```{r, eval=FALSE}
 par(mfrow = c(2, 2))
@@ -280,61 +293,35 @@ par(mfrow = c(1, 1))
 
 ```
 
-### **1. X-distances (Score vs. Orthogonal distance)**
+This code plots the X and Y scores, the Y variance, the X residuals, and the regression coefficients for the model. The X scores plot shows how well the model separates the classes based on the first two components. The Y variance plot shows how much variance is explained by each component. The X residuals plot shows how well the model fits the data, and the regression coefficients plot shows how much each variable contributes to the model.
 
--   **Score distance (h/h0)**: hoe ver een punt van het centrum van het model ligt in de richting van de belangrijkste component(en).
--   **Orthogonal distance (q/q0)**: hoe ver een punt van het modelvlak ligt (dus afwijking van het model).
--   De grijze lijnen geven grenzen aan voor outliers en invloedrijke punten.
--   Punten dichtbij (0,0) zijn goed verklaard door het model.
--   Punten buiten de grenslijnen (met name rechts of hoog) kunnen outliers zijn.
--   In jouw plots zie je dat de meeste punten binnen de grenzen vallen → geen grote outliers.
+### X-distances (Score vs. Orthogonal distance)
 
-### **2. Regression Coefficients**
+The X-distance shows score distance (h/h0) this shows how far a point lies from the centre of the model and in the direction of the most important componten(s). The orthogonal distance (q/q0) shows how far a point lies from the modelface (so the deviation from the model). The grey lines indicate boundaries for outliers and influential points. Points close to (0,0) are well explained by the model, while points outside the boundary lines (especially to the right or high) may be outliers. In my plots, most points fall within the boundaries → no major outliers.
 
--   De gewichten (coëfficiënten) van elke **predictor** (de 4 bloemenkenmerken: sepal length, sepal width, petal length, petal width).
--   Dit geeft aan hoe belangrijk elk kenmerk is voor het onderscheiden van de betreffende klasse (*setosa*, *versicolor* of *virginica*).
--   Positieve/negatieve waarden laten zien of een kenmerk positief of negatief bijdraagt aan de kans dat een punt bij die klasse hoort.
--   Bijvoorbeeld: bij *setosa* (eerste figuur) heeft "Predictor 3" (waarschijnlijk **petal length**) een sterke negatieve invloed.
+### Regression Coefficients
 
-### **3. Misclassified**
+The weights (coefficients) of each **predictor** (the 4 flower characteristics: sepal length, sepal width, petal length, petal width). This tells the importance of each variable for the distinction of the respective class (*setosa*, *versicolor* or *virginica*). Positive/negative values indicate whether a variable contributes positively or negatively to the likelihood of a point belonging to that class. For example, in *setosa* (first figure), "Predictor 3" (likely **petal length**) has a strong negative influence.
 
--   Aantal fout geclassificeerde objecten bij **training (cal)** en **cross-validation (cv)**.
--   De x-as toont het aantal gebruikte componenten (ncomp = 1, 2, 3).
--   Lager is beter: minder misclassificaties.
--   In jouw plots zie je dat *setosa* (eerste figuur) helemaal goed gaat (0 fout), terwijl *versicolor* en *virginica* iets meer fouten hebben.
--   Bij virginica zie je verbetering met 3 componenten → model pakt meer variatie.
+### Misclassified
 
-### **4. Predictions (cv)**
+This shows the misclassifications of the model, which is important to understand how well the model performs. The plot shows it for the training and for the cross-validation. The x-axis shows the number of used components. The lower the number of misclassifications, the better the model performs. In my plots, *setosa* (first figure) has no misclassifications, while *versicolor* and *virginica* have some. The third figure shows that using 3 components improves the classification of *virginica*.
 
--   Werkelijke klasse (kleur) versus voorspelde klasse per object.
--   Elk punt is een object uit de dataset.
--   De Y-as toont de voorspelde klasse (setosa, versicolor, virginica), de X-as de observatienummers.
--   Correcte voorspellingen zijn punten op hun juiste rij.
--   Foute voorspellingen zijn bijvoorbeeld een rood puntje op de "versicolor"-rij (dan is een virginica als versicolor geclassificeerd).
--   In de eerste figuur zijn bijna alle voorspellingen correct, vooral voor *setosa*.
+### Predictions (cv)
 
-1.  **Figure 1 (Setosa):**
+The predictions show the true classes in colours versus the expected classes per object. Every point is an object from the dataset. The y-axis shows the predicted class (*setosa*, *versicolor*, *virginica*), and the x-axis shows the observation numbers. Correct predictions are points on their correct row, while misclassifications are points on the wrong row (e.g., a red point on the "versicolor" row means a *virginica* was classified as *versicolor*). In the first figure, almost all predictions are correct, especially for *setosa*.
 
-    -   Perfecte classificatie.
-    -   Predictor 3 speelt een grote negatieve rol.
-    -   Geen misclassificaties.
-    -   Score/afstand OK → betrouwbaar model.
+**Figure 1 (Setosa):** perfect classifcation, pred 3 plays a crucial negative role. no misclasifcations and score/distance ok meaning a trustable model.
 
-2.  **Figuur 2 (Versicolor):**
+**Figuur 2 (Versicolor):** Some more misclassifactions, positive impact of predictor 3 and some errors visible in the "Predictions" plot. The model is not as good as the setosa model, but still decent.
 
-    -   Iets meer misclassificaties.
-    -   Positieve invloed van Predictor 3.
-    -   Enkele fouten zichtbaar in de "Predictions"-plot.
+**Figuur 3 (Virginica, ncomp = 3):** Better classification because of more components, positive impact of predictors 2 through 4 and a few fewer mistakes in the versicolor figure.
 
-3.  **Figuur 3 (Virginica, ncomp = 3):**
-
-    -   Betere classificatie door meer componenten.
-    -   Positieve bijdrage van Predictors 2-4.
-    -   Iets lagere fouten dan in de versicolor-figuur.
+# PLS-DA proteomics data
 
 ## PLS-DA our data
 
-PLS Discriminant Analysis (PLS-DA) is a discrimination method based on PLS regression. The used R library t
+PLS Discriminant Analysis (PLS-DA) is a discrimination method based on PLS regression. The used R library that we will use is the mdatools library, which is a library that is used for multivariate data analysis. PLS-DA is a supervised method, meaning that it uses the classes of the data to train the model. This means that we need to have a dataset with classes to use PLS-DA. The PLS-DA model will then try to find the best linear combination of the variables that separates the classes. The two classes we have are High and Low viability.
 
 ```{r, eval=FALSE}
 load("/students/2024-2025/Thema08/liver-transplant/proteomics/normalized_imputed_count_data_150min.Rdata")
@@ -343,10 +330,14 @@ first_data <- assay_norm # Assay norm Rdata object
 as.data.frame(first_data) # Transform the data to a data frame
 ```
 
+The first step is to load the data and transform it into a data frame. The data is loaded from an Rdata file, which contains the normalized and imputed count data for the proteomics data at 150 minutes. The reason the 150 min data is chosen because this only showed to be the significant one out of previous trials and other teammate data.
+
 ```{r, eval=FALSE}
 data_for_plsda <- t(first_data) #transpose the dataframe so the model runs quicker
 data_for_plsda <- as.data.frame(data_for_plsda)
 ```
+
+The data is then transposed, which means that the rows and columns are switched. This is done because the PLS-DA model expects the samples to be in the rows and the variables in the columns. After transposing, the data is converted back to a data frame.
 
 ```{r, eval=FALSE}
 # collect all the sample names in a seperate list
@@ -354,16 +345,22 @@ sample_names <- rownames(data_for_plsda)
 classes <-factor(c(sample_names))
 ```
 
+The sample names are collected in a separate list, and the classes are created as a factor. The classes are the sample names, which will be used to train the PLS-DA model. The classes are important because they tell the model which samples belong to which class.
+
 ```{r, eval=FALSE}
 print(dim(data_for_plsda)) # printing the dimensions of data for plsda
 print(length(classes)) # printing length of the classes to check if they are the same as the dimensions
 ncomp_to_try <- min(nrow(data_for_plsda) - 1, ncol(data_for_plsda), 10) #The ncomp settings for the model.
 ```
 
+The dimensions of the data for PLS-DA are printed to check if they are correct. The length of the classes is also printed to check if they are the same as the dimensions. The number of components to try is set to the minimum of the number of rows minus 1, the number of columns, and 10. This is done because the number of components should not be larger than the number of samples minus 1, and it should not be larger than the number of variables.
+
 ```{r, eval=FALSE}
 # training the model using the prepped data, ncomp and classes
 model_plsda <- plsda(data_for_plsda, classes, ncomp = ncomp_to_try, cv = 1) # cv is cross validation
 ```
+
+The PLS-DA model is trained using the data for PLS-DA, the classes, the number of components to try, and cross-validation. The cross-validation is set to 1, which means that leave-one-out cross-validation is used. This means that for each sample, the model is trained on all other samples and tested on the left-out sample.
 
 ```{r, eval=FALSE}
 summary(model_plsda)
@@ -387,7 +384,11 @@ This shows the results of the models for each class
 
 Here is a small snippet of the first results.
 
+The summary shows the number of selected components, the cross-validation method used, and the results for each class. The results include the true positives (TP), false positives (FP), true negatives (TN), false negatives (FN), specificity (Spec.), sensitivity (Sens.), accuracy, and calibration (Cal). The results show that the model has a high accuracy and specificity for all classes, which is a good sign.
+
 Now it is possible to tweak the model settings. Right now all the different samples are used, but what if we divide them between HIGH_NMP and LOW_NMP subsets?
+
+To do this, we need to create a new factor that contains the classes for each sample. The classes will be "High_NMP" and "Low_NMP", based on the sample names. This is done by looking for the sample names that contain "High_NMP_Bile_Proteomics" or "Low_NMP_Bile_Proteomics" and assigning them to the respective class.
 
 ```{r, eval=FALSE}
 sample_identifiers <- rownames(data_for_plsda) 
@@ -412,6 +413,8 @@ print(length(classes_corrected)) # Check the length to see if its correct
 print(summary(classes_corrected)) # check how the classses look
 ```
 
+This code creates a new factor called `classes_corrected` that contains the classes for each sample. The length of the classes is printed to check if it is correct, and the summary of the classes is printed to see how the classes look. The warning message will be shown if there are any samples that could not be put in a class.
+
 ```{r, eval=FALSE}
 # now re run the model after tweaking the options 
 model_plsda_corrected <- plsda(data_for_plsda, classes_corrected, ncomp = 10, cv = 1)
@@ -419,7 +422,7 @@ model_plsda_corrected <- plsda(data_for_plsda, classes_corrected, ncomp = 10, cv
 summary(model_plsda_corrected)
 ```
 
-## PLS-DA model (class plsda) summary
+## PLS-DA model (corrected plsda) summary
 
 Info: Number of selected components: 3 Cross-validation: full (leave one out)
 
@@ -427,9 +430,11 @@ Class #1 (High_NMP) X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy Cal
 
 Class #2 (Low_NMP) X cumexpvar Y cumexpvar TP FP TN FN Spec. Sens. Accuracy Cal 36.75 89 15 0 28 0 1.000 1.0 1.000 Cv NA NA 9 3 25 6 0.893 0.6 0.791
 
-This is the outcome, and the model seems to have a bit of overfitting, but let's look at the results anyway.
+The summary shows the results of the model after correcting the classes. The number of selected components is 3, and the cross-validation method used is still leave-one-out. The results for each class show that the model has a high accuracy and specificity for both classes, which is a good sign. The true positives, false positives, true negatives, and false negatives are also shown for each class. However the model seems to have a bit of overfitting, but let's look at the results anyway.
 
-### Results - plots
+# Results
+
+## Results - plots
 
 ```{r, eval=FALSE}
 plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, ncomp = 1)
@@ -445,6 +450,8 @@ plotPredictions(model_plsda_corrected, show.legend = FALSE, ncomp = 3)
 
 ![The model seems to be good at differentiating between the two classes, there are some misqualifications seen by the red dots in the high NMP field.](images/clipboard-4104918162.png)
 
+There is
+
 ```{r, eval=FALSE}
 plotXLoadings(model_plsda_corrected, show.labels = T)
 
@@ -459,7 +466,7 @@ plotXVariance(model_plsda_corrected, show.labels = T)
 
 ```
 
-![It seems that component 1 is the most important, so we should analyse this for the most significant proteins.](images/clipboard-1079986677.png)
+![It seems that component 1 is the most important, so we should analyse this for the most significant proteins. After component 1 we can look at what other components give us.](images/clipboard-1079986677.png)
 
 ```{r, eval=FALSE}
 plotVIPScores(model_plsda_corrected, show.labels = TRUE, show.legend = FALSE, ncomp = 1)
@@ -497,6 +504,8 @@ xscores <- X_scaled %*% xloadings
 as.data.frame(xscores)
 ```
 
+The xscores are calculated by multiplying the scaled data with the xloadings from the model. This gives us the scores for each sample in the model space. The xscores are then put in a new data frame for further analysis.
+
 ```{r, eval=FALSE}
 # devide the NMP's to high and low groups
 NMP <- ifelse(grepl("High_NMP_Bile_Proteomics", rownames(xscores)), "High",
@@ -510,6 +519,8 @@ important_xscores <- subset(xscores, select=c("Comp 1", "Comp 2", "Comp 3", "NMP
 
 
 ```
+
+The xscores are then divided into two groups, High and Low NMP, based on the sample names. The NMP variable is created to indicate which group each sample belongs to. The xscores are then combined with the NMP variable to create a new data frame called `important_xscores`, which contains only the components that have the most variance.
 
 ```{r, eval=FALSE}
 
@@ -525,6 +536,8 @@ ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 2`, color = NMP )) +
         axis.ticks.y=element_blank())
 ```
 
+This code plots the xscores using ggplot, showing the first component on the x-axis and the second component on the y-axis. The points are colored based on the NMP group (High or Low). The plot is titled "PLS-DA Scores Plot", and the axes are labeled accordingly. The theme is set to minimal, and the legend title is removed for clarity. There doesn;tt seem to be a clear separation between the two groups.
+
 ```{r, eval=FALSE}
 # plot xscores using ggplot, plot comp 2 and comp 3
 ggplot(important_xscores, aes(x = `Comp 2`, y = `Comp 3`, color = NMP )) +
@@ -537,6 +550,8 @@ ggplot(important_xscores, aes(x = `Comp 2`, y = `Comp 3`, color = NMP )) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y=element_blank())
 ```
+
+This code plots the xscores using ggplot, showing the second component on the x-axis and the third component on the y-axis. The points are colored based on the NMP group (High or Low). The plot is titled "PLS-DA Scores Plot", and the axes are labelled accordingly. The theme is set to minimal, and the legend title is removed for clarity. There doesn't seem to be a clear separation between the two groups, but it is better than the previous plot.
 
 ```{r, eval=FALSE}
 # plot xscores using ggplot, plot comp 3 and comp 1
@@ -551,11 +566,11 @@ ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
         axis.ticks.y=element_blank())
 ```
 
-If we look at this Component score plot, we are comparing component 3 with component 1 and are looking for groups that are formed.
+If we look at this Component score plot, we are comparing component 3 with component 1 and are looking for groups that are formed. It seems that there is a better separation between the two groups, but it is still not perfect. This is because there are some Low points in the high group. The points are colored based on the NMP group (High or Low), and the plot is titled "PLS-DA Scores Plot". The axes are labeled with the component names, and the theme is set to minimal. The legend title is removed for clarity.
 
 ### Variance calculation
 
-Concept: Take xeigenval from the model. Calculate per column the variance for the normal data and add this all up. Divided the eigenvalue from each component by the original data variance and multiply by 100%
+Concept: Take the eigenvalue from the model. Calculate per column the variance for the normal data and add this all up. Divide the eigenvalue from each component by the original data variance and multiply by 100%
 
 ### Variance first try
 
@@ -565,6 +580,8 @@ t_data_for_plsda <- t(data_for_plsda)
 # Convert the transposed matrix back into a dataframe for easier manipulation.
 t_data_for_plsda <- as.data.frame(t_data_for_plsda)
 ```
+
+Transpose the columns so they are samples and the rows are the variables. This is done to make it easier to calculate the variance for each sample.
 
 ```{r, eval=FALSE}
 # Calculate the variance for each column (which are now samples) in the transposed dataframe.
@@ -576,12 +593,16 @@ pc_3_eigenvalue <- model_plsda_corrected$yeigenvals[3]
 
 ```
 
+Take the eigenvalue for the first and third component from the PLS-DA model's Y-eigenvalues. This is done to calculate the percentage of variance explained by these components relative to the total variance.
+
 ```{r, eval=FALSE}
 # Calculate the percentage of variance explained by PC3 relative to the sum of variances
 variance_pc3 <- pc_3_eigenvalue / sum(test_variance) * 100
 variance_pc1 <- pc_1_eigenvalue / sum(test_variance) * 100
 
 ```
+
+The variance for each component is calculated by dividing the eigenvalue of the component by the total variance of the data. This gives the percentage of variance explained by each component. but it was so low i thought i made a mistake so i took another approach
 
 ### Variance, second try.
 
@@ -599,6 +620,8 @@ pc_3_eigenvalue_test <- model_plsda_corrected$yeigenvals[3]
 
 ```
 
+Calculate the total variance from the Y-eigenvalues of the PLS-DA model. This is done to get the total variance explained by all components in the model. The eigenvalues for the first and third components are extracted for further calculations.
+
 ```{r, eval=FALSE}
 # Calculate the percentage of Y-variance explained by PC1, rounded to 2 decimal places.
 variance_pc1_test <- round(pc_1_eigenvalue / total_variance * 100, 2)
@@ -606,6 +629,8 @@ variance_pc1_test <- round(pc_1_eigenvalue / total_variance * 100, 2)
 
 variance_pc3_test <- round(pc_3_eigenvalue / total_variance * 100, 2)
 ```
+
+Calculate the percentage of variance explained by the first and third components relative to the total variance. This gives a clearer understanding of how much each component contributes to the overall model.
 
 \*\* Plot with variance added \*\*
 
@@ -633,6 +658,8 @@ ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
         axis.ticks.y=element_blank())
 ```
 
+The code above creates a scatter plot of the PLS-DA scores using ggplot2. The x-axis represents Component 1, and the y-axis represents Component 3. The points are colored based on the NMP group (High or Low). The plot is titled "PLS-DA Scores Plot", and the axes are labeled with the percentage of variance explained by each component. The theme is set to minimal for a clean look, and the legend title is removed for clarity.
+
 ![](images/clipboard-2117081198.png)
 
 ```{r, eval=FALSE}
@@ -655,9 +682,9 @@ ggplot(important_xscores, aes(x = `Comp 1`, y = `Comp 3`, color = NMP )) +
 
 ```
 
-![](images/clipboard-3720311845.png)
+The code above creates a scatter plot of the PLS-DA scores using ggplot2, similar to the previous plot. However, it adds a line around each group (High and Low NMP) to show separation between the groups. The `geom_encircle` function is used to create the encircling lines, with an expansion factor of 0.05 and an alpha value of 0.3 for transparency. The axes are labeled with the percentage of variance explained by each component, and the theme is set to minimal for a clean look. however this did not show the correct split of groups at all/
 
-Without making it too complicated, I am using Canva to draw the line that I see.
+![](images/clipboard-3720311845.png)
 
 ## Biological background for the PLS-DA
 
@@ -677,6 +704,8 @@ SLC6A19, encoding for the system B transmembrane protein, was also identified in
 
 MUC1 was also found in our PLS-DA analysis, where it was found to be a significant variable that allows for differentiating between biliary viability groups. MUC1, the transmembrane glycoprotein mucin 1, is a mucin family member that has different functions in normal and cancer cells. This is caused by its structure and biochemical properties. Mucin1 can act as a lubricant, moisturiser, and physical barrier in normal cells. In cancer cells, mucin 1 gets overexpressed and often faces aberrant glycosylation (Chen et al., 2021). MUC1 is also expressed in the liver and is key for maintaining cellular functions, specifically for the epithelial surfaces (Kasprzak & Adamek, 2019). This gene could help in the regeneration of liver cells and thereby increase liver viability.  
 
+**These were my original findings from what i could see from the weights plot this has later been updated when i made a more clear loadings plot**
+
 ![](images/clipboard-1315979708.png)
 
 **PLS-DA Score plot component 1 – component 3** \
@@ -687,7 +716,9 @@ PLS-DA was performed on the normalised, imputed proteomics data. This data was t
 
 ### Final PLS-DA score plot
 
-![](images/Ontwerp%20zonder%20titel%20(2).png)
+![](images/PLS-DA_new.png)
+
+Now with a clear line we can see how the groups are separated. The high biliary viability group is on the left side of the plot, and the low biliary viability group is on the right side of the plot. The line is drawn to show the separation between the two groups. The points are colored based on the NMP group (High or Low), and the axes are labeled with the percentage of variance explained by each component. The two outliers of the low group could be interesting to research in another project. Without making it too complicated, I downloaded the plot and I drew the line manually to what my interpretation was. Without changing any of the datapoints.
 
 ## Loadings barplot component 1
 
@@ -699,11 +730,15 @@ weight_data <- model_plsda_corrected$xloadings
 weight_data <- as.data.frame(weight_data)
 ```
 
+The loadings from the model are taken and transformed from a matrix to a data frame. This is done to make it easier to work with the data and to plot the loadings.
+
 ```{r, eval=FALSE}
 #select all weights from component 1
 important_weights <- weight_data %>%
   select(`Comp 1`)
 ```
+
+This code selects all the weights from component 1 and puts them in a new data frame called `important_weights`. This is done to focus on the loadings that are most important for component 1, which is the component that contains the most variance in the data.
 
 ```{r, eval=FALSE}
 # filter for the loadings that have atleast and importance above 8 because this shows only the most important proteins
@@ -711,16 +746,22 @@ filtered_weights <- important_weights %>%
   filter(important_weights$`Comp 1` > 8)
 ```
 
+I have decided that any loadings above 8 are important enough to be included in the plot. This is done to focus on the most significant proteins that contribute to component 1. Other wise the plot would again be unreadable like the other weight plot was.
+
 ```{r, eval=FALSE}
 # filter for the loadings that work against the component
 negative_weights <- important_weights %>% 
   filter(important_weights$`Comp 1` < -8)
 ```
 
+This code filters for the loadings that work against component 1, meaning they have a negative loading value. These proteins are also important to include in the plot, as they contribute to the overall understanding of the component's significance.
+
 ```{r, eval=FALSE}
 # combine both groups to plot
 filtered_weights <- rbind(filtered_weights, negative_weights)
 ```
+
+This code combines the filtered weights for both positive and negative loadings into a single data frame called `filtered_weights`. This is done to create a comprehensive plot that shows both the proteins that contribute positively and negatively to component 1.
 
 ```{r, eval=FALSE}
 # using ggplot to make a barplot that shows the loadings
@@ -732,6 +773,8 @@ ggplot(filtered_weights, aes(x=`Comp 1`, y=rownames(filtered_weights))) +
   ) +
   geom_bar(stat = "identity")
 ```
+
+This code uses ggplot to create a bar plot that shows the loadings for component 1. The x-axis represents the contribution to component 1, and the y-axis represents the protein names. The `geom_bar` function is used to create the bars in the plot. This plot is very primentive and with some styling it could better the readability for the reader.
 
 ```{r, eval=FALSE}
 # using some styling to make the ggplot more clear
@@ -749,6 +792,8 @@ ggplot(filtered_weights, aes(x = `Comp 1`, y = reorder(rownames(filtered_weights
             hjust = -0.1, size = 2)
 ```
 
+This code uses ggplot to create a bar plot that shows the loadings for component 1 with some styling. The x-axis represents the contribution to component 1, and the y-axis represents the protein names. The bars are filled with a steel blue color, and the theme is set to minimal for a clean look. The y-axis text size is reduced to fit more names, and contribution labels are added on the bars for clarity.
+
 ### Loadings for component 3
 
 ```{r, eval=FALSE}
@@ -757,11 +802,15 @@ important_weights_comp_3 <- weight_data %>%
   select(`Comp 3`)
 ```
 
+This code selects all the weights from component 3 and puts them in a new data frame called `important_weights_comp_3`. This is done to focus on the loadings that are most important for component 3, which is the component that contains some variance in the data.
+
 ```{r, eval=FALSE}
 # filter for the loadings that have atleast and importance above 8 because this shows only the most important proteins
 filtered_weights_comp_3 <- important_weights_comp_3 %>% 
   filter(important_weights_comp_3$`Comp 3` > 8)
 ```
+
+This code filters for the loadings that have an importance above 8, meaning they contribute significantly to component 3. This is done to focus on the most significant proteins that contribute to component 3.
 
 ```{r, eval=FALSE}
 # filter for the loadings that work against the component using also the 8 as minimum
@@ -769,9 +818,13 @@ negative_weights_comp_3 <- important_weights_comp_3 %>%
   filter(important_weights_comp_3$`Comp 3` < -8)
 ```
 
+This code filters for the loadings that work against component 3, meaning they have a negative loading value and an importance below -8. These proteins are also important to include in the plot, as they contribute to the overall understanding of the component's significance.
+
 ```{r, eval=FALSE}
 filtered_weights_comp_3 <- rbind(filtered_weights_comp_3, negative_weights_comp_3)
 ```
+
+This code combines the filtered weights for both positive and negative loadings into a single data frame called `filtered_weights_comp_3`. This is done to create a comprehensive plot that shows both the proteins that contribute positively and negatively to component 3.
 
 ```{r, eval=FALSE}
 # using ggplot to make a barplot that shows the loadings for comp 3
@@ -783,6 +836,8 @@ ggplot(filtered_weights_comp_3, aes(x=`Comp 3`, y=rownames(filtered_weights_comp
   ) +
   geom_bar(stat = "identity")
 ```
+
+This code uses ggplot to create a bar plot that shows the loadings for component 3. The x-axis represents the contribution to component 3, and the y-axis represents the protein names. The `geom_bar` function is used to create the bars in the plot. This plot is very primitive and with some styling it could better the readability for the reader. as with the comp 1 plot.
 
 ```{r, eval=FALSE}
 # using some styling to make the ggplot more clear and easier to read.
@@ -799,9 +854,10 @@ ggplot(filtered_weights_comp_3, aes(x = `Comp 3`, y = reorder(rownames(filtered_
             hjust = -0.1, size = 2)
 ```
 
-# Biological background PLS-DA loadings
+This code uses ggplot to create a bar plot that shows the loadings for component 3 with some styling. The x-axis represents the contribution to component 3, and the y-axis represents the protein names. The bars are filled with a steel blue color, and the theme is set to minimal for a clean look. The y-axis text size is reduced to fit more names, and contribution labels are added on the bars for clarity.
+
+## Biological background PLS-DA loadings
 
 PLS-DA loadings revealed two important liver proteins. The ABCC2, also known as the Multidrug Resistance Protein 2, is involved in the transport of substances out of cells. It plays a crucial role in drug disposition by mediating ATP-dependent efflux of a wide range of compounds, including drug metabolites, from cells into bile or urine. (@medlineplus_abcc2). ABCC2's transport of bilirubin out of the liver cells and into the bile is particularly relevant. Bilirubin is a substance that is produced during the breakdown of old red blood cells and is frequently used to check the health of a patient's liver; therefore, the identification of ABCC2 as an important potential biomarker for biliary viability. (@medlineplus_bilirubin_test). Another crucial protein identified was ABCB11, also known as the Bile Salt Export Pump (BSEP). BSEP is responsible for the ATP-dependent transport of primary hydrophobic bile salts, such as taurine and glycine-conjugated cholic acid, from hepatocytes into the bile (@uniprot_O95342). This process is fundamental for hepatic bile acid homeostasis and, consequently, for lipid homeostasis through the regulation of biliary lipid secretion. Dysregulation or dysfunction of BSEP can lead to severe cholestatic liver injury (@byrne2002_bsep), as observed in conditions like Progressive Familial Intrahepatic Cholestasis Type 2 (PFIC2), where biallelic mutations in ABCB11 cause an accumulation of hepatic bile acids and subsequent hepatotoxicity, ultimately leading to liver failure (@gruget2025bsep). Given BSEP's critical role in bile acid transport, it's an important protein for evaluating biliary viability and, therefore, a significant biomarker.
 
 # Used refrences
-
