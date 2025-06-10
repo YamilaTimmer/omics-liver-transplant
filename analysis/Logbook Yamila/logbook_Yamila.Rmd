@@ -252,7 +252,7 @@ For normalizing across samples, median centering is used.
 
 ```{r}
 # Sample medians visibly differ from eachother, so median centering will have to be performed to remove noise between samples
-plot_normalization(data_se_30min, ) + theme(axis.text.y = element_text(size = 6))
+plot_normalization(data_se_30min) + theme(axis.text.y = element_text(size = 6))
 plot_normalization(data_se_150min) + theme(axis.text.y = element_text(size = 6))
 
 ```
@@ -474,11 +474,16 @@ downregulated_150min
 
 
 # Pathway Analysis
-## Subset on significant DEG's
+## Subset on significant DEP's
+
+Next I will proceed with a pathway analysis of the found differentially enriched proteins, first we must subset on the DEP's with an adjusted p-value of 0.05 or below. I am only continuing with the 150 min samples because we established before that there are no significant DEP's in the 30 min samples.
+
 ```{r}
 # Subset results for comparison, based on p-adjusted of 0.05 and/or below
 diff_expressed_genes_150min <- limma_results_150min[!is.na (limma_results_150min$difflabel), ]
 ```
+
+Next a dataframe has to be made that converts the gene symbols (abbreviations) to the entrez ID's (number), in order to continue with the pathway analysis.
 
 ```{r, message=FALSE}
 # Create dataframe with corresponding entrez ID's for gene symbols
@@ -490,14 +495,30 @@ entrez_ID <- function(sig_df) {
 
 low_vs_high_150min_entrez <- entrez_ID(sig_df = diff_expressed_genes_150min)
 
+head(low_vs_high_150min_entrez)
 ```
 
 ```{r, message=FALSE}
-# Make dataframe that shows all pathways that have one or more DEG
+# Find all pathways that have one or more DEP
 pathway_low_vs_high_150min <- enrichKEGG(gene = low_vs_high_150min_entrez$ENTREZID,
                                          organism = 'hsa')
 
+# All pathways containing 1 or more DEP, retrieved from the results of pathway_low_vs_high_150min with '@result'
+pathways <- pathway_low_vs_high_150min@result
+
+# All significantly pathways (p.adj <= 0.05)
+significant_pathways <- pathways %>% filter(p.adjust <= 0.05)
+
+
+print(significant_pathways)
 ```
+**Conclusion:**
+
+- One significant pathway was found, `hsa00500`, which is a pathway that involves starch and sucrose metabolism. 
+- The `Count` is 4, meaning 4 genes in this pathway are annotated and correspond with the found DEP's, EntrezID's are: 2632/5836/178/2998, which are the following genes: GBE1, PYGL, AGL and GYS2.
+- The `RichFactor` is 0.1, which means that the found DEP's come from 10% of all genes in the pathway, meaning 10% of the genes are differentially regulated.
+- The `FoldEnrichment` is 26.82, meaning that the frequency of all the annotated genes is 26.82x higher in the high biliary viability group than in the low biliary viability group.
+
 
 ```{r}
 # Make dataframe that contains log fold change ($logFC)
@@ -506,20 +527,17 @@ low_vs_high_150min_FC <- diff_expressed_genes_150min$logFC
 # Add entrez ids as rownames to dataframe
 names(low_vs_high_150min_FC) <- low_vs_high_150min_entrez$ENTREZID
 
-
+print(as.data.frame(head(low_vs_high_150min_FC)))
 ```
+**Conclusion:**
+
+- We now have a table that displays entrezID + logfoldchange, this will be used as data input for the pathview function.
 
 ## Visualisation using pathview
 ```{r, eval=FALSE}
 # Create visualisations for each pathway with at least 1 DEG, eval=FALSE because this can generate a lot of visualisations, depending on the amount of pathways
 dir.create("pathview_output")
 setwd("pathview_output")
-
-# All pathways containing 1 or more DEP
-pathways <- pathway_low_vs_high_150min@result
-
-# All significantly pathways with 1 or more DEP's
-significant_pathways <- pathways[pathways$p.adjust <= 0.05]
 
 # Generate pathview visualisation for each significant pathway
 for (pathway_id in rownames(significant_pathways)){
@@ -534,9 +552,19 @@ for (pathway_id in rownames(significant_pathways)){
 }
 
 ```
+```{r, fig.pos='H', out.width='75%', fig.cap="Volcano plot showing all significantly upregulated- and downregulated proteins in the comparison of high biliary viability against low biliary viability in the samples taken during NMP after 150 minutes. Proteins were deemed as significantly upregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\geq 1.0 \\). Proteins were deemed as significantly downregulated if the adjusted p-value was \\( \\leq 0.05 \\) and the log\\(_2\\) fold change was \\( \\leq -1.0 \\).", echo=FALSE}
+
+knitr::include_graphics("pathview_output/hsa00500.pathview.png")
+```
+
+**Conclusion:**
+
+- The code above generates a pathview visualisation for each significant pathway (based on p-adj <= 0.05) that contains one or more significant DEP's (also based on based on p-adj <= 0.05). In this case that is only hsa00500, as all other pathways in this research are not significant.
 
 # Generating table for research article
+
 Minor changes are made to the table, such as adding significance and changing colnames, for the table to be better suited to put in our research article.
+
 ```{r}
 # Adjust table for paper
 # Add significance to values
