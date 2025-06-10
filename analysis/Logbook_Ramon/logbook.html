@@ -276,7 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> meta_data_liver<span class="sc">$</span>Transplant),) <span class="sc">+</span></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">palette=</span><span class="st">"Dark2"</span>) <span class="sc">+</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Billiary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Interesting:</p>
 <ul>
-<li>We see that most of the samples with a high billiary viability score appear more on the right of PC1, where ass the lower scores appear more left.</li>
+<li>We see that most of the samples with a high biliary viability score appear more on the right of PC1, where ass the lower scores appear more left.</li>
 <li>There appears no real clustering on the PC2 between the 2 groups.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled" title="Key Insight">
@@ -391,7 +391,7 @@ take-away
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> meta_data_liver<span class="sc">$</span><span class="st">`</span><span class="at">Biliary viability score group</span><span class="st">`</span>,</span>
 <span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> meta_data_liver<span class="sc">$</span>Transplant),) <span class="sc">+</span></span>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Billiary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -628,7 +628,7 @@ ABAT                         13.51624</code></pre>
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()   <span class="sc">+</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Billiary viability score"</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
 <span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>,</span>
 <span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">paste</span>(<span class="st">"Comp 1: "</span>, <span class="fu">signif</span>(model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">1</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>),</span>
 <span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste</span>(<span class="st">"Comp 2: "</span>, <span class="fu">signif</span>(model<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">2</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -870,7 +870,7 @@ key-note
 <span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
 <span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
 <span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Billiary viability score"</span>,</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
 <span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>,</span>
 <span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">paste</span>(<span class="st">"Comp 1: "</span>, <span class="fu">signif</span>(model_150<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">1</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>),</span>
 <span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">paste</span>(<span class="st">"Comp 2: "</span>, <span class="fu">signif</span>(model_150<span class="sc">$</span>res<span class="sc">$</span>cal<span class="sc">$</span>expvar[<span class="dv">2</span>], <span class="at">digits =</span> <span class="dv">3</span>), <span class="st">"%"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1160,7 +1160,7 @@ Conclusion proteomics
 <span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">`</span><span class="at">Comp 2</span><span class="st">`</span>,</span>
 <span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> transcriptomics_metadata_dups_rem<span class="sc">$</span>Factor.Value.biliary.viability.score.group.),) <span class="sc">+</span></span>
 <span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Billiary viability score"</span>,</span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"biliary viability score"</span>,</span>
 <span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">shape =</span> <span class="st">"Transplanted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -1199,8 +1199,9 @@ Conclusion proteomics
 </div>
 <p>A lower density of loadings above 0 appears for all genes until a bit above 15000. After that the loadings appear to be flipped.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>argsort_transscript <span class="ot">&lt;-</span> <span class="fu">order</span>(loadings_transcriptomics[,<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span>, <span class="at">decreasing =</span> T)</span>
-<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings_transcriptomics[,<span class="dv">1</span>][argsort_transscript])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the loadings</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>argsort_transscript <span class="ot">&lt;-</span> <span class="fu">order</span>(loadings_transcriptomics[,<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span>, <span class="at">decreasing =</span> T)</span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(loadings_transcriptomics[,<span class="dv">1</span>][argsort_transscript])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1239,25 +1240,31 @@ Conclusion proteomics
 <p>I have to create coldata for deseq, so it knows what groups i want to focus on</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>coldata <span class="ot">&lt;-</span> transcriptomics_metadata_dups_rem <span class="sc">%&gt;%</span></span>
-<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Comment.ENA_RUN. <span class="sc">%in%</span> <span class="fu">names</span>(count_data_transcript)) <span class="sc">%&gt;%</span></span>
-<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) <span class="sc">%&gt;%</span></span>
-<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"Comment.ENA_RUN."</span>)</span>
-<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(coldata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get all the right samples</span></span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Comment.ENA_RUN. <span class="sc">%in%</span> <span class="fu">names</span>(count_data_transcript)) <span class="sc">%&gt;%</span></span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Only select the viability columns and sample names</span></span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sample names to rownames of df</span></span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) <span class="sc">%&gt;%</span></span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"Comment.ENA_RUN."</span>)</span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(coldata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>            Characteristics.biliary.viability.score.group.
-ERR12161053                                            low
-ERR12161054                                           high
-ERR12161055                                            low
-ERR12161056                                           high
-ERR12161057                                            low
-ERR12161058                                            low</code></pre>
+<pre><code># A tibble: 6 × 1
+  Characteristics.biliary.viability.score.group.
+  &lt;chr&gt;                                         
+1 low                                           
+2 high                                          
+3 low                                           
+4 high                                          
+5 low                                           
+6 low                                           </code></pre>
 </div>
 </div>
 <p>This contains the sample name and if it has a low or high viability. I will now transform the gene symbols to the rownames so it can be used in plots and figures.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(transcriptomics_data) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>count_data_dds <span class="ot">&lt;-</span> transcriptomics_data[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">8</span><span class="sc">:</span><span class="fu">ncol</span>(transcriptomics_data))] <span class="sc">%&gt;%</span></span>
-<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"SYMBOL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select all of the count data, with gene symbols as rownames.</span></span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(transcriptomics_data) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>count_data_dds <span class="ot">&lt;-</span> transcriptomics_data[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">8</span><span class="sc">:</span><span class="fu">ncol</span>(transcriptomics_data))] <span class="sc">%&gt;%</span></span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"SYMBOL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>I will now run deseq2 on this. with the count data, and coldata.</p>
 <div class="cell">

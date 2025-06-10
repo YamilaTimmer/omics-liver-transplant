@@ -141,13 +141,13 @@ ggplot(
       shape = meta_data_liver$Transplant),) +
   geom_point() +
   scale_fill_brewer(palette="Dark2") +
-  labs(color = "Billiary viability score")
+  labs(color = "biliary viability score")
 
 ```
 
 Interesting:
 
--   We see that most of the samples with a high billiary viability score appear more on the right of PC1, where ass the lower scores appear more left.
+-   We see that most of the samples with a high biliary viability score appear more on the right of PC1, where ass the lower scores appear more left.
 -   There appears no real clustering on the PC2 between the 2 groups.
 
 ::: {.callout-note title="Key Insight"}
@@ -214,7 +214,7 @@ ggplot(
       color = meta_data_liver$`Biliary viability score group`,
       shape = meta_data_liver$Transplant),) +
   geom_point() +
-  labs(color = "Billiary viability score")
+  labs(color = "biliary viability score")
 ```
 So i can use the `model$res$calc$scores` to plot in GGplot2. The resulting plot is basically indentical to the one i did by hand, but flipped. This confirms that i can use this library on the imputed data.
 
@@ -286,7 +286,7 @@ ggplot(
   scale_y_continuous(breaks = seq(-40, 30, 20)) +
   coord_fixed() +
   theme_minimal()   +
-  labs(color = "Billiary viability score",
+  labs(color = "biliary viability score",
        shape = "Transplanted",
        x = paste("Comp 1: ", signif(model$res$cal$expvar[1], digits = 3), "%", sep = ""),
        y = paste("Comp 2: ", signif(model$res$cal$expvar[2], digits = 3), "%", sep = ""))
@@ -443,7 +443,7 @@ ggplot(
   scale_x_continuous(breaks = seq(-50, 30, 20)) +
   scale_y_continuous(breaks = seq(-40, 30, 20)) +
   theme_minimal() +
-  labs(color = "Billiary viability score",
+  labs(color = "biliary viability score",
        shape = "Transplanted",
        x = paste("Comp 1: ", signif(model_150$res$cal$expvar[1], digits = 3), "%", sep = ""),
        y = paste("Comp 2: ", signif(model_150$res$cal$expvar[2], digits = 3), "%", sep = ""))
@@ -622,7 +622,7 @@ ggplot(
       y = `Comp 2`,
       color = transcriptomics_metadata_dups_rem$Factor.Value.biliary.viability.score.group.),) +
   geom_point() +
-  labs(color = "Billiary viability score",
+  labs(color = "biliary viability score",
        shape = "Transplanted")
 
 
@@ -644,6 +644,7 @@ plot(loadings_transcriptomics[,1])
 
 A lower density of loadings above 0 appears for all genes until a bit above 15000. After that the loadings appear to be flipped.
 ```{r}
+# Sort the loadings
 argsort_transscript <- order(loadings_transcriptomics[,1]^2, decreasing = T)
 plot(loadings_transcriptomics[,1][argsort_transscript])
 ```
@@ -668,7 +669,10 @@ library(DESeq2)
 I have to create coldata for deseq, so it knows what groups i want to focus on
 ```{r}
 coldata <- transcriptomics_metadata_dups_rem %>%
+  # Get all the right samples
   dplyr::filter(Comment.ENA_RUN. %in% names(count_data_transcript)) %>%
+  # Only select the viability columns and sample names
+  # Sample names to rownames of df
   dplyr::select(Comment.ENA_RUN., Characteristics.biliary.viability.score.group.) %>%
   tibble::column_to_rownames("Comment.ENA_RUN.")
 head(coldata)
@@ -676,6 +680,7 @@ head(coldata)
 This contains the sample name and if it has a low or high viability.
 I will now transform the gene symbols to the rownames so it can be used in plots and figures.
 ```{r}
+# Select all of the count data, with gene symbols as rownames.
 row.names(transcriptomics_data) <- NULL
 count_data_dds <- transcriptomics_data[,c(2,8:ncol(transcriptomics_data))] %>%
   tibble::column_to_rownames("SYMBOL")
